@@ -23,7 +23,7 @@ def load_elliptic_csv(data_dir: str) -> Data:
         PyG Data object with:
             - x: node features [num_nodes, 166]
             - edge_index: edge list [2, num_edges]
-            - y: labels (0=illicit, 1=licit, -1=unknown)
+            - y: labels (1=illicit, 0=licit, -1=unknown)
             - timestep: timestep for each node [num_nodes]
     """
     features_path = os.path.join(data_dir, "elliptic_txs_features.csv")
@@ -43,7 +43,7 @@ def load_elliptic_csv(data_dir: str) -> Data:
     # Load labels
     print("Loading labels...")
     classes_df = pd.read_csv(classes_path)
-    label_map = {"1": 0, "2": 1, "unknown": -1}  # 1=illicit->0, 2=licit->1
+    label_map = {"1": 1, "2": 0, "unknown": -1}  # 1=illicit->1, 2=licit->0
     labels = np.full(len(tx_ids), -1, dtype=np.int64)
     for _, row in classes_df.iterrows():
         tx_id = row["txId"]
@@ -71,7 +71,7 @@ def load_elliptic_csv(data_dir: str) -> Data:
     data.num_classes = 2
 
     print(f"Loaded: {data.num_nodes} nodes, {data.num_edges} edges, "
-          f"{(labels == 0).sum()} illicit, {(labels == 1).sum()} licit, "
+          f"{(labels == 1).sum()} illicit, {(labels == 0).sum()} licit, "
           f"{(labels == -1).sum()} unknown")
 
     return data

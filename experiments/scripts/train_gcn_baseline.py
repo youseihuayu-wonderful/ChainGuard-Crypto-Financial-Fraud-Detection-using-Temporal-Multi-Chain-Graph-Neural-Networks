@@ -53,7 +53,7 @@ def train_epoch(model, data, train_mask, optimizer, class_weight):
     logits = model(data.x, data.edge_index)
     loss = F.binary_cross_entropy_with_logits(
         logits[train_mask],
-        (data.y[train_mask] == 0).float(),  # illicit=1, licit=0 for BCE
+        data.y[train_mask].float(),  # illicit=1, licit=0
         pos_weight=class_weight,
     )
     loss.backward()
@@ -70,7 +70,7 @@ def evaluate(model, data, mask):
     probs = torch.sigmoid(logits[mask]).cpu().numpy()
     labels = data.y[mask].cpu().numpy()
 
-    # For metrics: illicit=0 is the positive class
+    # For metrics: illicit=1 is the positive class
     metrics = compute_metrics(labels, probs)
     return metrics, probs, labels
 
@@ -93,8 +93,8 @@ def main():
     test_mask = test_mask.to(device)
 
     # Compute class weight for imbalanced data
-    n_illicit = (data.y[train_mask] == 0).sum().float()
-    n_licit = (data.y[train_mask] == 1).sum().float()
+    n_illicit = (data.y[train_mask] == 1).sum().float()
+    n_licit = (data.y[train_mask] == 0).sum().float()
     class_weight = (n_licit / n_illicit).to(device)
     print(f"Class weight (licit/illicit): {class_weight:.2f}")
 

@@ -1,0 +1,72 @@
+{
+  "experiment": "Phase 3: Baseline Comparison",
+  "date": "2026-03-20",
+  "data_split": "temporal (train: ts 1-34, val: 35-41, test: 42-49)",
+  "seed": 42,
+  "results": {
+    "logistic_regression": {
+      "type": "non-graph ML",
+      "auc_roc": 0.8546,
+      "f1": 0.2164,
+      "precision": 0.1260,
+      "recall": 0.7647,
+      "params": "~167"
+    },
+    "random_forest": {
+      "type": "non-graph ML",
+      "auc_roc": 0.8601,
+      "f1": 0.6200,
+      "precision": 0.9688,
+      "recall": 0.4559,
+      "params": "300 trees"
+    },
+    "gradient_boosting": {
+      "type": "non-graph ML",
+      "auc_roc": 0.8429,
+      "f1": 0.5457,
+      "precision": 0.6154,
+      "recall": 0.4902,
+      "params": "113 estimators (early stopped)"
+    },
+    "gcn_m1": {
+      "type": "GNN",
+      "auc_roc": 0.7449,
+      "f1": 0.2812,
+      "precision": 0.2782,
+      "recall": 0.2843,
+      "params": 37889
+    },
+    "gat": {
+      "type": "GNN",
+      "auc_roc": 0.8047,
+      "f1": 0.2875,
+      "precision": 0.2084,
+      "recall": 0.4632,
+      "params": 38401
+    },
+    "graphsage": {
+      "type": "GNN",
+      "auc_roc": 0.8624,
+      "f1": 0.5400,
+      "precision": 0.7511,
+      "recall": 0.4216,
+      "params": 75393
+    },
+    "evolvegcn_h": {
+      "type": "temporal GNN",
+      "auc_roc": 0.7994,
+      "f1": 0.1931,
+      "precision": 0.1185,
+      "recall": 0.5221,
+      "params": "336M (GRU evolves weight matrix)"
+    },
+    "thgnn_m3_ours": {
+      "type": "temporal heterogeneous GNN",
+      "auc_roc": 0.8678,
+      "f1": 0.5110,
+      "precision": 0.7168,
+      "recall": 0.3971,
+      "params": 59041
+    }
+  }
+}

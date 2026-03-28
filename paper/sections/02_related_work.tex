@@ -1,0 +1,21 @@
+\section{Related Work}
+
+\subsection{Blockchain Fraud Detection}
+
+Weber~\etal~\cite{weber2019anti} introduced the Elliptic dataset, the first large-scale labeled Bitcoin transaction graph, and established baselines using Logistic Regression, Random Forest, and GCN. Their work demonstrated that graph-based features can improve fraud detection over node features alone. Subsequent work~\cite{alarab2020comparative} explored additional classifiers but primarily used random train/test splits, which can leak temporal information.
+
+\subsection{Graph Neural Networks for Financial Fraud}
+
+GCN~\cite{kipf2017semi} has been widely applied to node classification in financial networks. GAT~\cite{velickovic2018graph} introduces attention mechanisms to weight neighbor contributions differently, while GraphSAGE~\cite{hamilton2017inductive} enables inductive learning through sampling and aggregation. However, these methods treat all edges homogeneously and cannot distinguish between different types of financial relationships.
+
+R-GCN~\cite{schlichtkrull2018modeling} extends GCN to handle multiple edge types by learning separate weight matrices per relation, making it suitable for heterogeneous financial graphs where different edge types carry different semantic meaning.
+
+\subsection{Temporal Graph Learning}
+
+EvolveGCN~\cite{pareja2020evolvegcn} uses recurrent neural networks to evolve GCN weight matrices across timesteps, enabling adaptation to temporal dynamics. DySAT~\cite{sankar2020dysat} applies self-attention over graph snapshots to capture structural evolution. TGAT~\cite{xu2020inductive} combines temporal encoding with graph attention for continuous-time dynamic graphs.
+
+These methods address temporal dynamics but typically assume cross-timestep edges already exist. In the Elliptic dataset, timesteps form completely isolated subgraphs with zero cross-timestep edges, rendering temporal GNN methods less effective without graph augmentation.
+
+\subsection{Cross-Chain Analysis}
+
+Recent work on cross-chain bridge security~\cite{zhang2023cross} has highlighted the need for multi-chain fraud detection. While our current evaluation uses the single-chain Elliptic dataset, our framework's heterogeneous edge modeling naturally extends to cross-chain scenarios where bridge transactions form a distinct edge type.

@@ -1,0 +1,29 @@
+\section{Case Study and Analysis}
+
+\subsection{Detection Improvement Analysis}
+
+To understand \emph{where} \ours{} improves over the GCN baseline, we compare their predictions on the 408 illicit nodes in the test set (timesteps 42--49).
+
+Figure~\ref{fig:case_study} shows the detection breakdown. \ours{} correctly identifies a substantial number of illicit nodes that GCN misses (M3-only detections), while the predicted probability distributions show that \ours{} produces more confident predictions for illicit nodes, with a clearer separation from the decision threshold at 0.5.
+
+\subsection{Why Graph Augmentation Matters Most}
+
+Our ablation reveals a counterintuitive finding: the simplest heterogeneous model (M3) outperforms more complex variants (M4, M5). We attribute this to the nature of the temporal $k$-NN augmentation:
+
+\begin{enumerate}
+    \item \textbf{Breaking isolation is the bottleneck.} The original Elliptic graph has 49 completely disconnected timestep subgraphs. Standard GNNs can only aggregate within-timestep neighborhoods of 2--5 hops. By adding temporal edges, we connect the graph and enable cross-timestep information flow.
+
+    \item \textbf{Feature similarity encodes temporal patterns.} The cosine-similarity-based $k$-NN edges implicitly capture temporal continuity: nodes with similar features across adjacent timesteps are likely part of the same evolving fraud pattern. This makes explicit temporal attention (M4) partially redundant.
+
+    \item \textbf{Heterogeneous weights are important.} Original payment edges and temporal similarity edges carry fundamentally different information. R-GCN's per-type weight matrices (M3) outperform uniform treatment (M1 on augmented graph) by a significant margin, confirming that edge type distinction is valuable.
+\end{enumerate}
+
+\subsection{Limitations}
+
+Our evaluation has several limitations that we plan to address in future work:
+
+\begin{itemize}
+    \item \textbf{Single dataset}: We evaluate only on Elliptic. Validation on additional blockchain datasets would strengthen our claims.
+    \item \textbf{Single seed}: Results are reported for seed 42. Multi-seed runs with standard deviation would provide statistical robustness.
+    \item \textbf{Feature-based $k$-NN}: Temporal edges are constructed from raw features, which may not generalize to datasets with different feature distributions.
+\end{itemize}

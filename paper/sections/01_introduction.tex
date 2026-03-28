@@ -1,0 +1,25 @@
+\section{Introduction}
+
+The rapid growth of decentralized finance (DeFi) has led to an explosion of cryptocurrency transactions, with the total value locked in DeFi protocols exceeding \$100 billion as of 2024. This growth has been accompanied by a corresponding increase in fraud, with cross-chain bridge exploits alone causing over \$2 billion in losses between 2021 and 2023~\cite{chainalysis2024}. Detecting illicit transactions in blockchain networks is therefore a critical challenge for maintaining trust in the cryptocurrency ecosystem.
+
+Traditional fraud detection methods rely on hand-crafted features and tabular classifiers~\cite{weber2019anti}, ignoring the rich graph structure of blockchain transaction networks. Recent work has applied Graph Neural Networks (GNNs) to this problem~\cite{pareja2020evolvegcn, weber2019anti}, but existing approaches face two key limitations:
+
+\begin{enumerate}
+    \item \textbf{Temporal isolation}: Real-world blockchain datasets such as Elliptic~\cite{weber2019anti} organize transactions into temporal snapshots (timesteps), where edges exist only within the same timestep. Standard GNNs cannot propagate information across timesteps, limiting their ability to capture evolving fraud patterns.
+
+    \item \textbf{Homogeneous edge treatment}: All edges are treated identically, despite representing fundamentally different types of relationships (\eg, direct payments vs.\ cross-temporal similarity patterns).
+\end{enumerate}
+
+We propose \textbf{ChainGuard}, a framework built on the Temporal Heterogeneous Graph Neural Network (\ours{}), which addresses both limitations. Our approach makes the following contributions:
+
+\begin{itemize}
+    \item \textbf{Temporal $k$-NN graph augmentation}: We introduce cross-timestep edges based on feature-space $k$-nearest-neighbor similarity between adjacent timesteps, breaking the temporal isolation of the original graph. This creates a heterogeneous graph with two edge types: original payment edges and temporal similarity edges.
+
+    \item \textbf{Heterogeneous message passing via R-GCN}: We employ Relational Graph Convolutional Networks~\cite{schlichtkrull2018modeling} to learn separate weight matrices for each edge type, enabling the model to distinguish between direct payment relationships and temporal similarity patterns.
+
+    \item \textbf{Comprehensive ablation study}: Through systematic ablation experiments (M1--M5), we demonstrate the individual contribution of each component and reveal a key insight: \emph{graph augmentation strategy is more important than model complexity}.
+
+    \item \textbf{Extensive baseline comparison}: We evaluate against six baselines spanning non-graph ML (Logistic Regression, Random Forest, Gradient Boosting), standard GNNs (GAT, GraphSAGE), and temporal GNNs (EvolveGCN-H), all under strict temporal evaluation to prevent data leakage.
+\end{itemize}
+
+Our best model (M3: R-GCN with temporal $k$-NN augmentation) achieves AUC-ROC of 0.8678 on the Elliptic dataset under temporal split, outperforming all baselines including strong non-graph methods like Random Forest (0.8601) and GraphSAGE (0.8624).

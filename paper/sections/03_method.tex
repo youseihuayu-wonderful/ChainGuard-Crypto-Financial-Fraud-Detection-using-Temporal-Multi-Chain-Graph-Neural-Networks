@@ -1,0 +1,75 @@
+\section{Method: TH-GNN}
+
+\subsection{Problem Formulation}
+
+Let $\mathcal{G} = (\mathcal{V}, \mathcal{E}, \mathbf{X}, \mathbf{t})$ be a temporal transaction graph where $\mathcal{V}$ is the set of transaction nodes, $\mathcal{E}$ is the set of edges, $\mathbf{X} \in \mathbb{R}^{|\mathcal{V}| \times d}$ is the node feature matrix ($d = 166$ for Elliptic), and $\mathbf{t}: \mathcal{V} \rightarrow \{1, \ldots, T\}$ maps each node to its timestep. The goal is to classify each node $v \in \mathcal{V}$ as illicit ($y_v = 1$) or licit ($y_v = 0$).
+
+\subsection{Temporal $k$-NN Graph Augmentation}
+\label{sec:temporal_knn}
+
+A key challenge in the Elliptic dataset is that each timestep forms a \emph{completely isolated subgraph}---there are zero edges between nodes in different timesteps. This prevents standard GNNs from capturing temporal patterns across time windows.
+
+We address this by constructing temporal $k$-nearest-neighbor edges between adjacent timesteps. For each node $v$ in timestep $t$, we compute cosine similarity with all nodes in timestep $t-1$:
+
+\begin{equation}
+    \text{sim}(v, u) = \frac{\mathbf{x}_v \cdot \mathbf{x}_u}{\|\mathbf{x}_v\| \|\mathbf{x}_u\|}, \quad u \in \mathcal{V}_{t-1}
+\end{equation}
+
+and connect $v$ to its top-$k$ most similar nodes in the previous timestep ($k = 5$ in our experiments). These temporal edges are bidirectional, resulting in an augmented graph $\mathcal{G}'$ with two edge types:
+
+\begin{itemize}
+    \item \textbf{Type 0 (original)}: Direct payment/transaction edges within a timestep, representing actual fund flows.
+    \item \textbf{Type 1 (temporal)}: Cross-timestep feature-similarity edges, representing temporal continuity of transaction patterns.
+\end{itemize}
+
+This augmentation adds 1,958,890 temporal edges to the original 234,355 edges, creating a connected heterogeneous graph that enables both spatial and temporal message passing.
+
+\subsection{Heterogeneous Message Passing (R-GCN)}
+
+Given the augmented heterogeneous graph, we employ R-GCN~\cite{schlichtkrull2018modeling} to learn separate weight matrices for each edge type. For a node $v$, the message passing at layer $l$ is:
+
+\begin{equation}
+    \mathbf{h}_v^{(l+1)} = \sigma \left( \sum_{r \in \mathcal{R}} \sum_{u \in \mathcal{N}_r(v)} \frac{1}{|\mathcal{N}_r(v)|} \mathbf{W}_r^{(l)} \mathbf{h}_u^{(l)} + \mathbf{W}_0^{(l)} \mathbf{h}_v^{(l)} \right)
+\end{equation}
+
+where $\mathcal{R} = \{0, 1\}$ denotes the two edge types, $\mathcal{N}_r(v)$ is the set of neighbors of $v$ connected by edge type $r$, $\mathbf{W}_r^{(l)}$ is the learnable weight matrix for relation $r$ at layer $l$, $\mathbf{W}_0^{(l)}$ is a self-loop weight, and $\sigma$ is the ReLU activation function.
+
+We use a 2-layer R-GCN with hidden dimension 80 (chosen for parameter parity with the GCN baseline), followed by a linear classifier:
+
+\begin{equation}
+    \hat{y}_v = \sigma(\mathbf{w}^T \mathbf{h}_v^{(2)} + b)
+\end{equation}
+
+where $\sigma$ is the sigmoid function.
+
+\subsection{Temporal Self-Attention (M4 Extension)}
+
+For the full TH-GNN model (M4 in our ablation), we add a temporal self-attention layer on top of the R-GCN embeddings. We pool node embeddings by timestep:
+
+\begin{equation}
+    \mathbf{z}_t = \frac{1}{|\mathcal{V}_t|} \sum_{v \in \mathcal{V}_t} \mathbf{h}_v^{(2)}
+\end{equation}
+
+and apply multi-head causal self-attention with sinusoidal positional encoding across the timestep sequence $(\mathbf{z}_1, \ldots, \mathbf{z}_T)$. A learnable gating mechanism combines the temporal context with individual node embeddings:
+
+\begin{equation}
+    \mathbf{h}_v' = g \odot \mathbf{h}_v^{(2)} + (1 - g) \odot \mathbf{c}_{t(v)}
+\end{equation}
+
+where $g = \sigma(\mathbf{W}_g [\mathbf{h}_v^{(2)} \| \mathbf{c}_{t(v)}])$ and $\mathbf{c}_{t(v)}$ is the attention-weighted temporal context for timestep $t(v)$.
+
+\subsection{Semi-Supervised Label Propagation (M5 Extension)}
+
+To leverage the large number of unlabeled nodes (157,205 out of 203,769 in Elliptic), we add a label propagation module that iteratively diffuses known labels through the augmented graph:
+
+\begin{equation}
+    \mathbf{Y}^{(t+1)} = (1 - \alpha) \mathbf{Y}^{(0)} + \alpha \tilde{\mathbf{A}} \mathbf{Y}^{(t)}
+\end{equation}
+
+where $\tilde{\mathbf{A}}$ is the symmetrically normalized adjacency matrix and $\alpha = 0.5$ controls the diffusion rate. The resulting soft labels provide a consistency regularization term:
+
+\begin{equation}
+    \mathcal{L} = \mathcal{L}_{\text{BCE}} + \lambda \cdot \text{MSE}(\hat{\mathbf{y}}_U, \mathbf{y}_U^{\text{LP}})
+\end{equation}
+
+where $\hat{\mathbf{y}}_U$ are GNN predictions on unlabeled nodes and $\mathbf{y}_U^{\text{LP}}$ are label propagation soft labels ($\lambda = 0.1$).

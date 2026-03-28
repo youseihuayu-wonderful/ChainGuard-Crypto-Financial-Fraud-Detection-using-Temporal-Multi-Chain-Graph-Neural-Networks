@@ -1,0 +1,54 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{xcolor}
+\usepackage{subcaption}
+
+\graphicspath{{../figures/}}
+
+\newcommand{\ours}{TH-GNN}
+\newcommand{\eg}{\emph{e.g.}}
+\newcommand{\ie}{\emph{i.e.}}
+\newcommand{\etal}{\emph{et al.}}
+
+\begin{document}
+
+\title{ChainGuard: Temporal Heterogeneous Graph Neural Networks for Cryptocurrency Fraud Detection}
+
+\author{
+\IEEEauthorblockN{Shihua Yu}
+\IEEEauthorblockA{
+Department of Computer Science and Engineering\\
+New York University Tandon School of Engineering\\
+Brooklyn, NY 11201\\
+\texttt{sy4886@nyu.edu}}
+}
+
+\maketitle
+
+\begin{abstract}
+Cryptocurrency fraud detection is increasingly critical as decentralized finance (DeFi) grows, yet existing methods fail to capture both temporal dynamics and heterogeneous transaction relationships in blockchain networks. We propose \ours{} (Temporal Heterogeneous Graph Neural Network), a framework that combines Relational Graph Convolution (R-GCN) with temporal self-attention over graph snapshots. Our key innovation is a temporal $k$-nearest-neighbor graph augmentation strategy that creates cross-timestep edges between nodes with similar transaction patterns, breaking the timestep isolation inherent in the Elliptic Bitcoin dataset. Through systematic ablation experiments on Elliptic (203,769 nodes, 234,355 edges), we demonstrate that heterogeneous edge modeling with temporal $k$-NN augmentation achieves AUC-ROC of 0.8678, a 12.29\% improvement over the GCN baseline (0.7449) under strict temporal evaluation. Notably, our results reveal that \emph{graph augmentation strategy matters more than model complexity}: the temporal $k$-NN edge augmentation alone accounts for the majority of performance gains, outperforming six baselines including Random Forest (0.8601), GraphSAGE (0.8624), and EvolveGCN (0.7994). Code is available at \url{https://github.com/youseihuayu-wonderful/ChainGuard-Crypto-Financial-Fraud-Detection-using-Temporal-Multi-Chain-Graph-Neural-Networks}.
+\end{abstract}
+
+\begin{IEEEkeywords}
+graph neural network, fraud detection, cryptocurrency, temporal graph, heterogeneous graph
+\end{IEEEkeywords}
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_experiments}
+\input{sections/05_case_study}
+\input{sections/06_conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

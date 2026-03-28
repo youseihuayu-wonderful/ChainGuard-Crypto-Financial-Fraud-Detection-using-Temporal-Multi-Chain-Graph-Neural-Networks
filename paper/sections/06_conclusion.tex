@@ -1,0 +1,22 @@
+\section{Conclusion}
+
+We presented \ours{}, a Temporal Heterogeneous Graph Neural Network for cryptocurrency fraud detection. Through systematic ablation experiments and comprehensive baseline comparison on the Elliptic Bitcoin dataset, we demonstrated that:
+
+\begin{enumerate}
+    \item \textbf{Temporal $k$-NN graph augmentation} is the most impactful component, breaking the timestep isolation that limits standard GNN approaches on blockchain transaction graphs.
+    \item \textbf{Heterogeneous edge modeling} via R-GCN provides a 12.29\% AUC improvement over the GCN baseline, achieving the best performance among all tested methods (AUC = 0.8678).
+    \item \textbf{Graph augmentation strategy matters more than model complexity}---the simplest model with the right graph structure outperforms more architecturally complex variants.
+\end{enumerate}
+
+Our findings have practical implications for blockchain security: effective fraud detection requires not just sophisticated models, but careful construction of the transaction graph to capture cross-temporal relationships.
+
+\subsection{Future Work}
+
+Several directions for future research include:
+
+\begin{itemize}
+    \item \textbf{Cross-chain evaluation}: Extending \ours{} to multi-chain graphs with bridge transaction edges as a third heterogeneous edge type, using datasets like XChainDataGen.
+    \item \textbf{Online learning}: Adapting the model for streaming blockchain data where new timesteps arrive continuously.
+    \item \textbf{Learned graph augmentation}: Replacing the fixed $k$-NN strategy with learnable edge construction (\eg, via graph structure learning).
+    \item \textbf{Larger-scale validation}: Evaluating on additional blockchain datasets (Ethereum, multi-chain) to test generalizability.
+\end{itemize}

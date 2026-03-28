@@ -1,0 +1,21 @@
+{
+  "total_illicit_test": 408,
+  "both_detect": 113,
+  "m3_only": 100,
+  "gcn_only": 3,
+  "neither": 192,
+  "gcn_high_conf": 35,
+  "m3_high_conf": 137,
+  "gcn_metrics": {
+    "auc_roc": 0.7449210384972204,
+    "f1": 0.2812121212121212,
+    "precision": 0.27817745803357313,
+    "recall": 0.28431372549019607
+  },
+  "m3_metrics": {
+    "auc_roc": 0.8534201537842694,
+    "f1": 0.3075812274368231,
+    "precision": 0.218014329580348,
+    "recall": 0.5220588235294118
+  }
+}

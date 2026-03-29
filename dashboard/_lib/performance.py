@@ -72,7 +72,7 @@ def render(DATA, navigate_to):
             vals = [v["auc_roc"], v["f1"], v["precision"], v["recall"]]
             fig_r.add_trace(go.Scatterpolar(r=vals+[vals[0]], theta=cats+[cats[0]],
                             name=names_map.get(k, k), line=dict(color=radar_colors[i], width=2),
-                            fill='toself', fillcolor=f"{radar_colors[i]}10"))
+                            fill='toself', fillcolor=f"rgba({int(radar_colors[i][1:3],16)},{int(radar_colors[i][3:5],16)},{int(radar_colors[i][5:7],16)},0.06)"))
         fig_r.update_layout(polar=dict(radialaxis=dict(range=[0,1], gridcolor="rgba(75,85,99,0.3)", color="#9CA3AF"),
                             angularaxis=dict(gridcolor="rgba(75,85,99,0.3)", color="#E5E7EB"), bgcolor="rgba(0,0,0,0)"),
                             paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"), height=400,

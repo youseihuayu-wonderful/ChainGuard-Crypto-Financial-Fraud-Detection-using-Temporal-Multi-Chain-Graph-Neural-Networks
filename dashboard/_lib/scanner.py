@@ -18,6 +18,7 @@ def render(DATA, navigate_to):
 
     st.markdown("# 🔍 Transaction Scanner")
     st.markdown("Analyze individual Bitcoin transactions for fraud risk")
+    st.caption("⚠️ Transaction data below is simulated for demo purposes. Model metrics are from real experiments.")
 
     # Show context from Executive
     ctx = []

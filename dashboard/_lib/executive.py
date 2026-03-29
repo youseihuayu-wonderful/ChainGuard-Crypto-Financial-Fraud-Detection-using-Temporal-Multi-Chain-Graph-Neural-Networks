@@ -19,6 +19,7 @@ def render(DATA, navigate_to):
 
     st.markdown("# 📊 Executive Dashboard")
     st.markdown("Enterprise fraud monitoring — **click any section to drill down**")
+    st.caption("⚠️ Timeline, alerts, and fund flow data are simulated for demo. KPIs and model metrics are from real experiments.")
 
     # ── Section Navigation (TOC) ──
     st.markdown(
@@ -41,15 +42,26 @@ def render(DATA, navigate_to):
     )
     st.markdown("---")
 
-    # ── KPIs ──
+    # ── KPIs (derived from experiment data) ──
     st.markdown('<div id="kpi-overview"></div>', unsafe_allow_html=True)
+    abl = DATA["ablation"]
+    best = abl["M3"]
+    gcn = abl["M1"]
+    auc_delta = (best["auc_roc"] - gcn["auc_roc"]) / gcn["auc_roc"]
+    prec_delta = (best["precision"] - gcn["precision"]) / gcn["precision"]
+    fp_rate = 1 - best["precision"]
+    # ROI: recovery = $25M annual fraud × recall
+    annual_fraud = 25.0
+    thgnn_net = round(annual_fraud * best["recall"] - 3.2, 1)
+    gcn_net = round(annual_fraud * gcn["recall"] - 2.5, 1)
+
     k1, k2, k3, k4, k5 = st.columns(5)
     total_detected = cs["both_detect"] + cs["m3_only"]
-    k1.metric("AUC-ROC", "0.8678", "+12.3% vs GCN")
+    k1.metric("AUC-ROC", f"{best['auc_roc']:.4f}", f"+{auc_delta:.1%} vs GCN")
     k2.metric("Detected", f"{total_detected}/{cs['total_illicit_test']}", f"{total_detected/cs['total_illicit_test']:.0%}")
-    k3.metric("Precision", "71.68%", "+43.9%")
-    k4.metric("FP Rate", "0.93%", "-2.1%", delta_color="inverse")
-    k5.metric("Savings", "$12.8M/yr", "vs $4.6M GCN")
+    k3.metric("Precision", f"{best['precision']:.2%}", f"+{prec_delta:.1%} vs GCN")
+    k4.metric("FP Rate", f"{fp_rate:.2%}", f"-{(1-gcn['precision'])-fp_rate:.1%}", delta_color="inverse")
+    k5.metric("Savings", f"${thgnn_net}M/yr", f"vs ${gcn_net}M GCN")
 
     if st.button("🧪 Why these numbers? → Performance", key="kpi_drill"):
         navigate_to("Performance"); st.rerun()
@@ -167,13 +179,15 @@ def render(DATA, navigate_to):
 
     st.markdown("---")
 
-    # ── ROI ──
+    # ── ROI (derived from model recall × $25M annual fraud exposure) ──
     st.markdown('<div id="roi-summary"></div>', unsafe_allow_html=True)
     st.markdown("### 💹 ROI Summary")
+    savings_delta = thgnn_net - gcn_net
+    savings_pct = (savings_delta / gcn_net * 100) if gcn_net > 0 else 0
     r1, r2, r3, r4 = st.columns(4)
-    r1.metric("TH-GNN Savings", "$12.8M/yr")
-    r2.metric("vs GCN", "+$8.2M", "+178%")
-    r3.metric("Recovery Rate", "68.0%")
+    r1.metric("TH-GNN Savings", f"${thgnn_net}M/yr")
+    r2.metric("vs GCN", f"+${savings_delta:.1f}M", f"+{savings_pct:.0f}%")
+    r3.metric("Recovery Rate", f"{best['recall']:.1%}")
     r4.metric("Payback", "< 3 months")
 
     if st.button("📊 Full ROI & model comparison → Performance", key="roi_drill"):

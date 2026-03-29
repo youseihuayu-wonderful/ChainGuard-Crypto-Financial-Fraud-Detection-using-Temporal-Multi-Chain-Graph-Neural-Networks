@@ -16,6 +16,21 @@ import streamlit as st
 setup_page()
 DATA = load_data()
 cs = DATA["case_study"]
+abl = DATA["ablation"]
+
+# Best model metrics (from experiment data, not hardcoded)
+best = abl["M3"]  # R-GCN + Heterogeneous Edges — highest AUC
+gcn = abl["M1"]   # GCN baseline
+auc_delta = (best["auc_roc"] - gcn["auc_roc"]) / gcn["auc_roc"]
+prec_delta = (best["precision"] - gcn["precision"]) / gcn["precision"]
+# FP rate derived: FP = (1 - precision) × predicted_positives; approximate from precision + recall
+fp_rate = 1 - best["precision"]  # false discovery rate as proxy
+
+# ROI: recovery = $25M annual fraud × recall
+annual_fraud = 25.0
+thgnn_recovery = annual_fraud * best["recall"]
+thgnn_invest = 3.2
+thgnn_net = thgnn_recovery - thgnn_invest
 
 # Hero
 st.markdown(
@@ -35,14 +50,14 @@ st.markdown(
 
 st.markdown("---")
 
-# KPI overview
+# KPI overview — all values derived from experiment data
 k1, k2, k3, k4, k5 = st.columns(5)
 total_detected = cs["both_detect"] + cs["m3_only"]
-k1.metric("AUC-ROC", "0.8678", "+12.3% vs GCN")
+k1.metric("AUC-ROC", f"{best['auc_roc']:.4f}", f"+{auc_delta:.1%} vs GCN")
 k2.metric("Detected", f"{total_detected}/{cs['total_illicit_test']}", f"{total_detected/cs['total_illicit_test']:.0%}")
-k3.metric("Precision", "71.68%", "+43.9%")
-k4.metric("FP Rate", "0.93%", "-2.1%", delta_color="inverse")
-k5.metric("Savings", "$12.8M/yr", "annual projection")
+k3.metric("Precision", f"{best['precision']:.2%}", f"+{prec_delta:.1%} vs GCN")
+k4.metric("FP Rate", f"{fp_rate:.2%}", f"-{(1-gcn['precision']) - fp_rate:.1%}", delta_color="inverse")
+k5.metric("Savings", f"${thgnn_net:.1f}M/yr", "annual projection")
 
 st.markdown("---")
 
@@ -94,11 +109,13 @@ All pages are interconnected — data and context flows between them:
 """)
 
 st.markdown("---")
+bl_res = DATA["baseline"]["results"]
+rank = next(i for i, (k, _) in enumerate(sorted(bl_res.items(), key=lambda x: -x[1]["auc_roc"]), 1) if k == "thgnn_m3_ours")
 st.markdown(
-    '<div style="text-align:center; padding:24px 0">'
-    '<p style="color:#6B7280; font-size:0.8rem">NYU Tandon School of Engineering | MS Thesis 2026</p>'
-    '<p style="color:#00D4AA; font-size:1.1rem; font-weight:600; font-family:JetBrains Mono,monospace">'
-    'AUC-ROC: 0.8678 | Rank #1 across all baselines</p>'
-    '</div>',
+    f'<div style="text-align:center; padding:24px 0">'
+    f'<p style="color:#6B7280; font-size:0.8rem">NYU Tandon School of Engineering | MS Thesis 2026</p>'
+    f'<p style="color:#00D4AA; font-size:1.1rem; font-weight:600; font-family:JetBrains Mono,monospace">'
+    f'AUC-ROC: {best["auc_roc"]:.4f} | Rank #{rank} across {len(bl_res)} baselines</p>'
+    f'</div>',
     unsafe_allow_html=True,
 )

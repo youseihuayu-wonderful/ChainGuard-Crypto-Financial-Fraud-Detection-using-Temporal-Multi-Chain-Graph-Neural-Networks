@@ -371,11 +371,24 @@ def _render_sidebar():
 
         st.markdown("")
 
+        # Dynamic stats — AUC loaded from experiment data at runtime
+        auc_val = "—"
+        if "ablation" in st.session_state.get("_data_cache", {}):
+            auc_val = f"{st.session_state['_data_cache']['ablation']['M3']['auc_roc']:.4f}"
+        else:
+            # Fallback: load directly (sidebar renders before page data is available)
+            try:
+                _base = os.path.join(os.path.dirname(__file__), "../experiments/results")
+                with open(os.path.join(_base, "ablation_results.json")) as _f:
+                    _abl = json.load(_f)
+                auc_val = f"{_abl['M3']['auc_roc']:.4f}"
+            except Exception:
+                auc_val = "—"
         stats = [
             ("Nodes", "203,769"),
             ("Edges", "2,193,245"),
-            ("Model", "TH-GNN"),
-            ("AUC", "0.8678"),
+            ("Model", "TH-GNN (M3)"),
+            ("AUC", auc_val),
         ]
         for label, val in stats:
             st.markdown(
@@ -399,15 +412,30 @@ def _render_sidebar():
 
 @st.cache_data
 def load_data():
-    """Load all experiment results. Cached across pages."""
-    base = os.path.join(os.path.dirname(__file__), "../experiments/results")
-    with open(os.path.join(base, "ablation_results.json")) as f:
-        ablation = json.load(f)
-    with open(os.path.join(base, "baseline_comparison.json")) as f:
-        baseline = json.load(f)
-    with open(os.path.join(base, "case_study_results.json")) as f:
-        case_study = json.load(f)
+    """Load all experiment results. Cached across pages.
 
+    - ablation, baseline, case_study: real experiment data from JSON files
+    - timestep_risk, alerts: simulated demo data for Scanner/Executive pages
+    """
+    base = os.path.join(os.path.dirname(__file__), "../experiments/results")
+
+    try:
+        with open(os.path.join(base, "ablation_results.json")) as f:
+            ablation = json.load(f)
+        with open(os.path.join(base, "baseline_comparison.json")) as f:
+            baseline = json.load(f)
+        with open(os.path.join(base, "case_study_results.json")) as f:
+            case_study = json.load(f)
+    except FileNotFoundError as e:
+        st.error(f"Experiment data not found: {e}. Run experiments first.")
+        st.stop()
+    except json.JSONDecodeError as e:
+        st.error(f"Corrupt experiment data: {e}")
+        st.stop()
+
+    # ── Simulated demo data ──
+    # These are NOT real transactions — generated for interactive demo purposes.
+    # Real experiment metrics are in the JSON files above.
     timestep_risk = {}
     for ts in range(1, 50):
         np.random.seed(42 + ts)
@@ -423,6 +451,7 @@ def load_data():
             "licit": n_nodes - int(n_nodes * min(illicit_base, 0.25)),
             "risk_rate": illicit_base * 100,
             "zone": "train" if ts <= 34 else ("val" if ts <= 41 else "test"),
+            "simulated": True,
         }
 
     np.random.seed(42)
@@ -437,6 +466,7 @@ def load_data():
             "timestep": int(ts), "pattern": pattern,
             "status": ["New", "New", "In Review", "Resolved", "Dismissed"][i % 5],
             "priority": 1 if risk > 0.8 else (2 if risk > 0.6 else 3),
+            "simulated": True,
         })
     alerts.sort(key=lambda x: -x["risk_score"])
 

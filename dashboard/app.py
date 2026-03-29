@@ -17,9 +17,22 @@ setup_page()
 DATA = load_data()
 cs = DATA["case_study"]
 
-st.markdown("# 🛡️ ChainGuard")
-st.markdown("### Cross-Chain Cryptocurrency Fraud Detection Platform")
-st.markdown("Powered by **Temporal Heterogeneous Graph Neural Network (TH-GNN)**")
+# Hero
+st.markdown(
+    '<div style="padding:24px 0 8px 0">'
+    '<div style="display:flex; align-items:center; gap:14px; margin-bottom:8px">'
+    '<div style="width:48px; height:48px; background:linear-gradient(135deg,#00D4AA,#3B82F6); '
+    'border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px">🛡️</div>'
+    '<div>'
+    '<h1 style="margin:0; font-size:2rem; color:#F9FAFB">ChainGuard</h1>'
+    '</div></div>'
+    '<p style="color:#9CA3AF; font-size:1rem; margin:4px 0 0 0">'
+    'Cross-Chain Cryptocurrency Fraud Detection Platform<br>'
+    'Powered by <span style="color:#00D4AA; font-weight:600">Temporal Heterogeneous Graph Neural Network</span></p>'
+    '</div>',
+    unsafe_allow_html=True,
+)
+
 st.markdown("---")
 
 # KPI overview
@@ -33,46 +46,59 @@ k5.metric("Savings", "$12.8M/yr", "annual projection")
 
 st.markdown("---")
 
-st.markdown("### 📂 Navigate the Platform")
-st.markdown("Use the **sidebar** to access each module:")
-st.markdown("")
+# Module navigation
+st.markdown(
+    '<h4 style="color:#6B7280; text-transform:uppercase; letter-spacing:0.08em; font-size:0.75rem; '
+    'margin-bottom:12px">Platform Modules</h4>',
+    unsafe_allow_html=True,
+)
 
 modules = [
-    ("📊 Executive", "TRM Labs style", "CEO/CRO — KPIs, risk trends, alerts, fund flow, ROI"),
-    ("🧪 Performance", "Internal ML Platform", "Data Scientists — Ablation study, baseline comparison, ROI analysis"),
-    ("🔍 Scanner", "Elliptic Navigator style", "Operations — Transaction risk scoring, behavior flags"),
-    ("🕸️ Network", "Chainalysis Reactor style", "Investigators — Graph topology, fraud cluster visualization"),
-    ("📋 Forensics", "Compliance Reports", "AML/Audit — Detection evidence, fraud patterns, research conclusions"),
+    ("📊", "Executive Dashboard", "TRM Labs", "CEO/CRO — KPIs, risk trends, alerts, fund flow, ROI", "#00D4AA"),
+    ("🧪", "Model Performance", "ML Platform", "Data Scientists — Ablation study, baseline comparison, ROI", "#3B82F6"),
+    ("🔍", "Transaction Scanner", "Elliptic Navigator", "Operations — Real-time transaction risk scoring", "#F59E0B"),
+    ("🕸️", "Network Explorer", "Chainalysis Reactor", "Investigators — Graph topology, fraud clusters", "#8B5CF6"),
+    ("📋", "Forensics Lab", "Compliance", "AML/Audit — Detection evidence, fraud patterns", "#EF4444"),
 ]
 
-for icon_name, ref, desc in modules:
+for icon, name, ref, desc, color in modules:
     st.markdown(
-        f"<div style='background:rgba(255,255,255,0.03); border-radius:8px; padding:16px; margin:8px 0; "
-        f"border-left:4px solid #64ffda'>"
-        f"<h4 style='margin:0; color:#ccd6f6'>{icon_name}</h4>"
-        f"<small style='color:#64ffda'>{ref}</small><br>"
-        f"<span style='color:#8892b0'>{desc}</span></div>",
+        f'<div class="pattern-card" style="border-left:3px solid {color}">'
+        f'<div style="display:flex; align-items:center; gap:12px">'
+        f'<span style="font-size:1.5rem">{icon}</span>'
+        f'<div>'
+        f'<div style="color:#F9FAFB; font-weight:600; font-size:0.95rem">{name}</div>'
+        f'<span class="badge" style="background:{color}20; color:{color}">{ref}</span>'
+        f'</div></div>'
+        f'<p style="color:#9CA3AF; margin:8px 0 0 0; font-size:0.85rem">{desc}</p>'
+        f'</div>',
         unsafe_allow_html=True,
     )
 
 st.markdown("---")
 
-st.markdown("### 🔗 Page Connections")
+# Connection map
+st.markdown(
+    '<h4 style="color:#6B7280; text-transform:uppercase; letter-spacing:0.08em; font-size:0.75rem; '
+    'margin-bottom:12px">Data Flow</h4>',
+    unsafe_allow_html=True,
+)
 st.markdown("""
 All pages are interconnected — data and context flows between them:
 
-- **Executive** → Scanner (investigate TX), Network (explore graph), Performance (why), Forensics (evidence)
-- **Scanner** → Network (view neighbors), Forensics (submit evidence)
-- **Network** → Scanner (scan node), Forensics (submit findings)
-- **Performance** → Scanner (try model), Forensics (see evidence)
-- **Forensics** → Executive (back to overview), Performance (model details)
+- **Executive** → Scanner *(investigate TX)*, Network *(explore graph)*, Performance *(why)*, Forensics *(evidence)*
+- **Scanner** → Network *(view neighbors)*, Forensics *(submit evidence)*
+- **Network** → Scanner *(scan node)*, Forensics *(submit findings)*
+- **Performance** → Scanner *(try model)*, Forensics *(see evidence)*
+- **Forensics** → Executive *(back to overview)*, Performance *(model details)*
 """)
 
 st.markdown("---")
 st.markdown(
-    "<div style='text-align:center; padding:20px'>"
-    "<p style='color:#8892b0'>NYU Tandon School of Engineering · MS Thesis 2026</p>"
-    "<p style='color:#64ffda; font-size:1.2rem'>AUC-ROC: 0.8678 | #1 across all baselines</p>"
-    "</div>",
+    '<div style="text-align:center; padding:24px 0">'
+    '<p style="color:#6B7280; font-size:0.8rem">NYU Tandon School of Engineering | MS Thesis 2026</p>'
+    '<p style="color:#00D4AA; font-size:1.1rem; font-weight:600; font-family:JetBrains Mono,monospace">'
+    'AUC-ROC: 0.8678 | Rank #1 across all baselines</p>'
+    '</div>',
     unsafe_allow_html=True,
 )

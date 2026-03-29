@@ -64,7 +64,7 @@ def render(DATA, navigate_to):
             risk = min(0.98, max(0.02, risk))
 
             level = "HIGH" if risk > 0.7 else ("MEDIUM" if risk > 0.4 else "LOW")
-            color = {"HIGH": "#ff5252", "MEDIUM": "#ff9800", "LOW": "#64ffda"}[level]
+            color = {"HIGH": "#EF4444", "MEDIUM": "#F59E0B", "LOW": "#00D4AA"}[level]
             css = {"HIGH": "risk-high", "MEDIUM": "risk-medium", "LOW": "risk-low"}[level]
 
             st.markdown(f'<div class="{css}" style="text-align:center; padding:20px">'
@@ -72,13 +72,13 @@ def render(DATA, navigate_to):
                         f'<h1 style="color:{color}; margin:0; font-size:3rem">{risk:.0%}</h1></div>', unsafe_allow_html=True)
 
             fig_g = go.Figure(go.Indicator(mode="gauge+number", value=risk*100,
-                number=dict(suffix="%", font=dict(color="#ccd6f6")),
+                number=dict(suffix="%", font=dict(color="#E5E7EB")),
                 gauge=dict(axis=dict(range=[0,100]), bar=dict(color=color), bgcolor="rgba(255,255,255,0.05)",
                            steps=[dict(range=[0,40], color="rgba(100,255,218,0.15)"),
                                   dict(range=[40,70], color="rgba(255,152,0,0.15)"),
                                   dict(range=[70,100], color="rgba(255,82,82,0.15)")],
-                           threshold=dict(line=dict(color="#ff5252", width=3), thickness=0.8, value=70))))
-            fig_g.update_layout(height=220, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#ccd6f6"),
+                           threshold=dict(line=dict(color="#EF4444", width=3), thickness=0.8, value=70))))
+            fig_g.update_layout(height=220, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"),
                                 margin=dict(l=30, r=30, t=30, b=10))
             st.plotly_chart(fig_g, use_container_width=True)
 
@@ -93,10 +93,10 @@ def render(DATA, navigate_to):
             if not factors: factors.append(("No significant risk factors", "0%", "LOW"))
 
             for name, weight, sev in factors:
-                sc = {"HIGH": "#ff5252", "MEDIUM": "#ff9800", "LOW": "#64ffda"}[sev]
+                sc = {"HIGH": "#EF4444", "MEDIUM": "#F59E0B", "LOW": "#00D4AA"}[sev]
                 st.markdown(f"<div style='display:flex; justify-content:space-between; padding:8px 12px; "
                             f"background:rgba(255,255,255,0.03); border-radius:4px; margin:4px 0;'>"
-                            f"<span style='color:#ccd6f6'>{name}</span>"
+                            f"<span style='color:#E5E7EB'>{name}</span>"
                             f"<span style='color:{sc}; font-weight:bold'>{weight}</span></div>", unsafe_allow_html=True)
 
             # Cross-links

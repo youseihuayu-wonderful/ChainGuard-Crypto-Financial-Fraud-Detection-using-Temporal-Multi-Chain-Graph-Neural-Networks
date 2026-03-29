@@ -105,7 +105,7 @@ def render(DATA, navigate_to):
             labels[alert_node] = 1
 
         # Nodes
-        for lv, color, name, sz in [(-1, '#666', 'Unknown', 7), (0, '#2196F3', 'Licit', 9), (1, '#ff5252', 'Illicit', 14)]:
+        for lv, color, name, sz in [(-1, '#666', 'Unknown', 7), (0, '#3B82F6', 'Licit', 9), (1, '#EF4444', 'Illicit', 14)]:
             mask = labels == lv
             if not mask.any(): continue
             node_ids = np.where(mask)[0]
@@ -114,19 +114,19 @@ def render(DATA, navigate_to):
                 mode='markers+text' if show_labels else 'markers',
                 marker=dict(size=sz, color=color, line=dict(width=1 if lv==1 else 0, color='white')),
                 text=[str(i) for i in node_ids] if show_labels else None,
-                textposition="top center", textfont=dict(size=8, color="#ccd6f6"),
+                textposition="top center", textfont=dict(size=8, color="#E5E7EB"),
                 name=name, hovertext=[f"Node {i}<br>Label: {name}" for i in node_ids], hoverinfo='text'))
 
         # Highlight alert node
         if alert_node is not None:
             fig.add_trace(go.Scatter(x=[pos[alert_node,0]], y=[pos[alert_node,1]], mode='markers',
-                marker=dict(size=24, color='rgba(0,0,0,0)', line=dict(color='#64ffda', width=3)),
+                marker=dict(size=24, color='rgba(0,0,0,0)', line=dict(color='#00D4AA', width=3)),
                 name="🎯 Alert TX", hovertext="Selected Alert TX", hoverinfo='text'))
 
-        fig.update_layout(height=550, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(15,15,26,1)",
-            font=dict(color="#ccd6f6"), xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        fig.update_layout(height=550, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.8)",
+            font=dict(color="#E5E7EB"), xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
             yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            legend=dict(orientation="h", y=-0.05, x=0.15, font=dict(color="#ccd6f6")),
+            legend=dict(orientation="h", y=-0.05, x=0.15, font=dict(color="#E5E7EB")),
             margin=dict(l=10, r=10, t=10, b=40))
         st.plotly_chart(fig, use_container_width=True)
 

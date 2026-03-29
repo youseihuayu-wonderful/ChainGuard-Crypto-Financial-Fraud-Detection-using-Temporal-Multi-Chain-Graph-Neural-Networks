@@ -43,10 +43,10 @@ def render(DATA, navigate_to):
             y=["Total Illicit", "Any Model Detects", "TH-GNN Unique", "High Conf (>0.9)"],
             x=[cs["total_illicit_test"], total_detected + cs["gcn_only"], cs["m3_only"], cs["m3_high_conf"]],
             textinfo="value+percent initial",
-            marker=dict(color=["#ff5252", "#ff9800", "#64ffda", "#00e676"]),
+            marker=dict(color=["#EF4444", "#F59E0B", "#00D4AA", "#10B981"]),
         )])
         fig.update_layout(height=280, margin=dict(l=20, r=20, t=5, b=5),
-                          paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#ccd6f6"))
+                          paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"))
         st.plotly_chart(fig, use_container_width=True)
 
     with c2:
@@ -75,10 +75,10 @@ def render(DATA, navigate_to):
     fig_tl = go.Figure(go.Bar(x=timesteps, y=rates, marker_color=colors,
         hovertext=[f"TS{t}: {r:.1f}% ({ts_risk[t]['illicit']} illicit)" for t, r in zip(timesteps, rates)],
         hoverinfo="text"))
-    fig_tl.update_layout(height=220, xaxis=dict(title="Timestep", color="#8892b0", gridcolor="rgba(255,255,255,0.03)"),
-                         yaxis=dict(title="Risk %", color="#8892b0", gridcolor="rgba(255,255,255,0.03)"),
-                         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                         font=dict(color="#ccd6f6"), margin=dict(l=40, r=20, t=10, b=40), showlegend=False)
+    fig_tl.update_layout(height=220, xaxis=dict(title="Timestep", color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
+                         yaxis=dict(title="Risk %", color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
+                         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
+                         font=dict(color="#E5E7EB"), margin=dict(l=40, r=20, t=10, b=40), showlegend=False)
     st.plotly_chart(fig_tl, use_container_width=True)
 
     tc1, tc2 = st.columns([1, 1])
@@ -127,14 +127,14 @@ def render(DATA, navigate_to):
         node=dict(pad=15, thickness=20,
             label=["Illicit Source", "Direct", "Mixing", "Chain Hop", "Layering",
                    "Exchange", "Darknet", "Unidentified", "Seized"],
-            color=["#ff5252", "#ff9800", "#9C27B0", "#2196F3", "#FF9800",
-                   "#4CAF50", "#f44336", "#666", "#64ffda"]),
+            color=["#EF4444", "#F59E0B", "#8B5CF6", "#3B82F6", "#F59E0B",
+                   "#10B981", "#DC2626", "#666", "#00D4AA"]),
         link=dict(source=[0,0,0,0,1,2,2,3,4,4,4], target=[1,2,3,4,5,4,6,5,5,7,8],
                   value=[85,120,45,158,60,55,65,30,80,48,30],
                   color=["rgba(255,152,0,0.25)"]*11),
     ))
     fig_sk.update_layout(height=320, paper_bgcolor="rgba(0,0,0,0)",
-                         font=dict(color="#ccd6f6", size=11), margin=dict(l=10, r=10, t=10, b=10))
+                         font=dict(color="#E5E7EB", size=11), margin=dict(l=10, r=10, t=10, b=10))
     st.plotly_chart(fig_sk, use_container_width=True)
 
     if st.button("📋 Deep-dive patterns → Forensics", key="flow_drill"):

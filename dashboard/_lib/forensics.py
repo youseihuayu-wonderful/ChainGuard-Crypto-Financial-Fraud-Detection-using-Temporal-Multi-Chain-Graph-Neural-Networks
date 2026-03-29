@@ -33,13 +33,13 @@ def render(DATA, navigate_to):
 
         fig = go.Figure()
         fig.add_shape(type="circle", x0=-1.5, y0=-1.5, x1=1.5, y1=1.5,
-                      line=dict(color="#2196F3", width=2), fillcolor="rgba(33,150,243,0.1)")
+                      line=dict(color="#3B82F6", width=2), fillcolor="rgba(33,150,243,0.1)")
         fig.add_shape(type="circle", x0=-0.5, y0=-1.5, x1=2.5, y1=1.5,
-                      line=dict(color="#64ffda", width=2), fillcolor="rgba(100,255,218,0.1)")
-        fig.add_annotation(x=-0.8, y=0, text=f"<b>GCN Only</b><br>{gcn_only}", font=dict(color="#2196F3", size=16), showarrow=False)
-        fig.add_annotation(x=0.5, y=0, text=f"<b>Both</b><br>{both}", font=dict(color="#ccd6f6", size=18), showarrow=False)
-        fig.add_annotation(x=1.8, y=0, text=f"<b>TH-GNN Only</b><br>{m3_only}", font=dict(color="#64ffda", size=16), showarrow=False)
-        fig.add_annotation(x=0.5, y=-2.2, text=f"Undetected: {neither} ({neither/total:.0%})", font=dict(color="#ff5252", size=13), showarrow=False)
+                      line=dict(color="#00D4AA", width=2), fillcolor="rgba(100,255,218,0.1)")
+        fig.add_annotation(x=-0.8, y=0, text=f"<b>GCN Only</b><br>{gcn_only}", font=dict(color="#3B82F6", size=16), showarrow=False)
+        fig.add_annotation(x=0.5, y=0, text=f"<b>Both</b><br>{both}", font=dict(color="#E5E7EB", size=18), showarrow=False)
+        fig.add_annotation(x=1.8, y=0, text=f"<b>TH-GNN Only</b><br>{m3_only}", font=dict(color="#00D4AA", size=16), showarrow=False)
+        fig.add_annotation(x=0.5, y=-2.2, text=f"Undetected: {neither} ({neither/total:.0%})", font=dict(color="#EF4444", size=13), showarrow=False)
         fig.update_layout(height=300, xaxis=dict(range=[-2.5,3.5], showgrid=False, zeroline=False, showticklabels=False),
                           yaxis=dict(range=[-2.8,2], showgrid=False, zeroline=False, showticklabels=False, scaleanchor="x"),
                           paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=20, r=20, t=20, b=20))
@@ -51,8 +51,8 @@ def render(DATA, navigate_to):
         e3.metric("High Conf (TH-GNN)", f"{cs['m3_high_conf']}", f"vs {cs['gcn_high_conf']} GCN")
         e4.metric("Undetected", f"{neither}", f"{neither/total:.0%} gap")
 
-        st.markdown(f'<div class="risk-low"><strong style="color:#64ffda">Evidence</strong><br>'
-                    f'<span style="color:#ccd6f6">TH-GNN uniquely catches <b>{m3_only}</b> illicit transactions '
+        st.markdown(f'<div class="risk-low"><strong style="color:#00D4AA">Evidence</strong><br>'
+                    f'<span style="color:#E5E7EB">TH-GNN uniquely catches <b>{m3_only}</b> illicit transactions '
                     f'({m3_only/total:.0%}) that GCN misses.</span></div>', unsafe_allow_html=True)
 
         if st.button("🧪 Model details → Performance", key="ev_to_perf"):
@@ -70,19 +70,19 @@ def render(DATA, navigate_to):
             ("Dormant Activation", "12%", "MEDIUM", "Long-dormant address suddenly active", "Temporal attention", "M2"),
             ("Chain Hopping", "7%", "HIGH", "Value crosses chain via bridge", "Cross-timestep k-NN", "M3"),
         ]
-        sev_colors = {"CRITICAL": "#ff1744", "HIGH": "#ff5252", "MEDIUM": "#ff9800"}
+        sev_colors = {"CRITICAL": "#DC2626", "HIGH": "#EF4444", "MEDIUM": "#F59E0B"}
         for name, freq, sev, desc, how, comp in patterns:
             sc = sev_colors.get(sev, "#666")
             st.markdown(
                 f"<div style='background:rgba(255,255,255,0.03); border-radius:8px; padding:16px; "
                 f"margin:8px 0; border-left:4px solid {sc}'>"
                 f"<div style='display:flex; justify-content:space-between'>"
-                f"<h4 style='margin:0; color:#ccd6f6'>{name}</h4>"
+                f"<h4 style='margin:0; color:#E5E7EB'>{name}</h4>"
                 f"<span style='background:{sc}20; color:{sc}; padding:2px 10px; border-radius:12px; font-size:0.8rem'>{sev}</span></div>"
-                f"<p style='color:#8892b0; margin:6px 0'>{desc}</p>"
-                f"<span style='color:#64ffda; font-size:0.85rem'>Freq: {freq}</span> · "
-                f"<span style='color:#8892b0; font-size:0.85rem'>Detection: {how}</span> · "
-                f"<span style='color:#ff9800; font-size:0.85rem'>Component: {comp}</span></div>", unsafe_allow_html=True)
+                f"<p style='color:#9CA3AF; margin:6px 0'>{desc}</p>"
+                f"<span style='color:#00D4AA; font-size:0.85rem'>Freq: {freq}</span> · "
+                f"<span style='color:#9CA3AF; font-size:0.85rem'>Detection: {how}</span> · "
+                f"<span style='color:#F59E0B; font-size:0.85rem'>Component: {comp}</span></div>", unsafe_allow_html=True)
 
         # Pattern × Component heatmap
         st.markdown("---")
@@ -91,11 +91,11 @@ def render(DATA, navigate_to):
         fig_map = go.Figure(go.Heatmap(z=z,
             x=["Temporal\nCycling", "Fan-out", "Mixing", "Dormant", "Chain\nHop"],
             y=["M1: GCN", "M2: +Temporal", "M3: +Hetero", "M4: TH-GNN", "M5: +LP"],
-            colorscale=[[0,"#0f0f1a"],[0.5,"#ff9800"],[1,"#64ffda"]],
-            text=[[f"{v:.0%}" for v in row] for row in z], texttemplate="%{text}", textfont=dict(color="#ccd6f6"),
-            colorbar=dict(title="Detection", tickcolor="#8892b0")))
-        fig_map.update_layout(height=280, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#ccd6f6"),
-                              xaxis=dict(side="top", color="#ccd6f6"), yaxis=dict(color="#ccd6f6", autorange="reversed"),
+            colorscale=[[0,"#0f0f1a"],[0.5,"#F59E0B"],[1,"#00D4AA"]],
+            text=[[f"{v:.0%}" for v in row] for row in z], texttemplate="%{text}", textfont=dict(color="#E5E7EB"),
+            colorbar=dict(title="Detection", tickcolor="#9CA3AF")))
+        fig_map.update_layout(height=280, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"),
+                              xaxis=dict(side="top", color="#E5E7EB"), yaxis=dict(color="#E5E7EB", autorange="reversed"),
                               margin=dict(l=100, r=20, t=60, b=20))
         st.plotly_chart(fig_map, use_container_width=True)
 
@@ -114,15 +114,15 @@ def render(DATA, navigate_to):
         ]
         for title, body, evidence in findings:
             st.markdown(f"<div style='background:rgba(255,255,255,0.03); border-radius:8px; padding:16px; margin:10px 0'>"
-                        f"<h4 style='color:#64ffda; margin:0'>{title}</h4>"
-                        f"<p style='color:#ccd6f6; margin:8px 0'>{body}</p>"
-                        f"<p style='color:#ff9800; font-size:0.85rem; margin:0'>Evidence: {evidence}</p></div>", unsafe_allow_html=True)
+                        f"<h4 style='color:#00D4AA; margin:0'>{title}</h4>"
+                        f"<p style='color:#E5E7EB; margin:8px 0'>{body}</p>"
+                        f"<p style='color:#F59E0B; font-size:0.85rem; margin:0'>Evidence: {evidence}</p></div>", unsafe_allow_html=True)
 
         st.markdown('<div style="background:rgba(100,255,218,0.05); border-radius:12px; padding:24px; text-align:center; margin-top:20px">'
-                    '<h3 style="color:#64ffda; margin:0">ChainGuard</h3>'
-                    '<p style="color:#ccd6f6">Cross-Chain Cryptocurrency Fraud Detection using TH-GNN</p>'
-                    '<p style="color:#8892b0">NYU Tandon · MS Thesis 2026</p>'
-                    '<p style="color:#64ffda; font-size:1.2rem">AUC: 0.8678 | +12.3% vs baseline</p></div>', unsafe_allow_html=True)
+                    '<h3 style="color:#00D4AA; margin:0">ChainGuard</h3>'
+                    '<p style="color:#E5E7EB">Cross-Chain Cryptocurrency Fraud Detection using TH-GNN</p>'
+                    '<p style="color:#9CA3AF">NYU Tandon · MS Thesis 2026</p>'
+                    '<p style="color:#00D4AA; font-size:1.2rem">AUC: 0.8678 | +12.3% vs baseline</p></div>', unsafe_allow_html=True)
 
         st.markdown("")
         if st.button("📊 Back to Executive Dashboard", key="conc_to_exec", type="primary"):

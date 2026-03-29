@@ -19,9 +19,30 @@ def render(DATA, navigate_to):
 
     st.markdown("# 📊 Executive Dashboard")
     st.markdown("Enterprise fraud monitoring — **click any section to drill down**")
+
+    # ── Section Navigation (TOC) ──
+    st.markdown(
+        '<div style="display:flex; gap:6px; flex-wrap:wrap; padding:12px 0">'
+        '<a href="#kpi-overview" style="padding:6px 14px; background:#111827; border:1px solid #1F2937; '
+        'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500; '
+        'transition:all 0.2s">📊 KPIs</a>'
+        '<a href="#detection-funnel" style="padding:6px 14px; background:#111827; border:1px solid #1F2937; '
+        'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500">🔻 Detection</a>'
+        '<a href="#risk-timeline" style="padding:6px 14px; background:#111827; border:1px solid #1F2937; '
+        'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500">📈 Timeline</a>'
+        '<a href="#alert-queue" style="padding:6px 14px; background:#111827; border:1px solid #1F2937; '
+        'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500">🚨 Alerts</a>'
+        '<a href="#fund-flow" style="padding:6px 14px; background:#111827; border:1px solid #1F2937; '
+        'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500">💰 Fund Flow</a>'
+        '<a href="#roi-summary" style="padding:6px 14px; background:#111827; border:1px solid #1F2937; '
+        'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500">💹 ROI</a>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
     st.markdown("---")
 
     # ── KPIs ──
+    st.markdown('<div id="kpi-overview"></div>', unsafe_allow_html=True)
     k1, k2, k3, k4, k5 = st.columns(5)
     total_detected = cs["both_detect"] + cs["m3_only"]
     k1.metric("AUC-ROC", "0.8678", "+12.3% vs GCN")
@@ -36,6 +57,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # ── Detection Funnel + Risk Alerts ──
+    st.markdown('<div id="detection-funnel"></div>', unsafe_allow_html=True)
     c1, c2 = st.columns([1.2, 1])
     with c1:
         st.markdown("### Detection Funnel")
@@ -65,6 +87,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # ── Risk Timeline ──
+    st.markdown('<div id="risk-timeline"></div>', unsafe_allow_html=True)
     st.markdown("### 📈 Risk Timeline → Select timestep to explore")
     timesteps = list(range(1, 50))
     rates = [ts_risk[t]["risk_rate"] for t in timesteps]
@@ -93,6 +116,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # ── Alert Queue ──
+    st.markdown('<div id="alert-queue"></div>', unsafe_allow_html=True)
     st.markdown("### 🚨 Alert Queue → Select transaction to investigate")
     icons = {"New": "🔴", "In Review": "🟡", "Resolved": "🟢", "Dismissed": "⚪"}
     df = pd.DataFrame([{
@@ -122,6 +146,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # ── Fund Flow Sankey ──
+    st.markdown('<div id="fund-flow"></div>', unsafe_allow_html=True)
     st.markdown("### 💰 Fund Flow → Drill to Forensics")
     fig_sk = go.Figure(go.Sankey(
         node=dict(pad=15, thickness=20,
@@ -143,6 +168,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # ── ROI ──
+    st.markdown('<div id="roi-summary"></div>', unsafe_allow_html=True)
     st.markdown("### 💹 ROI Summary")
     r1, r2, r3, r4 = st.columns(4)
     r1.metric("TH-GNN Savings", "$12.8M/yr")

@@ -23,8 +23,8 @@ def render(DATA, navigate_to):
     ctx = []
     if st.session_state.get("selected_alert_tx"):
         ctx.append(f"**Alert TX:** `{st.session_state['selected_alert_tx'][:16]}...`")
-    if st.session_state.get("selected_risk_level") != "ALL":
-        ctx.append(f"**Risk Filter:** {st.session_state['selected_risk_level']}")
+    if st.session_state.get("selected_risk_level", "ALL") != "ALL":
+        ctx.append(f"**Risk Filter:** {st.session_state.get('selected_risk_level', 'ALL')}")
     if ctx:
         st.markdown(" | ".join(ctx))
     st.markdown("---")

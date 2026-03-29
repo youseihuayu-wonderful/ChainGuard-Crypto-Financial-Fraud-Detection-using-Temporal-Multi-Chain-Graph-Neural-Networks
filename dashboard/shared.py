@@ -12,8 +12,23 @@ import numpy as np
 def setup_page(title="ChainGuard | Fraud Detection"):
     """Call at top of every page to set config and apply styling."""
     st.set_page_config(page_title=title, page_icon="🛡️", layout="wide", initial_sidebar_state="expanded")
+    _init_session_state()
     _apply_css()
     _render_sidebar()
+
+
+def _init_session_state():
+    """Initialize all shared session state keys with defaults."""
+    defaults = {
+        "selected_timestep": 25,
+        "selected_risk_level": "ALL",
+        "selected_alert_tx": None,
+        "selected_model": "M3",
+        "drill_from": None,
+    }
+    for key, val in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = val
 
 
 def _apply_css():

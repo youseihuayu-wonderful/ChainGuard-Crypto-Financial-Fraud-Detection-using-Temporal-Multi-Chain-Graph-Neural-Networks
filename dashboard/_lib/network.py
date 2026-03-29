@@ -59,8 +59,8 @@ def render(DATA, navigate_to):
         pos = np.random.randn(n, 2) * 2
 
         labels = np.zeros(n)
-        n_ill = max(3, int(n * 0.1))
-        n_unk = int(n * 0.15)
+        n_ill = max(5, int(n * 0.2))
+        n_unk = int(n * 0.10)
         ill_idx = random.sample(range(n), n_ill)
         unk_idx = random.sample([i for i in range(n) if i not in ill_idx], n_unk)
         for i in ill_idx:
@@ -105,7 +105,7 @@ def render(DATA, navigate_to):
             labels[alert_node] = 1
 
         # Nodes
-        for lv, color, name, sz in [(-1, '#666', 'Unknown', 7), (0, '#3B82F6', 'Licit', 9), (1, '#EF4444', 'Illicit', 14)]:
+        for lv, color, name, sz in [(-1, '#4B5563', 'Unknown', 6), (0, '#3B82F6', 'Licit', 8), (1, '#EF4444', 'Illicit', 18)]:
             mask = labels == lv
             if not mask.any(): continue
             node_ids = np.where(mask)[0]

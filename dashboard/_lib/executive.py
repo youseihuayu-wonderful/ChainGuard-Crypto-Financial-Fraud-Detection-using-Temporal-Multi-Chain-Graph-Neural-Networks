@@ -62,7 +62,7 @@ def render(DATA, navigate_to):
     k2.metric("Detected", f"{total_detected}/{cs['total_illicit_test']}", f"{total_detected/cs['total_illicit_test']:.0%}")
     k3.metric("Precision", f"{best['precision']:.2%}", f"+{prec_delta:.1%} vs GCN")
     k4.metric("False Alarm", f"{fdr:.1%}", f"-{gcn_fdr - fdr:.1%} vs GCN", delta_color="inverse")
-    k5.metric("Savings", f"${thgnn_net}M/yr", f"vs ${gcn_net}M GCN")
+    k5.metric("Net Savings", f"${thgnn_net:.1f}M", f"+${thgnn_net - gcn_net:.1f}M vs GCN")
 
     if st.button("🧪 Why these numbers? → Performance", key="kpi_drill"):
         navigate_to("Performance"); st.rerun()

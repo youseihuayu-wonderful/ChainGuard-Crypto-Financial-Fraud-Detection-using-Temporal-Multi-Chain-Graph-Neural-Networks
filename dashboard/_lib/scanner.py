@@ -20,14 +20,26 @@ def render(DATA, navigate_to):
     st.markdown("Analyze individual Bitcoin transactions for fraud risk")
     st.caption("⚠️ Transaction data below is simulated for demo purposes. Model metrics are from real experiments.")
 
-    # Show context from Executive
-    ctx = []
-    if st.session_state.get("selected_alert_tx"):
-        ctx.append(f"**Alert TX:** `{st.session_state['selected_alert_tx'][:16]}...`")
-    if st.session_state.get("selected_risk_level", "ALL") != "ALL":
-        ctx.append(f"**Risk Filter:** {st.session_state.get('selected_risk_level', 'ALL')}")
-    if ctx:
-        st.markdown(" | ".join(ctx))
+    # Show auto-loaded alert context from Executive
+    alert_tx = st.session_state.get("selected_alert_tx")
+    if alert_tx:
+        alert_match = next((a for a in alerts if a["tx_id"] == alert_tx), None)
+        if alert_match:
+            st.markdown(
+                f'<div class="risk-high" style="display:flex; align-items:center; gap:16px">'
+                f'<div style="font-size:2rem">🚨</div>'
+                f'<div>'
+                f'<strong style="color:#EF4444; font-size:1rem">Alert Auto-Loaded from Executive</strong><br>'
+                f'<span style="color:#E5E7EB">TX: <code>{alert_tx}</code></span><br>'
+                f'<span style="color:#F59E0B">Risk: {alert_match["risk_score"]:.0%}</span> · '
+                f'<span style="color:#9CA3AF">Pattern: {alert_match["pattern"]}</span> · '
+                f'<span style="color:#9CA3AF">TS: {alert_match["timestep"]}</span> · '
+                f'<span style="color:#9CA3AF">{alert_match["amount_btc"]:.3f} BTC</span>'
+                f'</div></div>',
+                unsafe_allow_html=True,
+            )
+    elif st.session_state.get("selected_risk_level", "ALL") != "ALL":
+        st.markdown(f"**Risk Filter:** {st.session_state.get('selected_risk_level', 'ALL')}")
     st.markdown("---")
 
     sc1, sc2 = st.columns([1, 1.5])

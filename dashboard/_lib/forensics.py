@@ -38,9 +38,9 @@ def render(DATA, navigate_to):
                       line=dict(color="#00D4AA", width=2), fillcolor="rgba(100,255,218,0.1)")
         fig.add_annotation(x=-0.8, y=0, text=f"<b>GCN Only</b><br>{gcn_only}", font=dict(color="#3B82F6", size=16), showarrow=False)
         fig.add_annotation(x=0.5, y=0, text=f"<b>Both</b><br>{both}", font=dict(color="#E5E7EB", size=18), showarrow=False)
-        fig.add_annotation(x=1.8, y=0, text=f"<b>TH-GNN Only</b><br>{m3_only}", font=dict(color="#00D4AA", size=16), showarrow=False)
+        fig.add_annotation(x=1.7, y=0, text=f"<b>TH-GNN</b><br><b>{m3_only}</b>", font=dict(color="#00D4AA", size=15), showarrow=False)
         fig.add_annotation(x=0.5, y=-2.2, text=f"Undetected: {neither} ({neither/total:.0%})", font=dict(color="#EF4444", size=13), showarrow=False)
-        fig.update_layout(height=300, xaxis=dict(range=[-2.5,3.5], showgrid=False, zeroline=False, showticklabels=False),
+        fig.update_layout(height=300, xaxis=dict(range=[-2.5,4.0], showgrid=False, zeroline=False, showticklabels=False),
                           yaxis=dict(range=[-2.8,2], showgrid=False, zeroline=False, showticklabels=False, scaleanchor="x"),
                           paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=20, r=20, t=20, b=20))
         st.plotly_chart(fig, use_container_width=True)

@@ -401,8 +401,20 @@ def _render_sidebar():
             )
 
         st.markdown("---")
+
+        # Data timestamp
+        from datetime import datetime
         st.markdown(
-            '<div style="text-align:center; padding:8px 0">'
+            f'<div style="text-align:center; padding:4px 0">'
+            f'<div style="color:#4B5563; font-size:0.65rem">DATA AS OF</div>'
+            f'<div style="color:#6B7280; font-size:0.75rem; font-family:JetBrains Mono,monospace">'
+            f'{datetime.now().strftime("%Y-%m-%d %H:%M")}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+        st.markdown(
+            '<div style="text-align:center; padding:4px 0">'
             '<div style="color:#4B5563; font-size:0.7rem">NYU Tandon School of Engineering</div>'
             '<div style="color:#4B5563; font-size:0.7rem">MS Thesis 2026</div>'
             '</div>',

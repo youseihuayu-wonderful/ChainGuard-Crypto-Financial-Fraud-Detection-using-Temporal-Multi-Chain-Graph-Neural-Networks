@@ -1,160 +1,189 @@
-"""Page 3: Transaction Scanner - Interactive fraud risk assessment demo."""
+"""
+L3: Investigation Hub — "Who is suspicious?"
+
+Combines Transaction Scanner + Network Explorer in one page.
+
+Connections:
+  FROM L1: receives selected_timestep, selected_risk_level, selected_alert_tx
+  FROM L2: "Try the model" link
+  TO L4: "Submit to Forensics" for deep analysis
+  Shared: selected_timestep, selected_alert_tx
+"""
 
 import streamlit as st
 import plotly.graph_objects as go
+import pandas as pd
 import numpy as np
 import random
 
 
-def render():
-    st.markdown("# 🔍 Transaction Scanner")
-    st.markdown("Analyze individual Bitcoin transactions for fraud risk using TH-GNN")
+def render(DATA, navigate_to):
+    alerts = DATA["alerts"]
+    ts_risk = DATA["timestep_risk"]
+
+    # Breadcrumb
+    drill = st.session_state.get("drill_from")
+    if drill:
+        st.markdown(f'<div class="breadcrumb">← from {drill}</div>', unsafe_allow_html=True)
+
+    st.markdown("# 🔍 L3: Investigation Hub")
+
+    # Show incoming context
+    context_parts = []
+    if st.session_state.get("selected_alert_tx"):
+        context_parts.append(f"**Alert TX:** `{st.session_state['selected_alert_tx'][:16]}...`")
+    if st.session_state.get("selected_risk_level") != "ALL":
+        context_parts.append(f"**Risk Filter:** {st.session_state['selected_risk_level']}")
+    context_parts.append(f"**Timestep:** {st.session_state.get('selected_timestep', 25)}")
+
+    st.markdown(" | ".join(context_parts))
     st.markdown("---")
 
-    col1, col2 = st.columns([1, 1.5])
+    tab1, tab2 = st.tabs(["🔍 Transaction Scanner", "🕸️ Network Explorer"])
 
-    with col1:
-        st.markdown("### Input Transaction Features")
+    # ── Tab 1: Scanner ──
+    with tab1:
+        sc1, sc2 = st.columns([1, 1.5])
 
-        tx_amount = st.slider("Transaction Amount (BTC)", 0.001, 100.0, 1.5, 0.01)
-        tx_fee = st.slider("Transaction Fee (BTC)", 0.0001, 0.1, 0.005, 0.0001)
-        in_degree = st.number_input("Input Count (in-degree)", 1, 50, 3)
-        out_degree = st.number_input("Output Count (out-degree)", 1, 50, 2)
-        timestep = st.slider("Timestep (1-49)", 1, 49, 25)
+        with sc1:
+            st.markdown("### Transaction Parameters")
 
-        st.markdown("#### Transaction Behavior")
-        mixing = st.checkbox("Mixing service pattern detected")
-        rapid = st.checkbox("Rapid succession transactions (< 10 min)")
-        cross_chain = st.checkbox("Cross-chain bridge interaction")
-        high_value = tx_amount > 10.0
+            # Pre-fill from alert if drilled from L1
+            alert_tx = st.session_state.get("selected_alert_tx")
+            alert_data = None
+            if alert_tx:
+                alert_data = next((a for a in alerts if a["tx_id"] == alert_tx), None)
 
-        analyze = st.button("🔍 Analyze Transaction", use_container_width=True, type="primary")
+            tx_amount = st.slider("Amount (BTC)", 0.01, 100.0,
+                                  alert_data["amount_btc"] if alert_data else 1.5, 0.01, key="scan_amt")
+            in_degree = st.number_input("Input Count", 1, 50,
+                                        np.random.randint(2, 8) if alert_data else 3, key="scan_in")
+            out_degree = st.number_input("Output Count", 1, 50,
+                                         np.random.randint(2, 6) if alert_data else 2, key="scan_out")
+            timestep = st.slider("Timestep", 1, 49,
+                                 st.session_state.get("selected_timestep", 25), key="scan_ts")
 
-    with col2:
-        if analyze:
-            # Simulated risk scoring (weighted heuristic for demo)
-            np.random.seed(42)
-            base_risk = 0.15
+            mixing = st.checkbox("Mixing service pattern",
+                                 value=alert_data["pattern"] == "Mixing" if alert_data else False)
+            rapid = st.checkbox("Rapid succession (<10 min)",
+                                value=alert_data["pattern"] == "Rapid Cycling" if alert_data else False)
+            chain_hop = st.checkbox("Cross-chain bridge",
+                                    value=alert_data["pattern"] == "Chain Hop" if alert_data else False)
 
-            # Risk factors
-            if mixing:
-                base_risk += 0.25
-            if rapid:
-                base_risk += 0.15
-            if cross_chain:
-                base_risk += 0.10
-            if high_value:
-                base_risk += 0.08
-            if in_degree > 10:
-                base_risk += 0.10
-            if out_degree > 10:
-                base_risk += 0.05
-            if tx_fee < 0.001:
-                base_risk += 0.05
+            analyze = st.button("🔍 Analyze Transaction", type="primary", use_container_width=True, key="scan_go")
 
-            # Add some noise
-            risk_score = min(0.98, max(0.02, base_risk + random.gauss(0, 0.05)))
+        with sc2:
+            if analyze or alert_data:
+                np.random.seed(42)
+                risk = 0.15
+                if mixing: risk += 0.25
+                if rapid: risk += 0.15
+                if chain_hop: risk += 0.10
+                if tx_amount > 10: risk += 0.08
+                if in_degree > 10: risk += 0.10
+                if alert_data: risk = alert_data["risk_score"]
+                risk = min(0.98, max(0.02, risk))
 
-            # Determine risk level
-            if risk_score > 0.7:
-                level, color, icon = "HIGH", "#ff5252", "🔴"
-                css_class = "risk-high"
-            elif risk_score > 0.4:
-                level, color, icon = "MEDIUM", "#ff9800", "🟡"
-                css_class = "risk-medium"
+                level = "HIGH" if risk > 0.7 else ("MEDIUM" if risk > 0.4 else "LOW")
+                color = {"HIGH": "#ff5252", "MEDIUM": "#ff9800", "LOW": "#64ffda"}[level]
+                css = {"HIGH": "risk-high", "MEDIUM": "risk-medium", "LOW": "risk-low"}[level]
+
+                st.markdown(f'<div class="{css}" style="text-align:center; padding:20px">'
+                            f'<h2 style="color:{color}; margin:0">{level} RISK</h2>'
+                            f'<h1 style="color:{color}; margin:0; font-size:3rem">{risk:.0%}</h1>'
+                            f'</div>', unsafe_allow_html=True)
+
+                # Gauge
+                fig_g = go.Figure(go.Indicator(mode="gauge+number", value=risk*100,
+                    number=dict(suffix="%", font=dict(color="#ccd6f6")),
+                    gauge=dict(axis=dict(range=[0,100]), bar=dict(color=color), bgcolor="rgba(255,255,255,0.05)",
+                               steps=[dict(range=[0,40], color="rgba(100,255,218,0.15)"),
+                                      dict(range=[40,70], color="rgba(255,152,0,0.15)"),
+                                      dict(range=[70,100], color="rgba(255,82,82,0.15)")],
+                               threshold=dict(line=dict(color="#ff5252", width=3), thickness=0.8, value=70))))
+                fig_g.update_layout(height=220, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#ccd6f6"),
+                                    margin=dict(l=30, r=30, t=30, b=10))
+                st.plotly_chart(fig_g, use_container_width=True)
+
+                # Actions
+                if risk > 0.5:
+                    if st.button("📋 Submit to Forensics Lab for deep analysis →", key="scan_to_l4", type="primary"):
+                        navigate_to("L4: Forensics Lab"); st.rerun()
+                    if st.button("🕸️ View network neighborhood ↓", key="scan_to_net"):
+                        st.session_state["selected_timestep"] = timestep
             else:
-                level, color, icon = "LOW", "#64ffda", "🟢"
-                css_class = "risk-low"
+                st.markdown("### Configure parameters and click **Analyze**")
+                st.markdown("Or select an alert from **L1: Command Center** to auto-fill.")
 
-            st.markdown("### Analysis Result")
+    # ── Tab 2: Network Explorer ──
+    with tab2:
+        nc1, nc2 = st.columns([1, 2])
 
-            st.markdown(
-                f'<div class="{css_class}" style="text-align:center; padding:20px;">'
-                f'<h2 style="color:{color}; margin:0">{icon} {level} RISK</h2>'
-                f'<h1 style="color:{color}; margin:0; font-size:3rem">{risk_score:.1%}</h1>'
-                f'<p style="color:#ccd6f6">Fraud Probability Score</p>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
+        with nc1:
+            st.markdown("### Network Parameters")
+            net_ts = st.selectbox("Timestep", list(range(1, 50)),
+                                  index=st.session_state.get("selected_timestep", 25) - 1, key="net_ts")
+            n_nodes = st.slider("Display nodes", 20, 100, 50, key="net_nodes")
+            show_temporal = st.checkbox("Show temporal k-NN edges", True, key="net_temporal")
 
-            # Gauge chart
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=risk_score * 100,
-                number=dict(suffix="%", font=dict(color="#ccd6f6")),
-                gauge=dict(
-                    axis=dict(range=[0, 100], tickcolor="#8892b0"),
-                    bar=dict(color=color),
-                    bgcolor="rgba(255,255,255,0.05)",
-                    steps=[
-                        dict(range=[0, 40], color="rgba(100,255,218,0.15)"),
-                        dict(range=[40, 70], color="rgba(255,152,0,0.15)"),
-                        dict(range=[70, 100], color="rgba(255,82,82,0.15)"),
-                    ],
-                    threshold=dict(line=dict(color="#ff5252", width=3), thickness=0.8, value=70),
-                ),
-            ))
-            fig.update_layout(
-                height=250,
-                paper_bgcolor="rgba(0,0,0,0)",
-                font=dict(color="#ccd6f6"),
-                margin=dict(l=30, r=30, t=30, b=10),
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-            # Risk breakdown
-            st.markdown("### Risk Factor Breakdown")
-            factors = []
-            if mixing:
-                factors.append(("Mixing service pattern", 0.25, "HIGH"))
-            if rapid:
-                factors.append(("Rapid succession", 0.15, "MEDIUM"))
-            if cross_chain:
-                factors.append(("Cross-chain bridge", 0.10, "MEDIUM"))
-            if high_value:
-                factors.append(("High value (>10 BTC)", 0.08, "LOW"))
-            if in_degree > 10:
-                factors.append(("High input count", 0.10, "MEDIUM"))
-            if not factors:
-                factors.append(("No significant risk factors", 0.0, "LOW"))
-
-            for name, weight, severity in factors:
-                sev_color = {"HIGH": "#ff5252", "MEDIUM": "#ff9800", "LOW": "#64ffda"}[severity]
-                st.markdown(
-                    f"<div style='display:flex; justify-content:space-between; "
-                    f"padding:8px 12px; background:rgba(255,255,255,0.03); "
-                    f"border-radius:4px; margin:4px 0;'>"
-                    f"<span style='color:#ccd6f6'>{name}</span>"
-                    f"<span style='color:{sev_color}; font-weight:bold'>+{weight:.0%}</span>"
-                    f"</div>",
-                    unsafe_allow_html=True,
-                )
+            ti = ts_risk[net_ts]
+            st.markdown(f"**TS {net_ts}**: {ti['nodes']} nodes, {ti['illicit']} illicit, {ti['zone']} zone")
 
             st.markdown("---")
-            st.markdown(
-                "<small style='color:#4a5568'>"
-                "Note: This is a demonstration scanner using simplified heuristics. "
-                "In production, the full TH-GNN model processes 166-dimensional node features "
-                "and 2.19M graph edges for accurate prediction."
-                "</small>",
-                unsafe_allow_html=True,
-            )
-        else:
-            st.markdown("### 👈 Configure transaction parameters and click **Analyze**")
-            st.markdown("---")
-            st.markdown("#### How TH-GNN Scores Transactions")
-            st.markdown("""
-            1. **Feature Extraction** — 166 transaction features (amount, fee, degree, timing...)
-            2. **Graph Construction** — Build transaction graph + temporal k-NN edges
-            3. **R-GCN Processing** — Separate message passing for original vs temporal edges
-            4. **Risk Scoring** — Output probability of illicit activity [0, 1]
-            """)
+            st.markdown("### Legend")
+            st.markdown("🔴 Illicit &nbsp; 🔵 Licit &nbsp; ⚪ Unknown")
+            if show_temporal:
+                st.markdown("━━ Original &nbsp; ┄┄ Temporal k-NN")
 
-            st.markdown("#### Risk Thresholds")
-            st.markdown("""
-            | Level | Probability | Action |
-            |-------|------------|--------|
-            | 🟢 LOW | < 40% | Normal processing |
-            | 🟡 MEDIUM | 40-70% | Enhanced monitoring |
-            | 🔴 HIGH | > 70% | Immediate review |
-            """)
+        with nc2:
+            np.random.seed(42 + net_ts)
+            random.seed(42 + net_ts)
+            n = n_nodes
+            pos = np.random.randn(n, 2) * 2
+            labels = np.zeros(n)
+            n_ill = max(3, int(n * 0.1))
+            ill_idx = random.sample(range(n), n_ill)
+            for i in ill_idx:
+                labels[i] = 1
+                pos[i] = pos[i] * 0.4 + np.array([1, 1])
+
+            edges = [(i, random.randint(0, n-1)) for i in range(n) for _ in range(random.randint(1, 3)) if random.randint(0, n-1) != i]
+            t_edges = [(i, random.randint(0, n-1)) for i in range(n) for _ in range(random.randint(0, 1))] if show_temporal else []
+
+            fig_net = go.Figure()
+            for i, j in edges:
+                fig_net.add_trace(go.Scatter(x=[pos[i,0], pos[j,0], None], y=[pos[i,1], pos[j,1], None],
+                    mode='lines', line=dict(color='rgba(100,100,100,0.2)', width=0.5), hoverinfo='skip', showlegend=False))
+            if show_temporal:
+                for i, j in t_edges:
+                    fig_net.add_trace(go.Scatter(x=[pos[i,0], pos[j,0], None], y=[pos[i,1], pos[j,1], None],
+                        mode='lines', line=dict(color='rgba(100,255,218,0.15)', width=0.8, dash='dot'), hoverinfo='skip', showlegend=False))
+
+            # Highlight selected alert TX
+            alert_node = None
+            if st.session_state.get("selected_alert_tx"):
+                alert_node = random.randint(0, n-1)
+                labels[alert_node] = 1
+
+            for lv, color, name, sz in [(-1, '#666', 'Unknown', 7), (0, '#2196F3', 'Licit', 9), (1, '#ff5252', 'Illicit', 13)]:
+                mask = labels == lv
+                if not mask.any(): continue
+                fig_net.add_trace(go.Scatter(
+                    x=pos[mask,0], y=pos[mask,1], mode='markers',
+                    marker=dict(size=sz, color=color, line=dict(width=1 if lv==1 else 0, color='white')),
+                    name=name, hovertext=[f"Node {i}" for i in np.where(mask)[0]], hoverinfo='text'))
+
+            if alert_node is not None:
+                fig_net.add_trace(go.Scatter(
+                    x=[pos[alert_node, 0]], y=[pos[alert_node, 1]], mode='markers',
+                    marker=dict(size=22, color='rgba(0,0,0,0)', line=dict(color='#64ffda', width=3)),
+                    name="Selected Alert", hovertext="Alert TX", hoverinfo='text'))
+
+            fig_net.update_layout(height=500, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(15,15,26,1)",
+                font=dict(color="#ccd6f6"), xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                legend=dict(orientation="h", y=-0.05, x=0.2), margin=dict(l=10, r=10, t=10, b=40))
+            st.plotly_chart(fig_net, use_container_width=True)
+
+        if st.button("📋 Send findings to Forensics Lab →", key="net_to_l4"):
+            navigate_to("L4: Forensics Lab"); st.rerun()

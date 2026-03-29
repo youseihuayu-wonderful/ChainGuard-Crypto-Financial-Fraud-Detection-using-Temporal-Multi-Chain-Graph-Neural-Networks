@@ -178,21 +178,21 @@ with st.sidebar:
 # Page Router
 # ============================================================
 if page == "📊 Executive Dashboard":
-    from pages import executive
+    from _pages import executive
     executive.render(ablation, baseline, case_study)
 
 elif page == "🧪 Model Performance":
-    from pages import performance
+    from _pages import performance
     performance.render(ablation, baseline)
 
 elif page == "🔍 Transaction Scanner":
-    from pages import scanner
+    from _pages import scanner
     scanner.render()
 
 elif page == "🕸️ Network Explorer":
-    from pages import network
+    from _pages import network
     network.render()
 
 elif page == "📋 Case Study & Forensics":
-    from pages import forensics
+    from _pages import forensics
     forensics.render(case_study, ablation)

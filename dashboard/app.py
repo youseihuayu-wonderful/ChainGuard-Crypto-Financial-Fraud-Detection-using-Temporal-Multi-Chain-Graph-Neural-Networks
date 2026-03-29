@@ -32,7 +32,7 @@ st.set_page_config(
 # Shared Session State (cross-page communication)
 # ============================================================
 DEFAULTS = {
-    "selected_page": "L1: Command Center",
+    "selected_page": "Executive",
     "selected_timestep": 25,
     "selected_risk_level": "ALL",
     "selected_alert_tx": None,
@@ -151,10 +151,11 @@ st.markdown("""
 # Sidebar — Hierarchical Navigation
 # ============================================================
 PAGES = {
-    "L1: Command Center": "📊",
-    "L2: Model Analytics": "🧪",
-    "L3: Investigation Hub": "🔍",
-    "L4: Forensics Lab": "📋",
+    "Executive": "📊",       # TRM Labs Dashboard → CEO/CRO
+    "Performance": "🧪",     # Internal ML Platform → Data Scientists
+    "Scanner": "🔍",         # Elliptic Navigator → Operations Analysts
+    "Network": "🕸️",         # Chainalysis Reactor → Investigators
+    "Forensics": "📋",       # Compliance Reports → AML/Audit
 }
 
 with st.sidebar:
@@ -172,7 +173,7 @@ with st.sidebar:
     selected = st.radio(
         "Navigate",
         page_options,
-        format_func=lambda p: f"{PAGES[p]} {p.split(': ')[1]}",
+        format_func=lambda p: f"{PAGES[p]} {p}",
         key="nav_radio",
         label_visibility="collapsed",
     )
@@ -201,18 +202,22 @@ with st.sidebar:
 # ============================================================
 page = selected
 
-if page == "L1: Command Center":
+if page == "Executive":
     from _pages import executive
     executive.render(DATA, navigate_to)
 
-elif page == "L2: Model Analytics":
+elif page == "Performance":
     from _pages import performance
     performance.render(DATA, navigate_to)
 
-elif page == "L3: Investigation Hub":
+elif page == "Scanner":
     from _pages import scanner
     scanner.render(DATA, navigate_to)
 
-elif page == "L4: Forensics Lab":
+elif page == "Network":
+    from _pages import network
+    network.render(DATA, navigate_to)
+
+elif page == "Forensics":
     from _pages import forensics
     forensics.render(DATA, navigate_to)

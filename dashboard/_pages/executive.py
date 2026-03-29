@@ -1,12 +1,8 @@
 """
-L1: Executive Command Center — "What's happening?"
-
-Connections:
-  KPIs → drill to L2 (Model Analytics)
-  Risk Timeline → drill to L3 (Investigation Hub) by timestep
-  Alert Queue → drill to L3 by transaction
-  Fund Flow → drill to L4 (Forensics Lab) by pattern
-  ROI → drill to L2 for comparison
+Executive Dashboard — TRM Labs style
+WHO: CEO, CRO, Management
+WHAT: "What's happening?" — KPIs, trends, alerts, fund flows, ROI
+LINKS TO: Performance (why), Scanner (investigate TX), Network (graph), Forensics (evidence)
 """
 
 import streamlit as st
@@ -16,13 +12,12 @@ import numpy as np
 
 
 def render(DATA, navigate_to):
-    abl = DATA["ablation"]
-    bl = DATA["baseline"]
     cs = DATA["case_study"]
+    bl = DATA["baseline"]
     ts_risk = DATA["timestep_risk"]
     alerts = DATA["alerts"]
 
-    st.markdown("# 📊 L1: Executive Command Center")
+    st.markdown("# 📊 Executive Dashboard")
     st.markdown("Enterprise fraud monitoring — **click any section to drill down**")
     st.markdown("---")
 
@@ -35,19 +30,18 @@ def render(DATA, navigate_to):
     k4.metric("FP Rate", "0.93%", "-2.1%", delta_color="inverse")
     k5.metric("Savings", "$12.8M/yr", "vs $4.6M GCN")
 
-    if st.button("🧪 Why these numbers? → Model Analytics", key="kpi_drill"):
-        navigate_to("L2: Model Analytics"); st.rerun()
+    if st.button("🧪 Why these numbers? → Performance", key="kpi_drill"):
+        navigate_to("Performance"); st.rerun()
 
     st.markdown("---")
 
-    # ── Risk Funnel + Alerts ──
+    # ── Detection Funnel + Risk Alerts ──
     c1, c2 = st.columns([1.2, 1])
     with c1:
         st.markdown("### Detection Funnel")
         fig = go.Figure(data=[go.Funnel(
             y=["Total Illicit", "Any Model Detects", "TH-GNN Unique", "High Conf (>0.9)"],
-            x=[cs["total_illicit_test"], total_detected + cs["gcn_only"],
-               cs["m3_only"], cs["m3_high_conf"]],
+            x=[cs["total_illicit_test"], total_detected + cs["gcn_only"], cs["m3_only"], cs["m3_high_conf"]],
             textinfo="value+percent initial",
             marker=dict(color=["#ff5252", "#ff9800", "#64ffda", "#00e676"]),
         )])
@@ -64,14 +58,14 @@ def render(DATA, navigate_to):
         ]:
             st.markdown(f'<div class="{css}"><strong>{level} — {count}</strong></div>', unsafe_allow_html=True)
 
-        risk_pick = st.selectbox("Filter risk level", ["HIGH", "MEDIUM", "ALL"], key="risk_pick_l1")
-        if st.button("🔍 Open Investigation Hub →", key="risk_drill", type="primary"):
-            navigate_to("L3: Investigation Hub", selected_risk_level=risk_pick); st.rerun()
+        risk_pick = st.selectbox("Filter risk level", ["HIGH", "MEDIUM", "ALL"], key="risk_pick_exec")
+        if st.button("🔍 Open Scanner →", key="risk_drill", type="primary"):
+            navigate_to("Scanner", selected_risk_level=risk_pick); st.rerun()
 
     st.markdown("---")
 
     # ── Risk Timeline ──
-    st.markdown("### 📈 Risk Timeline → Select timestep to investigate")
+    st.markdown("### 📈 Risk Timeline → Select timestep to explore")
     timesteps = list(range(1, 50))
     rates = [ts_risk[t]["risk_rate"] for t in timesteps]
     colors = ["rgba(100,255,218,0.6)" if ts_risk[t]["zone"] == "train"
@@ -89,12 +83,12 @@ def render(DATA, navigate_to):
 
     tc1, tc2 = st.columns([1, 1])
     with tc1:
-        sel_ts = st.slider("Timestep", 1, 49, st.session_state.get("selected_timestep", 25), key="ts_l1")
+        sel_ts = st.slider("Timestep", 1, 49, st.session_state.get("selected_timestep", 25), key="ts_exec")
     with tc2:
         ti = ts_risk[sel_ts]
         st.markdown(f"**TS {sel_ts}** | {ti['nodes']} nodes | {ti['illicit']} illicit ({ti['risk_rate']:.1f}%) | {ti['zone']}")
-        if st.button(f"🔍 Investigate TS {sel_ts} →", key="ts_drill"):
-            navigate_to("L3: Investigation Hub", selected_timestep=sel_ts); st.rerun()
+        if st.button(f"🕸️ Explore TS {sel_ts} in Network →", key="ts_drill"):
+            navigate_to("Network", selected_timestep=sel_ts); st.rerun()
 
     st.markdown("---")
 
@@ -112,18 +106,23 @@ def render(DATA, navigate_to):
     ac1, ac2 = st.columns(2)
     with ac1:
         aidx = st.selectbox("Select alert", range(min(12, len(alerts))),
-            format_func=lambda i: f"P{alerts[i]['priority']} | {alerts[i]['tx_id'][:12]}... | {alerts[i]['risk_score']:.0%} | {alerts[i]['pattern']}",
-            key="alert_l1")
+            format_func=lambda i: f"P{alerts[i]['priority']} | {alerts[i]['tx_id'][:12]}... | {alerts[i]['risk_score']:.0%}",
+            key="alert_exec")
     with ac2:
-        if st.button("🔍 Investigate this TX →", key="alert_drill", type="primary"):
-            a = alerts[aidx]
-            navigate_to("L3: Investigation Hub", selected_alert_tx=a["tx_id"], selected_timestep=a["timestep"])
-            st.rerun()
+        bc1, bc2 = st.columns(2)
+        with bc1:
+            if st.button("🔍 Scan TX →", key="alert_to_scan"):
+                a = alerts[aidx]
+                navigate_to("Scanner", selected_alert_tx=a["tx_id"], selected_timestep=a["timestep"]); st.rerun()
+        with bc2:
+            if st.button("🕸️ View Network →", key="alert_to_net"):
+                a = alerts[aidx]
+                navigate_to("Network", selected_alert_tx=a["tx_id"], selected_timestep=a["timestep"]); st.rerun()
 
     st.markdown("---")
 
     # ── Fund Flow Sankey ──
-    st.markdown("### 💰 Fund Flow → Drill to Forensics for pattern analysis")
+    st.markdown("### 💰 Fund Flow → Drill to Forensics")
     fig_sk = go.Figure(go.Sankey(
         node=dict(pad=15, thickness=20,
             label=["Illicit Source", "Direct", "Mixing", "Chain Hop", "Layering",
@@ -138,8 +137,8 @@ def render(DATA, navigate_to):
                          font=dict(color="#ccd6f6", size=11), margin=dict(l=10, r=10, t=10, b=10))
     st.plotly_chart(fig_sk, use_container_width=True)
 
-    if st.button("📋 Deep-dive fraud patterns → Forensics Lab", key="flow_drill"):
-        navigate_to("L4: Forensics Lab"); st.rerun()
+    if st.button("📋 Deep-dive patterns → Forensics", key="flow_drill"):
+        navigate_to("Forensics"); st.rerun()
 
     st.markdown("---")
 
@@ -151,5 +150,5 @@ def render(DATA, navigate_to):
     r3.metric("Recovery Rate", "68.0%")
     r4.metric("Payback", "< 3 months")
 
-    if st.button("📊 Full ROI & model comparison → Model Analytics", key="roi_drill"):
-        navigate_to("L2: Model Analytics"); st.rerun()
+    if st.button("📊 Full ROI & model comparison → Performance", key="roi_drill"):
+        navigate_to("Performance"); st.rerun()

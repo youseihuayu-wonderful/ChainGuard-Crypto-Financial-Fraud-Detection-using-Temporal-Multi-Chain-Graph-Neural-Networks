@@ -49,7 +49,8 @@ def render(DATA, navigate_to):
     gcn = abl["M1"]
     auc_delta = (best["auc_roc"] - gcn["auc_roc"]) / gcn["auc_roc"]
     prec_delta = (best["precision"] - gcn["precision"]) / gcn["precision"]
-    fp_rate = 1 - best["precision"]
+    fdr = 1 - best["precision"]
+    gcn_fdr = 1 - gcn["precision"]
     # ROI: recovery = $25M annual fraud × recall
     annual_fraud = 25.0
     thgnn_net = round(annual_fraud * best["recall"] - 3.2, 1)
@@ -60,7 +61,7 @@ def render(DATA, navigate_to):
     k1.metric("AUC-ROC", f"{best['auc_roc']:.4f}", f"+{auc_delta:.1%} vs GCN")
     k2.metric("Detected", f"{total_detected}/{cs['total_illicit_test']}", f"{total_detected/cs['total_illicit_test']:.0%}")
     k3.metric("Precision", f"{best['precision']:.2%}", f"+{prec_delta:.1%} vs GCN")
-    k4.metric("FP Rate", f"{fp_rate:.2%}", f"-{(1-gcn['precision'])-fp_rate:.1%}", delta_color="inverse")
+    k4.metric("False Alarm", f"{fdr:.1%}", f"-{gcn_fdr - fdr:.1%} vs GCN", delta_color="inverse")
     k5.metric("Savings", f"${thgnn_net}M/yr", f"vs ${gcn_net}M GCN")
 
     if st.button("🧪 Why these numbers? → Performance", key="kpi_drill"):

@@ -1,0 +1,443 @@
+{
+  "1": {
+    "nodes": 7880,
+    "illicit": 17,
+    "licit": 2130,
+    "unknown": 5733,
+    "risk_rate": 0.22,
+    "zone": "train",
+    "edges": 9164
+  },
+  "2": {
+    "nodes": 4544,
+    "illicit": 18,
+    "licit": 1099,
+    "unknown": 3427,
+    "risk_rate": 0.4,
+    "zone": "train",
+    "edges": 5241
+  },
+  "3": {
+    "nodes": 6621,
+    "illicit": 11,
+    "licit": 1268,
+    "unknown": 5342,
+    "risk_rate": 0.17,
+    "zone": "train",
+    "edges": 8316
+  },
+  "4": {
+    "nodes": 5693,
+    "illicit": 30,
+    "licit": 1410,
+    "unknown": 4253,
+    "risk_rate": 0.53,
+    "zone": "train",
+    "edges": 8180
+  },
+  "5": {
+    "nodes": 6803,
+    "illicit": 8,
+    "licit": 1874,
+    "unknown": 4921,
+    "risk_rate": 0.12,
+    "zone": "train",
+    "edges": 8623
+  },
+  "6": {
+    "nodes": 4328,
+    "illicit": 5,
+    "licit": 480,
+    "unknown": 3843,
+    "risk_rate": 0.12,
+    "zone": "train",
+    "edges": 5242
+  },
+  "7": {
+    "nodes": 6048,
+    "illicit": 102,
+    "licit": 1101,
+    "unknown": 4845,
+    "risk_rate": 1.69,
+    "zone": "train",
+    "edges": 7253
+  },
+  "8": {
+    "nodes": 4457,
+    "illicit": 67,
+    "licit": 1098,
+    "unknown": 3292,
+    "risk_rate": 1.5,
+    "zone": "train",
+    "edges": 5186
+  },
+  "9": {
+    "nodes": 4996,
+    "illicit": 248,
+    "licit": 530,
+    "unknown": 4218,
+    "risk_rate": 4.96,
+    "zone": "train",
+    "edges": 5939
+  },
+  "10": {
+    "nodes": 6727,
+    "illicit": 18,
+    "licit": 954,
+    "unknown": 5755,
+    "risk_rate": 0.27,
+    "zone": "train",
+    "edges": 8588
+  },
+  "11": {
+    "nodes": 4296,
+    "illicit": 131,
+    "licit": 565,
+    "unknown": 3600,
+    "risk_rate": 3.05,
+    "zone": "train",
+    "edges": 4656
+  },
+  "12": {
+    "nodes": 2047,
+    "illicit": 16,
+    "licit": 490,
+    "unknown": 1541,
+    "risk_rate": 0.78,
+    "zone": "train",
+    "edges": 2213
+  },
+  "13": {
+    "nodes": 4528,
+    "illicit": 291,
+    "licit": 518,
+    "unknown": 3719,
+    "risk_rate": 6.43,
+    "zone": "train",
+    "edges": 4827
+  },
+  "14": {
+    "nodes": 2022,
+    "illicit": 43,
+    "licit": 374,
+    "unknown": 1605,
+    "risk_rate": 2.13,
+    "zone": "train",
+    "edges": 2078
+  },
+  "15": {
+    "nodes": 3639,
+    "illicit": 147,
+    "licit": 471,
+    "unknown": 3021,
+    "risk_rate": 4.04,
+    "zone": "train",
+    "edges": 3823
+  },
+  "16": {
+    "nodes": 2975,
+    "illicit": 128,
+    "licit": 402,
+    "unknown": 2445,
+    "risk_rate": 4.3,
+    "zone": "train",
+    "edges": 3120
+  },
+  "17": {
+    "nodes": 3385,
+    "illicit": 99,
+    "licit": 712,
+    "unknown": 2574,
+    "risk_rate": 2.92,
+    "zone": "train",
+    "edges": 3650
+  },
+  "18": {
+    "nodes": 1976,
+    "illicit": 52,
+    "licit": 337,
+    "unknown": 1587,
+    "risk_rate": 2.63,
+    "zone": "train",
+    "edges": 2115
+  },
+  "19": {
+    "nodes": 3506,
+    "illicit": 80,
+    "licit": 665,
+    "unknown": 2761,
+    "risk_rate": 2.28,
+    "zone": "train",
+    "edges": 3838
+  },
+  "20": {
+    "nodes": 4291,
+    "illicit": 260,
+    "licit": 640,
+    "unknown": 3391,
+    "risk_rate": 6.06,
+    "zone": "train",
+    "edges": 4755
+  },
+  "21": {
+    "nodes": 3537,
+    "illicit": 100,
+    "licit": 541,
+    "unknown": 2896,
+    "risk_rate": 2.83,
+    "zone": "train",
+    "edges": 3959
+  },
+  "22": {
+    "nodes": 5894,
+    "illicit": 158,
+    "licit": 1605,
+    "unknown": 4131,
+    "risk_rate": 2.68,
+    "zone": "train",
+    "edges": 7014
+  },
+  "23": {
+    "nodes": 4165,
+    "illicit": 53,
+    "licit": 1134,
+    "unknown": 2978,
+    "risk_rate": 1.27,
+    "zone": "train",
+    "edges": 4584
+  },
+  "24": {
+    "nodes": 4592,
+    "illicit": 137,
+    "licit": 989,
+    "unknown": 3466,
+    "risk_rate": 2.98,
+    "zone": "train",
+    "edges": 5124
+  },
+  "25": {
+    "nodes": 2314,
+    "illicit": 118,
+    "licit": 476,
+    "unknown": 1720,
+    "risk_rate": 5.1,
+    "zone": "train",
+    "edges": 2619
+  },
+  "26": {
+    "nodes": 2523,
+    "illicit": 96,
+    "licit": 421,
+    "unknown": 2006,
+    "risk_rate": 3.8,
+    "zone": "train",
+    "edges": 2690
+  },
+  "27": {
+    "nodes": 1089,
+    "illicit": 24,
+    "licit": 182,
+    "unknown": 883,
+    "risk_rate": 2.2,
+    "zone": "train",
+    "edges": 1168
+  },
+  "28": {
+    "nodes": 1653,
+    "illicit": 85,
+    "licit": 199,
+    "unknown": 1369,
+    "risk_rate": 5.14,
+    "zone": "train",
+    "edges": 1717
+  },
+  "29": {
+    "nodes": 4275,
+    "illicit": 329,
+    "licit": 845,
+    "unknown": 3101,
+    "risk_rate": 7.7,
+    "zone": "train",
+    "edges": 4541
+  },
+  "30": {
+    "nodes": 2483,
+    "illicit": 83,
+    "licit": 441,
+    "unknown": 1959,
+    "risk_rate": 3.34,
+    "zone": "train",
+    "edges": 2561
+  },
+  "31": {
+    "nodes": 2816,
+    "illicit": 106,
+    "licit": 604,
+    "unknown": 2106,
+    "risk_rate": 3.76,
+    "zone": "train",
+    "edges": 3049
+  },
+  "32": {
+    "nodes": 4525,
+    "illicit": 342,
+    "licit": 981,
+    "unknown": 3202,
+    "risk_rate": 7.56,
+    "zone": "train",
+    "edges": 4952
+  },
+  "33": {
+    "nodes": 3151,
+    "illicit": 23,
+    "licit": 418,
+    "unknown": 2710,
+    "risk_rate": 0.73,
+    "zone": "train",
+    "edges": 3366
+  },
+  "34": {
+    "nodes": 2486,
+    "illicit": 37,
+    "licit": 478,
+    "unknown": 1971,
+    "risk_rate": 1.49,
+    "zone": "train",
+    "edges": 2692
+  },
+  "35": {
+    "nodes": 5507,
+    "illicit": 182,
+    "licit": 1159,
+    "unknown": 4166,
+    "risk_rate": 3.3,
+    "zone": "val",
+    "edges": 6351
+  },
+  "36": {
+    "nodes": 6393,
+    "illicit": 33,
+    "licit": 1675,
+    "unknown": 4685,
+    "risk_rate": 0.52,
+    "zone": "val",
+    "edges": 7813
+  },
+  "37": {
+    "nodes": 3306,
+    "illicit": 40,
+    "licit": 458,
+    "unknown": 2808,
+    "risk_rate": 1.21,
+    "zone": "val",
+    "edges": 3849
+  },
+  "38": {
+    "nodes": 2891,
+    "illicit": 111,
+    "licit": 645,
+    "unknown": 2135,
+    "risk_rate": 3.84,
+    "zone": "val",
+    "edges": 3094
+  },
+  "39": {
+    "nodes": 2760,
+    "illicit": 81,
+    "licit": 1102,
+    "unknown": 1577,
+    "risk_rate": 2.93,
+    "zone": "val",
+    "edges": 2914
+  },
+  "40": {
+    "nodes": 4481,
+    "illicit": 112,
+    "licit": 1099,
+    "unknown": 3270,
+    "risk_rate": 2.5,
+    "zone": "val",
+    "edges": 5246
+  },
+  "41": {
+    "nodes": 5342,
+    "illicit": 116,
+    "licit": 1016,
+    "unknown": 4210,
+    "risk_rate": 2.17,
+    "zone": "val",
+    "edges": 6093
+  },
+  "42": {
+    "nodes": 7140,
+    "illicit": 239,
+    "licit": 1915,
+    "unknown": 4986,
+    "risk_rate": 3.35,
+    "zone": "test",
+    "edges": 8493
+  },
+  "43": {
+    "nodes": 5063,
+    "illicit": 24,
+    "licit": 1346,
+    "unknown": 3693,
+    "risk_rate": 0.47,
+    "zone": "test",
+    "edges": 5950
+  },
+  "44": {
+    "nodes": 4975,
+    "illicit": 24,
+    "licit": 1567,
+    "unknown": 3384,
+    "risk_rate": 0.48,
+    "zone": "test",
+    "edges": 5551
+  },
+  "45": {
+    "nodes": 5598,
+    "illicit": 5,
+    "licit": 1216,
+    "unknown": 4377,
+    "risk_rate": 0.09,
+    "zone": "test",
+    "edges": 6673
+  },
+  "46": {
+    "nodes": 3519,
+    "illicit": 2,
+    "licit": 710,
+    "unknown": 2807,
+    "risk_rate": 0.06,
+    "zone": "test",
+    "edges": 3866
+  },
+  "47": {
+    "nodes": 5121,
+    "illicit": 22,
+    "licit": 824,
+    "unknown": 4275,
+    "risk_rate": 0.43,
+    "zone": "test",
+    "edges": 5748
+  },
+  "48": {
+    "nodes": 2954,
+    "illicit": 36,
+    "licit": 435,
+    "unknown": 2483,
+    "risk_rate": 1.22,
+    "zone": "test",
+    "edges": 3284
+  },
+  "49": {
+    "nodes": 2454,
+    "illicit": 56,
+    "licit": 420,
+    "unknown": 1978,
+    "risk_rate": 2.28,
+    "zone": "test",
+    "edges": 2587
+  }
+}

@@ -3,6 +3,8 @@ ChainGuard — Cross-Chain Cryptocurrency Fraud Detection Dashboard
 Home page. Navigate to specific pages via the sidebar.
 
 Run: streamlit run dashboard/app.py
+
+DATA SOURCE: All metrics from real experiment results. No simulated data.
 """
 
 import sys
@@ -12,27 +14,20 @@ sys.path.insert(0, os.path.dirname(__file__))
 from shared import setup_page, load_data
 
 import streamlit as st
+from _lib.i18n import t
 
 setup_page()
 DATA = load_data()
 cs = DATA["case_study"]
 abl = DATA["ablation"]
 
-# Best model metrics (from experiment data, not hardcoded)
+# Best model metrics (from experiment data)
 best = abl["M3"]  # R-GCN + Heterogeneous Edges — highest AUC
 gcn = abl["M1"]   # GCN baseline
 auc_delta = (best["auc_roc"] - gcn["auc_roc"]) / gcn["auc_roc"]
 prec_delta = (best["precision"] - gcn["precision"]) / gcn["precision"]
-# False discovery rate (1 - precision) measures: of flagged transactions, how many are false alarms
-# This is more actionable for ops teams than FPR (which needs true negatives count)
 fdr = 1 - best["precision"]
 gcn_fdr = 1 - gcn["precision"]
-
-# ROI: recovery = $25M annual fraud × recall
-annual_fraud = 25.0
-thgnn_recovery = annual_fraud * best["recall"]
-thgnn_invest = 3.2
-thgnn_net = thgnn_recovery - thgnn_invest
 
 # Hero
 st.markdown(
@@ -43,9 +38,9 @@ st.markdown(
     '<div>'
     '<h1 style="margin:0; font-size:2rem; color:#F9FAFB">ChainGuard</h1>'
     '</div></div>'
-    '<p style="color:#9CA3AF; font-size:1rem; margin:4px 0 0 0">'
-    'Cross-Chain Cryptocurrency Fraud Detection Platform<br>'
-    'Powered by <span style="color:#00D4AA; font-weight:600">Temporal Heterogeneous Graph Neural Network</span></p>'
+    f'<p style="color:#9CA3AF; font-size:1rem; margin:4px 0 0 0">'
+    f'{t("home_subtitle")}<br>'
+    f'{t("home_powered_by")} <span style="color:#00D4AA; font-weight:600">{t("home_thgnn")}</span></p>'
     '</div>',
     unsafe_allow_html=True,
 )
@@ -53,29 +48,28 @@ st.markdown(
 st.markdown("---")
 
 # KPI overview — all values derived from experiment data
-k1, k2, k3, k4, k5 = st.columns(5)
+k1, k2, k3, k4 = st.columns(4)
 total_detected = cs["both_detect"] + cs["m3_only"]
-k1.metric("AUC-ROC", f"{best['auc_roc']:.4f}", f"+{auc_delta:.1%} vs GCN")
-k2.metric("Detected", f"{total_detected}/{cs['total_illicit_test']}", f"{total_detected/cs['total_illicit_test']:.0%}")
-k3.metric("Precision", f"{best['precision']:.2%}", f"+{prec_delta:.1%} vs GCN")
-k4.metric("False Alarm", f"{fdr:.1%}", f"-{gcn_fdr - fdr:.1%} vs GCN", delta_color="inverse")
-k5.metric("Savings", f"${thgnn_net:.1f}M/yr", "annual projection")
+k1.metric(t("auc_roc"), f"{best['auc_roc']:.4f}", f"+{auc_delta:.1%} vs GCN")
+k2.metric(t("detected"), f"{total_detected}/{cs['total_illicit_test']}", f"{total_detected/cs['total_illicit_test']:.0%}")
+k3.metric(t("precision"), f"{best['precision']:.2%}", f"+{prec_delta:.1%} vs GCN")
+k4.metric(t("false_alarm"), f"{fdr:.1%}", f"-{gcn_fdr - fdr:.1%} vs GCN", delta_color="inverse")
 
 st.markdown("---")
 
 # Module navigation
 st.markdown(
-    '<h4 style="color:#6B7280; text-transform:uppercase; letter-spacing:0.08em; font-size:0.75rem; '
-    'margin-bottom:12px">Platform Modules</h4>',
+    f'<h4 style="color:#6B7280; text-transform:uppercase; letter-spacing:0.08em; font-size:0.75rem; '
+    f'margin-bottom:12px">{t("platform_modules")}</h4>',
     unsafe_allow_html=True,
 )
 
 modules = [
-    ("📊", "Executive Dashboard", "TRM Labs", "CEO/CRO — KPIs, risk trends, alerts, fund flow, ROI", "#00D4AA"),
-    ("🧪", "Model Performance", "ML Platform", "Data Scientists — Ablation study, baseline comparison, ROI", "#3B82F6"),
-    ("🔍", "Transaction Scanner", "Elliptic Navigator", "Operations — Real-time transaction risk scoring", "#F59E0B"),
-    ("🕸️", "Network Explorer", "Chainalysis Reactor", "Investigators — Graph topology, fraud clusters", "#8B5CF6"),
-    ("📋", "Forensics Lab", "Compliance", "AML/Audit — Detection evidence, fraud patterns", "#EF4444"),
+    ("📊", "Executive Dashboard", "TRM Labs", "CEO/CRO — KPIs, real dataset statistics, detection analysis", "#00D4AA"),
+    ("🧪", "Model Performance", "ML Platform", "Data Scientists — Ablation study, baseline comparison", "#3B82F6"),
+    ("🔍", "Transaction Scanner", "Elliptic Navigator", "Operations — Rule-based transaction risk scoring", "#F59E0B"),
+    ("🕸️", "Network Explorer", "Chainalysis Reactor", "Investigators — Real Elliptic graph topology", "#8B5CF6"),
+    ("📋", "Forensics Lab", "Compliance", "AML/Audit — Detection evidence, research findings", "#EF4444"),
 ]
 
 for icon, name, ref, desc, color in modules:
@@ -96,14 +90,13 @@ st.markdown("---")
 
 # Connection map
 st.markdown(
-    '<h4 style="color:#6B7280; text-transform:uppercase; letter-spacing:0.08em; font-size:0.75rem; '
-    'margin-bottom:12px">Data Flow</h4>',
+    f'<h4 style="color:#6B7280; text-transform:uppercase; letter-spacing:0.08em; font-size:0.75rem; '
+    f'margin-bottom:12px">{t("data_flow")}</h4>',
     unsafe_allow_html=True,
 )
-st.markdown("""
-All pages are interconnected — data and context flows between them:
+st.markdown(f"""{t("data_flow_desc")}
 
-- **Executive** → Scanner *(investigate TX)*, Network *(explore graph)*, Performance *(why)*, Forensics *(evidence)*
+- **Executive** → Scanner *(investigate)*, Network *(explore graph)*, Performance *(why)*, Forensics *(evidence)*
 - **Scanner** → Network *(view neighbors)*, Forensics *(submit evidence)*
 - **Network** → Scanner *(scan node)*, Forensics *(submit findings)*
 - **Performance** → Scanner *(try model)*, Forensics *(see evidence)*

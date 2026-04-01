@@ -38,6 +38,7 @@ def _init_session_state():
         "selected_alert_tx": None,
         "selected_model": "M3",
         "drill_from": None,
+        "lang": "en",
     }
     for key, val in defaults.items():
         if key not in st.session_state:
@@ -371,6 +372,24 @@ def _render_sidebar():
 
         st.markdown("")
 
+        # Language toggle
+        from _lib.i18n import t
+        lang_options = {"en": "EN English", "zh": "\u4e2d Chinese"}
+        current_lang = st.session_state.get("lang", "en")
+        selected_lang = st.radio(
+            t("language_label"),
+            options=list(lang_options.keys()),
+            format_func=lambda x: lang_options[x],
+            index=0 if current_lang == "en" else 1,
+            key="lang_toggle",
+            horizontal=True,
+        )
+        if selected_lang != st.session_state.get("lang"):
+            st.session_state["lang"] = selected_lang
+            st.rerun()
+
+        st.markdown("")
+
         # Dynamic stats — AUC loaded from experiment data at runtime
         auc_val = "—"
         if "ablation" in st.session_state.get("_data_cache", {}):
@@ -424,10 +443,10 @@ def _render_sidebar():
 
 @st.cache_data
 def load_data():
-    """Load all experiment results. Cached across pages.
+    """Load all experiment results and real dataset statistics. Cached across pages.
 
-    - ablation, baseline, case_study: real experiment data from JSON files
-    - timestep_risk, alerts: simulated demo data for Scanner/Executive pages
+    ALL data is from real experiments or the actual Elliptic dataset.
+    No simulated or mock data.
     """
     base = os.path.join(os.path.dirname(__file__), "../experiments/results")
 
@@ -445,44 +464,31 @@ def load_data():
         st.error(f"Corrupt experiment data: {e}")
         st.stop()
 
-    # ── Simulated demo data ──
-    # These are NOT real transactions — generated for interactive demo purposes.
-    # Real experiment metrics are in the JSON files above.
-    timestep_risk = {}
-    for ts in range(1, 50):
-        np.random.seed(42 + ts)
-        n_nodes = np.random.randint(2500, 6500)
-        illicit_base = np.random.beta(2, 15) + (ts / 600)
-        if 35 <= ts <= 41:
-            illicit_base *= 1.8
-        elif ts >= 42:
-            illicit_base *= 1.4
-        timestep_risk[ts] = {
-            "nodes": n_nodes,
-            "illicit": int(n_nodes * min(illicit_base, 0.25)),
-            "licit": n_nodes - int(n_nodes * min(illicit_base, 0.25)),
-            "risk_rate": illicit_base * 100,
-            "zone": "train" if ts <= 34 else ("val" if ts <= 41 else "test"),
-            "simulated": True,
-        }
+    # ── Real timestep statistics from Elliptic dataset ──
+    try:
+        with open(os.path.join(base, "timestep_stats.json")) as f:
+            ts_raw = json.load(f)
+        timestep_risk = {int(k): v for k, v in ts_raw.items()}
+    except FileNotFoundError:
+        st.error("timestep_stats.json not found. Run data preprocessing first.")
+        st.stop()
 
-    np.random.seed(42)
-    alerts = []
-    for i in range(25):
-        ts = np.random.randint(35, 50)
-        risk = round(np.random.uniform(0.45, 0.98), 3)
-        pattern = np.random.choice(["Mixing", "Fan-out", "Chain Hop", "Rapid Cycling", "Dormant"])
-        alerts.append({
-            "id": i, "tx_id": f"0x{np.random.randint(0, 16**8):08x}",
-            "risk_score": risk, "amount_btc": round(np.random.exponential(2.5), 3),
-            "timestep": int(ts), "pattern": pattern,
-            "status": ["New", "New", "In Review", "Resolved", "Dismissed"][i % 5],
-            "priority": 1 if risk > 0.8 else (2 if risk > 0.6 else 3),
-            "simulated": True,
-        })
-    alerts.sort(key=lambda x: -x["risk_score"])
+    # ── Real illicit transactions from test set ──
+    try:
+        with open(os.path.join(base, "real_test_illicit.json")) as f:
+            real_illicit = json.load(f)
+    except FileNotFoundError:
+        real_illicit = []
+
+    # ── Real graph data per timestep ──
+    try:
+        with open(os.path.join(base, "graph_data.json")) as f:
+            graph_data = json.load(f)
+    except FileNotFoundError:
+        graph_data = {}
 
     return {
         "ablation": ablation, "baseline": baseline, "case_study": case_study,
-        "timestep_risk": timestep_risk, "alerts": alerts,
+        "timestep_risk": timestep_risk, "real_test_illicit": real_illicit,
+        "graph_data": graph_data,
     }

@@ -1,7 +1,11 @@
 """
 Transaction Scanner — Elliptic Navigator style
 WHO: Operations Analysts
-WHAT: "Is this transaction suspicious?" — Multi-layer risk scoring
+WHAT: "Is this transaction suspicious?" — Multi-layer RULE-BASED risk scoring
+
+NOTE: This scanner uses a hand-crafted rule engine, NOT the TH-GNN model.
+It is a demonstration of how risk scoring rules work in practice.
+The actual TH-GNN model runs offline during training/evaluation.
 
 Risk Engine v2.0 — Anti-evasion enhancements:
   1. Address aggregation (24h cumulative volume)
@@ -14,6 +18,8 @@ Risk Engine v2.0 — Anti-evasion enhancements:
 import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
+
+from _lib.i18n import t
 
 
 def compute_risk(tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
@@ -37,7 +43,7 @@ def compute_risk(tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
         risk += 0.15
         factors.append(("Rapid succession (<10 min)", 0.15, "MEDIUM"))
     if chain_hop:
-        risk += 0.20  # V3: boosted from 0.10
+        risk += 0.20
         factors.append(("Cross-chain bridge (boosted)", 0.20, "HIGH"))
     if tx_amount > 10:
         risk += 0.08
@@ -52,7 +58,7 @@ def compute_risk(tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
         risk += 0.05
         factors.append(("Fan-out pattern (>4 outputs)", 0.05, "LOW"))
 
-    # ── Layer 2: Address Aggregation (V1, V2) ──
+    # ── Layer 2: Address Aggregation ──
     if addr_24h_volume > 50:
         bonus = 0.25
         risk += bonus
@@ -71,7 +77,7 @@ def compute_risk(tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
         risk += bonus
         factors.append(("Frequency: >5 tx/24h", bonus, "MEDIUM"))
 
-    # ── Layer 3: Combo Detection (V4 — multiplicative) ──
+    # ── Layer 3: Combo Detection (multiplicative) ──
     combo_multiplier = 1.0
     combo_reasons = []
 
@@ -94,7 +100,7 @@ def compute_risk(tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
         bonus = risk - old_risk
         factors.append((f"Combo: {' + '.join(combo_reasons)}", bonus, "HIGH"))
 
-    # ── Layer 4: Graph Neighborhood (V5) ──
+    # ── Layer 4: Graph Neighborhood ──
     if neighbor_illicit_pct > 30:
         bonus = 0.15
         risk += bonus
@@ -113,87 +119,56 @@ def compute_risk(tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
 
 
 def render(DATA, navigate_to):
-    alerts = DATA["alerts"]
-
     if st.session_state.get("drill_from"):
-        st.markdown(f'<div class="breadcrumb">← from {st.session_state["drill_from"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="breadcrumb">\u2190 from {st.session_state["drill_from"]}</div>', unsafe_allow_html=True)
 
-    st.markdown("# 🔍 Transaction Scanner")
-    st.markdown("Multi-layer fraud risk assessment with anti-evasion detection")
-    st.caption("⚠️ Transaction data below is simulated for demo purposes. Model metrics are from real experiments.")
+    st.markdown(f"# \U0001f50d {t('scanner_title')}")
+    st.markdown(t("scanner_subtitle"))
+    st.caption("This scanner uses a hand-crafted rule engine for demonstration. "
+               "It does NOT use the TH-GNN model for inference.")
 
-    # Show auto-loaded alert context
-    alert_tx = st.session_state.get("selected_alert_tx")
-    if alert_tx:
-        alert_match = next((a for a in alerts if a["tx_id"] == alert_tx), None)
-        if alert_match:
-            st.markdown(
-                f'<div class="risk-high" style="display:flex; align-items:center; gap:16px">'
-                f'<div style="font-size:2rem">🚨</div>'
-                f'<div>'
-                f'<strong style="color:#EF4444; font-size:1rem">Alert Auto-Loaded from Executive</strong><br>'
-                f'<span style="color:#E5E7EB">TX: <code>{alert_tx}</code></span><br>'
-                f'<span style="color:#F59E0B">Risk: {alert_match["risk_score"]:.0%}</span> · '
-                f'<span style="color:#9CA3AF">Pattern: {alert_match["pattern"]}</span> · '
-                f'<span style="color:#9CA3AF">TS: {alert_match["timestep"]}</span> · '
-                f'<span style="color:#9CA3AF">{alert_match["amount_btc"]:.3f} BTC</span>'
-                f'</div></div>',
-                unsafe_allow_html=True,
-            )
-    elif st.session_state.get("selected_risk_level", "ALL") != "ALL":
-        st.markdown(f"**Risk Filter:** {st.session_state.get('selected_risk_level', 'ALL')}")
     st.markdown("---")
-
-    alert_data = next((a for a in alerts if a["tx_id"] == alert_tx), None) if alert_tx else None
 
     sc1, sc2 = st.columns([1, 1.5])
 
     with sc1:
-        st.markdown("### Layer 1: Transaction Features")
-        tx_amount = st.slider("Amount (BTC)", 0.01, 100.0,
-                              alert_data["amount_btc"] if alert_data else 1.5, 0.01, key="scan_amt")
-        in_degree = st.number_input("Input Count", 1, 50, 3, key="scan_in")
-        out_degree = st.number_input("Output Count", 1, 50, 2, key="scan_out")
-        timestep = st.slider("Timestep", 1, 49,
+        st.markdown(f"### {t('layer1_title')}")
+        tx_amount = st.slider(t("amount_btc"), 0.01, 100.0, 1.5, 0.01, key="scan_amt")
+        in_degree = st.number_input(t("input_count"), 1, 50, 3, key="scan_in")
+        out_degree = st.number_input(t("output_count"), 1, 50, 2, key="scan_out")
+        timestep = st.slider(t("timestep"), 1, 49,
                              st.session_state.get("selected_timestep", 25), key="scan_ts")
 
-        st.markdown("#### Behavior Flags")
-        mixing = st.checkbox("Mixing service pattern",
-                             value=alert_data["pattern"] == "Mixing" if alert_data else False)
-        rapid = st.checkbox("Rapid succession (<10 min)",
-                            value=alert_data["pattern"] == "Rapid Cycling" if alert_data else False)
-        chain_hop = st.checkbox("Cross-chain bridge",
-                                value=alert_data["pattern"] == "Chain Hop" if alert_data else False)
+        st.markdown(f"#### {t('behavior_flags')}")
+        mixing = st.checkbox(t("mixing_pattern"), value=False)
+        rapid = st.checkbox(t("rapid_succession"), value=False)
+        chain_hop = st.checkbox(t("cross_chain"), value=False)
 
         st.markdown("---")
-        st.markdown("### Layer 2: Address History (24h)")
-        addr_24h_volume = st.slider("24h cumulative volume (BTC)", 0.0, 200.0, tx_amount, 0.1, key="scan_vol")
-        addr_24h_count = st.slider("24h transaction count", 1, 50, 1, key="scan_freq")
+        st.markdown(f"### {t('layer2_title')}")
+        addr_24h_volume = st.slider(t("volume_24h"), 0.0, 200.0, tx_amount, 0.1, key="scan_vol")
+        addr_24h_count = st.slider(t("tx_count_24h"), 1, 50, 1, key="scan_freq")
 
         st.markdown("---")
-        st.markdown("### Layer 4: Graph Context")
-        neighbor_illicit_pct = st.slider("Neighborhood illicit %", 0, 100, 5, key="scan_neigh")
+        st.markdown(f"### {t('layer4_title')}")
+        neighbor_illicit_pct = st.slider(t("neighborhood_pct"), 0, 100, 5, key="scan_neigh")
 
-        analyze = st.button("🔍 Analyze Transaction", type="primary", use_container_width=True, key="scan_go")
+        analyze = st.button(f"\U0001f50d {t('analyze_tx')}", type="primary", use_container_width=True, key="scan_go")
 
     with sc2:
-        if analyze or alert_data:
-            # Use alert_data's risk if auto-loaded, otherwise compute
-            if alert_data and not analyze:
-                risk = alert_data["risk_score"]
-                factors = [("Alert pre-scored by TH-GNN", alert_data["risk_score"], "HIGH")]
-            else:
-                risk, factors = compute_risk(
-                    tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
-                    addr_24h_volume, addr_24h_count, neighbor_illicit_pct,
-                )
+        if analyze:
+            risk, factors = compute_risk(
+                tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
+                addr_24h_volume, addr_24h_count, neighbor_illicit_pct,
+            )
 
             level = "HIGH" if risk > 0.7 else ("MEDIUM" if risk > 0.4 else "LOW")
+            level_text = {"HIGH": t("high_risk"), "MEDIUM": t("medium_risk"), "LOW": t("low_risk")}[level]
             color = {"HIGH": "#EF4444", "MEDIUM": "#F59E0B", "LOW": "#00D4AA"}[level]
             css = {"HIGH": "risk-high", "MEDIUM": "risk-medium", "LOW": "risk-low"}[level]
 
             st.markdown(f'<div class="{css}" style="text-align:center; padding:20px">'
-                        f'<h2 style="color:{color}; margin:0">{level} RISK</h2>'
+                        f'<h2 style="color:{color}; margin:0">{level_text}</h2>'
                         f'<h1 style="color:{color}; margin:0; font-size:3rem">{risk:.0%}</h1>'
                         f'<p style="color:#9CA3AF; margin:4px 0 0 0; font-size:0.8rem">'
                         f'Engine v2.0 | {len(factors)} factor{"s" if len(factors) != 1 else ""} detected</p>'
@@ -212,7 +187,7 @@ def render(DATA, navigate_to):
             st.plotly_chart(fig_g, use_container_width=True)
 
             # Risk factor breakdown
-            st.markdown("### Risk Factor Breakdown")
+            st.markdown(f"### {t('risk_breakdown')}")
             st.markdown(
                 '<div style="display:flex; gap:4px; margin-bottom:8px">'
                 '<span class="badge badge-blue">L1: Transaction</span>'
@@ -241,8 +216,8 @@ def render(DATA, navigate_to):
 
             if combo_active or addr_active or graph_active:
                 st.markdown(
-                    '<div class="risk-high" style="margin-top:12px">'
-                    '<strong style="color:#EF4444">Anti-Evasion Detection Active</strong><br>'
+                    f'<div class="risk-high" style="margin-top:12px">'
+                    f'<strong style="color:#EF4444">{t("anti_evasion")}</strong><br>'
                     '<span style="color:#E5E7EB">'
                     + ("Address aggregation triggered. " if addr_active else "")
                     + ("Behavioral combo detected. " if combo_active else "")
@@ -253,19 +228,19 @@ def render(DATA, navigate_to):
 
             # Cross-links
             st.markdown("---")
-            st.markdown("### Next Steps")
+            st.markdown(f"### {t('next_steps')}")
             n1, n2 = st.columns(2)
             with n1:
-                if st.button("🕸️ View neighborhood → Network", key="scan_to_net", type="primary"):
+                if st.button(f"\U0001f578\ufe0f {t('view_neighborhood')}", key="scan_to_net", type="primary"):
                     navigate_to("Network", selected_timestep=timestep); st.rerun()
             with n2:
-                if st.button("📋 Submit to → Forensics", key="scan_to_for"):
+                if st.button(f"\U0001f4cb {t('submit_forensics')}", key="scan_to_for"):
                     navigate_to("Forensics"); st.rerun()
         else:
-            st.markdown("### 👈 Configure parameters and click **Analyze**")
-            st.markdown("Or select an alert from **Executive Dashboard** to auto-fill.")
+            st.markdown(f"### \U0001f448 {t('configure_params')}")
+            st.markdown(t("or_select_alert"))
             st.markdown("---")
-            st.markdown("#### Risk Engine v2.0 — 4 Detection Layers")
+            st.markdown(f"#### {t('risk_engine_title')}")
             st.markdown("""
 | Layer | What it detects | Anti-evasion |
 |-------|----------------|-------------|
@@ -278,7 +253,7 @@ def render(DATA, navigate_to):
                 '<div class="risk-low" style="margin-top:12px">'
                 '<strong style="color:#10B981">Key upgrade from v1.0</strong><br>'
                 '<span style="color:#E5E7EB">'
-                'v1.0 used additive single-transaction rules — a launderer could split into small amounts '
+                'v1.0 used additive single-transaction rules \u2014 a launderer could split into small amounts '
                 'and bypass detection. v2.0 adds address-level aggregation, frequency analysis, '
                 'multiplicative combo detection, and graph-level neighborhood risk propagation.</span>'
                 '</div>',

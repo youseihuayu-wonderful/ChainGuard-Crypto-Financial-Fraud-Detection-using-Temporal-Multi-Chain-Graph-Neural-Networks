@@ -1,153 +1,204 @@
 """
 Network Explorer — Chainalysis Reactor style
 WHO: Investigators, Compliance Officers
-WHAT: "How are suspects connected?" — Interactive graph topology
+WHAT: "How are suspects connected?" — Interactive graph topology using REAL Elliptic data
 LINKS TO: Scanner (scan a node), Forensics (submit findings)
+
+DATA SOURCE: All graph data is from the actual Elliptic Bitcoin Transaction Dataset.
+Node labels and edges reflect the real transaction network.
 """
 
 import streamlit as st
 import plotly.graph_objects as go
 import numpy as np
-import random
+
+from _lib.i18n import t
 
 
 def render(DATA, navigate_to):
     ts_risk = DATA["timestep_risk"]
-    alerts = DATA["alerts"]
+    graph_data = DATA.get("graph_data", {})
 
     if st.session_state.get("drill_from"):
-        st.markdown(f'<div class="breadcrumb">← from {st.session_state["drill_from"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="breadcrumb">\u2190 from {st.session_state["drill_from"]}</div>', unsafe_allow_html=True)
 
-    st.markdown("# 🕸️ Network Explorer")
-    st.markdown("Explore transaction graph topology and fraud propagation")
+    st.markdown(f"# \U0001f578\ufe0f {t('network_title')}")
+    st.markdown(t("network_subtitle"))
 
     ctx = []
-    if st.session_state.get("selected_alert_tx"):
-        ctx.append(f"**Tracking TX:** `{st.session_state['selected_alert_tx'][:16]}...`")
-    ctx.append(f"**Timestep:** {st.session_state.get('selected_timestep', 25)}")
+    ctx.append(f"**{t('timestep')}:** {st.session_state.get('selected_timestep', 25)}")
     st.markdown(" | ".join(ctx))
     st.markdown("---")
 
     nc1, nc2 = st.columns([1, 2.5])
 
     with nc1:
-        st.markdown("### Parameters")
-        net_ts = st.selectbox("Timestep", list(range(1, 50)),
+        st.markdown(f"### {t('parameters')}")
+        net_ts = st.selectbox(t("timestep"), list(range(1, 50)),
                               index=st.session_state.get("selected_timestep", 25) - 1, key="net_ts")
-        n_nodes = st.slider("Display nodes", 20, 100, 50, key="net_nodes")
-        show_temporal = st.checkbox("Show temporal k-NN edges", True, key="net_temporal")
-        show_labels = st.checkbox("Show node IDs", False, key="net_labels")
+        n_display = st.slider(t("display_nodes"), 20, 200, 80, key="net_nodes")
+        show_labels = st.checkbox(t("show_labels"), False, key="net_labels")
 
         ti = ts_risk[net_ts]
         st.markdown("---")
-        st.markdown("### Timestep Info")
-        st.metric("Nodes", f"{ti['nodes']:,}")
-        st.metric("Illicit", f"{ti['illicit']}", f"{ti['risk_rate']:.1f}%")
-        st.metric("Zone", ti['zone'].upper())
+        st.markdown(f"### {t('timestep_info')}")
+        st.metric(t("nodes"), f"{ti['nodes']:,}")
+        st.metric(t("illicit"), f"{ti['illicit']}", f"{ti['risk_rate']:.1f}%")
+        st.metric("Licit", f"{ti.get('licit', 0):,}")
+        st.metric("Unknown", f"{ti.get('unknown', 0):,}")
+        st.metric(t("zone"), ti['zone'].upper())
+        if ti.get('edges'):
+            st.metric("Edges", f"{ti['edges']:,}")
 
         st.markdown("---")
-        st.markdown("### Legend")
-        st.markdown("🔴 Illicit &nbsp;&nbsp; 🔵 Licit &nbsp;&nbsp; ⚪ Unknown")
-        if show_temporal:
-            st.markdown("━━ Original &nbsp;&nbsp; ┄┄ Temporal k-NN")
+        st.markdown(f"### {t('legend')}")
+        st.markdown("\U0001f534 Illicit &nbsp;&nbsp; \U0001f535 Licit &nbsp;&nbsp; \u26aa Unknown")
 
     with nc2:
-        # Generate demo graph
-        np.random.seed(42 + net_ts)
-        random.seed(42 + net_ts)
-        n = n_nodes
-        pos = np.random.randn(n, 2) * 2
+        ts_key = str(net_ts)
+        if ts_key not in graph_data:
+            st.warning("Graph data not available for this timestep.")
+        else:
+            gd = graph_data[ts_key]
+            all_labels = gd["labels"]  # real labels from Elliptic
+            all_edges = gd["edges"]    # real edges from Elliptic
+            total_n = gd["n_nodes"]
 
-        labels = np.zeros(n)
-        n_ill = max(5, int(n * 0.2))
-        n_unk = int(n * 0.10)
-        ill_idx = random.sample(range(n), n_ill)
-        unk_idx = random.sample([i for i in range(n) if i not in ill_idx], n_unk)
-        for i in ill_idx:
-            labels[i] = 1
-            pos[i] = pos[i] * 0.4 + np.array([1.5, 1.5])  # cluster illicit
-        for i in unk_idx:
-            labels[i] = -1
+            # Select a subgraph to display (prioritize illicit nodes)
+            n = min(n_display, total_n)
 
-        # Edges
-        edges = []
-        for i in range(n):
-            for _ in range(random.randint(1, 3)):
-                j = random.randint(0, n-1)
-                if j != i: edges.append((i, j))
+            # Find illicit, licit, unknown indices
+            illicit_idx = [i for i, l in enumerate(all_labels) if l == "illicit"]
+            licit_idx = [i for i, l in enumerate(all_labels) if l == "licit"]
+            unknown_idx = [i for i, l in enumerate(all_labels) if l == "unknown"]
 
-        t_edges = []
-        if show_temporal:
-            for i in range(n):
-                for _ in range(random.randint(0, 2)):
-                    j = random.randint(0, n-1)
-                    if j != i: t_edges.append((i, j))
+            # Include all illicit nodes, then fill with licit/unknown
+            selected = []
+            selected.extend(illicit_idx[:n])
+            remaining = n - len(selected)
+            if remaining > 0:
+                # Add proportional licit and unknown
+                n_licit_add = min(len(licit_idx), int(remaining * 0.6))
+                n_unknown_add = min(len(unknown_idx), remaining - n_licit_add)
+                np.random.seed(42)  # reproducible selection
+                if n_licit_add > 0:
+                    selected.extend(np.random.choice(licit_idx, n_licit_add, replace=False).tolist())
+                if n_unknown_add > 0:
+                    selected.extend(np.random.choice(unknown_idx, n_unknown_add, replace=False).tolist())
 
-        fig = go.Figure()
+            selected_set = set(selected)
+            idx_map = {old: new for new, old in enumerate(selected)}
+            n_actual = len(selected)
 
-        # Original edges
-        for i, j in edges:
-            fig.add_trace(go.Scatter(x=[pos[i,0], pos[j,0], None], y=[pos[i,1], pos[j,1], None],
-                mode='lines', line=dict(color='rgba(100,100,100,0.2)', width=0.5),
-                hoverinfo='skip', showlegend=False))
+            # Get labels for selected nodes
+            node_labels = [all_labels[i] for i in selected]
 
-        # Temporal edges
-        if show_temporal:
-            for i, j in t_edges:
-                fig.add_trace(go.Scatter(x=[pos[i,0], pos[j,0], None], y=[pos[i,1], pos[j,1], None],
-                    mode='lines', line=dict(color='rgba(100,255,218,0.15)', width=0.8, dash='dot'),
+            # Filter edges to selected subgraph
+            sub_edges = []
+            for s, d in all_edges:
+                if s in selected_set and d in selected_set:
+                    sub_edges.append((idx_map[s], idx_map[d]))
+
+            # Layout using force-directed approximation (spring layout)
+            np.random.seed(42 + net_ts)
+            pos = np.random.randn(n_actual, 2) * 3
+
+            # Simple force-directed refinement (10 iterations)
+            for _ in range(15):
+                # Repulsion between all nodes
+                for i in range(n_actual):
+                    for j in range(i + 1, min(n_actual, i + 50)):  # limit for speed
+                        diff = pos[i] - pos[j]
+                        dist = max(np.linalg.norm(diff), 0.1)
+                        force = diff / (dist ** 2) * 0.5
+                        pos[i] += force
+                        pos[j] -= force
+                # Attraction along edges
+                for s, d in sub_edges[:500]:  # limit for speed
+                    diff = pos[d] - pos[s]
+                    dist = np.linalg.norm(diff)
+                    if dist > 0.5:
+                        force = diff * 0.02
+                        pos[s] += force
+                        pos[d] -= force
+
+            fig = go.Figure()
+
+            # Draw edges (batch as single trace for performance)
+            edge_x, edge_y = [], []
+            for s, d in sub_edges:
+                edge_x.extend([pos[s, 0], pos[d, 0], None])
+                edge_y.extend([pos[s, 1], pos[d, 1], None])
+            if edge_x:
+                fig.add_trace(go.Scatter(x=edge_x, y=edge_y,
+                    mode='lines', line=dict(color='rgba(100,100,100,0.15)', width=0.5),
                     hoverinfo='skip', showlegend=False))
 
-        # Alert TX highlight
-        alert_node = None
-        if st.session_state.get("selected_alert_tx"):
-            alert_node = random.randint(0, n-1)
-            labels[alert_node] = 1
+            # Draw nodes by label type
+            label_config = {
+                "unknown": ('#4B5563', 'Unknown', 5),
+                "licit": ('#3B82F6', 'Licit', 7),
+                "illicit": ('#EF4444', 'Illicit', 14),
+            }
+            for label_val, (color, name, sz) in label_config.items():
+                mask = [i for i, l in enumerate(node_labels) if l == label_val]
+                if not mask:
+                    continue
+                x_vals = [pos[i, 0] for i in mask]
+                y_vals = [pos[i, 1] for i in mask]
+                real_ids = [selected[i] for i in mask]
+                hover = [f"Node {rid}<br>Label: {name} (real)" for rid in real_ids]
+                text_labels = [str(rid) for rid in real_ids] if show_labels else None
 
-        # Nodes
-        for lv, color, name, sz in [(-1, '#4B5563', 'Unknown', 6), (0, '#3B82F6', 'Licit', 8), (1, '#EF4444', 'Illicit', 18)]:
-            mask = labels == lv
-            if not mask.any(): continue
-            node_ids = np.where(mask)[0]
-            fig.add_trace(go.Scatter(
-                x=pos[mask,0], y=pos[mask,1],
-                mode='markers+text' if show_labels else 'markers',
-                marker=dict(size=sz, color=color, line=dict(width=1 if lv==1 else 0, color='white')),
-                text=[str(i) for i in node_ids] if show_labels else None,
-                textposition="top center", textfont=dict(size=8, color="#E5E7EB"),
-                name=name, hovertext=[f"Node {i}<br>Label: {name}" for i in node_ids], hoverinfo='text'))
+                fig.add_trace(go.Scatter(
+                    x=x_vals, y=y_vals,
+                    mode='markers+text' if show_labels else 'markers',
+                    marker=dict(size=sz, color=color,
+                                line=dict(width=1 if label_val == "illicit" else 0, color='white')),
+                    text=text_labels,
+                    textposition="top center", textfont=dict(size=7, color="#E5E7EB"),
+                    name=name, hovertext=hover, hoverinfo='text'))
 
-        # Highlight alert node
-        if alert_node is not None:
-            fig.add_trace(go.Scatter(x=[pos[alert_node,0]], y=[pos[alert_node,1]], mode='markers',
-                marker=dict(size=24, color='rgba(0,0,0,0)', line=dict(color='#00D4AA', width=3)),
-                name="🎯 Alert TX", hovertext="Selected Alert TX", hoverinfo='text'))
+            fig.update_layout(height=550, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.8)",
+                font=dict(color="#E5E7EB"), xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                legend=dict(orientation="h", y=-0.05, x=0.15, font=dict(color="#E5E7EB")),
+                margin=dict(l=10, r=10, t=10, b=40))
+            st.plotly_chart(fig, use_container_width=True)
 
-        fig.update_layout(height=550, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.8)",
-            font=dict(color="#E5E7EB"), xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            legend=dict(orientation="h", y=-0.05, x=0.15, font=dict(color="#E5E7EB")),
-            margin=dict(l=10, r=10, t=10, b=40))
-        st.plotly_chart(fig, use_container_width=True)
+            # Data source note
+            st.caption(f"Showing {n_actual} of {total_n} nodes | {len(sub_edges)} of {gd['n_edges']} edges | Real Elliptic data")
 
-    # Network stats
+    # Network stats (computed from real data)
     st.markdown("---")
-    st.markdown("### Network Topology")
-    s1, s2, s3, s4 = st.columns(4)
-    s1.metric("Graph Density", f"{len(edges) / (n*(n-1)):.4f}")
-    s2.metric("Avg Degree", f"{2*len(edges)/n:.1f}")
-    s3.metric("Illicit Cluster Coeff.", f"{random.uniform(0.15, 0.35):.3f}")
-    s4.metric("Temporal Edge Ratio", f"{len(t_edges)/(len(edges)+len(t_edges)+1):.0%}" if show_temporal else "N/A")
+    st.markdown(f"### {t('network_topology')}")
+
+    ts_key = str(net_ts)
+    if ts_key in graph_data:
+        gd = graph_data[ts_key]
+        total_n = gd["n_nodes"]
+        total_e = gd["n_edges"]
+        n_illicit = sum(1 for l in gd["labels"] if l == "illicit")
+        n_licit = sum(1 for l in gd["labels"] if l == "licit")
+
+        s1, s2, s3, s4 = st.columns(4)
+        density = total_e / (total_n * (total_n - 1)) if total_n > 1 else 0
+        avg_degree = 2 * total_e / total_n if total_n > 0 else 0
+        illicit_ratio = n_illicit / total_n if total_n > 0 else 0
+        s1.metric(t("graph_density"), f"{density:.6f}")
+        s2.metric(t("avg_degree"), f"{avg_degree:.2f}")
+        s3.metric("Illicit Ratio", f"{illicit_ratio:.2%}")
+        s4.metric("Licit / Unknown", f"{n_licit} / {total_n - n_illicit - n_licit}")
 
     # Cross-links
     st.markdown("---")
     n1, n2, n3 = st.columns(3)
     with n1:
-        if st.button("🔍 Scan selected node → Scanner", key="net_to_scan"):
+        if st.button(f"\U0001f50d {t('scan_node')}", key="net_to_scan"):
             navigate_to("Scanner", selected_timestep=net_ts); st.rerun()
     with n2:
-        if st.button("📋 Submit findings → Forensics", key="net_to_for"):
+        if st.button(f"\U0001f4cb {t('submit_findings')}", key="net_to_for"):
             navigate_to("Forensics"); st.rerun()
     with n3:
-        if st.button("📊 Back to Executive", key="net_to_exec"):
+        if st.button(f"\U0001f4ca {t('back_executive')}", key="net_to_exec"):
             navigate_to("Executive"); st.rerun()

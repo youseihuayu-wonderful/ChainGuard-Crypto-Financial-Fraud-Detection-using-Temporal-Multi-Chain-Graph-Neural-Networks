@@ -1,0 +1,73 @@
+{
+  "description": "Statistical significance tests for M3 vs baselines",
+  "method": "Paired t-tests and Wilcoxon signed-rank tests on multi-seed AUC-ROC",
+  "n_seeds": 3,
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "note": "With 3 seeds, statistical power is limited. More seeds recommended for publication.",
+  "comparisons": {
+    "M1_GCN": {
+      "method": "M1_GCN",
+      "m3_mean": 0.8526,
+      "other_mean": 0.7978,
+      "mean_diff": 0.0548,
+      "t_statistic": 7.0484,
+      "p_value_ttest": 0.019541,
+      "test_type": "paired t-test",
+      "p_value_wilcoxon": 0.25,
+      "cohens_d": 6.4416,
+      "effect_size": "large",
+      "significant_005": true,
+      "significant_010": true,
+      "n_seeds": 3
+    },
+    "LR": {
+      "method": "LR",
+      "m3_mean": 0.8526,
+      "other_mean": 0.8546,
+      "mean_diff": -0.002,
+      "t_statistic": -0.4202,
+      "p_value_ttest": 0.715174,
+      "test_type": "one-sample t-test (baseline is deterministic)",
+      "p_value_wilcoxon": 0.75,
+      "cohens_d": -0.4202,
+      "effect_size": "small",
+      "significant_005": false,
+      "significant_010": false,
+      "n_seeds": 3
+    },
+    "RF": {
+      "method": "RF",
+      "m3_mean": 0.8526,
+      "other_mean": 0.856,
+      "mean_diff": -0.0034,
+      "t_statistic": -1.1553,
+      "p_value_ttest": 0.367336,
+      "test_type": "paired t-test",
+      "p_value_wilcoxon": 0.5,
+      "cohens_d": -0.5969,
+      "effect_size": "medium",
+      "significant_005": false,
+      "significant_010": false,
+      "n_seeds": 3
+    },
+    "GB": {
+      "method": "GB",
+      "m3_mean": 0.8526,
+      "other_mean": 0.8512,
+      "mean_diff": 0.0014,
+      "t_statistic": 0.2882,
+      "p_value_ttest": 0.800339,
+      "test_type": "paired t-test",
+      "p_value_wilcoxon": 1.0,
+      "cohens_d": 0.1976,
+      "effect_size": "small",
+      "significant_005": false,
+      "significant_010": false,
+      "n_seeds": 3
+    }
+  }
+}

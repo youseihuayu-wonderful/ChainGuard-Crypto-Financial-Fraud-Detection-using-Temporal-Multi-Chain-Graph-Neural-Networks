@@ -17,9 +17,11 @@ Risk Engine v2.0 — Anti-evasion enhancements:
 
 import streamlit as st
 import plotly.graph_objects as go
+import pandas as pd
 import numpy as np
 
 from _lib.i18n import t
+from _lib.model_serving import _model_available, load_predictions, get_top_risk_nodes
 
 
 def compute_risk(tx_amount, in_degree, out_degree, mixing, rapid, chain_hop,
@@ -124,8 +126,13 @@ def render(DATA, navigate_to):
 
     st.markdown(f"# \U0001f50d {t('scanner_title')}")
     st.markdown(t("scanner_subtitle"))
-    st.caption("This scanner uses a hand-crafted rule engine for demonstration. "
-               "It does NOT use the TH-GNN model for inference.")
+
+    has_model = _model_available()
+    if has_model:
+        st.caption("Rule-based scanner below + real M3 model predictions at bottom of page.")
+    else:
+        st.caption("This scanner uses a hand-crafted rule engine. "
+                   "Run train_and_save_m3.py to enable real GNN predictions.")
 
     st.markdown("---")
 
@@ -259,3 +266,35 @@ def render(DATA, navigate_to):
                 '</div>',
                 unsafe_allow_html=True,
             )
+
+    # ══════════════════════════════════════════
+    # Real M3 Model Predictions (if available)
+    # ══════════════════════════════════════════
+    if has_model:
+        st.markdown("---")
+        st.markdown("### 🧠 Real TH-GNN (M3) Predictions")
+        st.caption("These are ACTUAL predictions from the trained R-GCN model on Elliptic test set nodes.")
+
+        predictions = load_predictions()
+        if predictions:
+            pm1, pm2, pm3, pm4 = st.columns(4)
+            pm1.metric("Test AUC-ROC", f"{predictions['test_auc']:.4f}")
+            pm2.metric("Test F1", f"{predictions['test_f1']:.4f}")
+            pm3.metric("Test Precision", f"{predictions['test_precision']:.4f}")
+            pm4.metric("Test Recall", f"{predictions['test_recall']:.4f}")
+
+            # Top risk nodes table
+            st.markdown("#### Top 20 Highest-Risk Nodes (Real Model Scores)")
+            top_nodes = get_top_risk_nodes(20, predictions)
+            df_top = pd.DataFrame([{
+                "Node ID": n["node_id"],
+                "Risk Score": f"{n['risk_score']:.2%}",
+                "True Label": "🔴 ILLICIT" if n["true_label"] == 1 else "🟢 LICIT",
+                "Timestep": n["timestep"],
+                "Correct": "✅" if (n["risk_score"] > 0.5 and n["true_label"] == 1) or
+                                   (n["risk_score"] <= 0.5 and n["true_label"] == 0) else "❌",
+            } for n in top_nodes])
+            st.dataframe(df_top, use_container_width=True, hide_index=True, height=400)
+
+            if st.button("🧠 See full explanations → Explainability", key="scan_to_expl"):
+                navigate_to("Explainability"); st.rerun()

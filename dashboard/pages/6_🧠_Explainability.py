@@ -1,4 +1,4 @@
-TITLE = "ChainGuard | Network Explorer"
+TITLE = "ChainGuard | GNN Explainability"
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared import setup_page, load_data
@@ -22,6 +22,5 @@ def nav(page, **kwargs):
 setup_page(TITLE)
 DATA = load_data()
 
-# Import and run the render function
-from _lib.network import render
+from _lib.explainability import render
 render(DATA, nav)

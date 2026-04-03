@@ -70,6 +70,7 @@ modules = [
     ("🔍", "Transaction Scanner", "Elliptic Navigator", "Operations — Rule-based transaction risk scoring", "#F59E0B"),
     ("🕸️", "Network Explorer", "Chainalysis Reactor", "Investigators — Real Elliptic graph topology", "#8B5CF6"),
     ("📋", "Forensics Lab", "Compliance", "AML/Audit — Detection evidence, research findings", "#EF4444"),
+    ("🧠", "GNN Explainability", "XAI", "Research — Real feature importance, node explanations, training curves", "#8B5CF6"),
 ]
 
 for icon, name, ref, desc, color in modules:

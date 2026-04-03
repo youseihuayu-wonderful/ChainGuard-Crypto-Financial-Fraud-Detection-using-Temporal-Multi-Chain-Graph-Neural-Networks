@@ -1,0 +1,832 @@
+{
+  "method": "gradient-based attribution (real model gradients)",
+  "model": "M3 (R-GCN + Heterogeneous Edges)",
+  "n_features": 165,
+  "features": [
+    {
+      "idx": 162,
+      "name": "agg_f69",
+      "importance": 1.5548
+    },
+    {
+      "idx": 118,
+      "name": "agg_f25",
+      "importance": 1.5156
+    },
+    {
+      "idx": 2,
+      "name": "local_f3",
+      "importance": 1.306556
+    },
+    {
+      "idx": 80,
+      "name": "local_f81",
+      "importance": 1.281825
+    },
+    {
+      "idx": 79,
+      "name": "local_f80",
+      "importance": 1.248649
+    },
+    {
+      "idx": 87,
+      "name": "local_f88",
+      "importance": 1.209155
+    },
+    {
+      "idx": 136,
+      "name": "agg_f43",
+      "importance": 1.028959
+    },
+    {
+      "idx": 147,
+      "name": "agg_f54",
+      "importance": 1.007213
+    },
+    {
+      "idx": 149,
+      "name": "agg_f56",
+      "importance": 0.917204
+    },
+    {
+      "idx": 13,
+      "name": "local_f14",
+      "importance": 0.854198
+    },
+    {
+      "idx": 4,
+      "name": "local_f5",
+      "importance": 0.825589
+    },
+    {
+      "idx": 52,
+      "name": "local_f53",
+      "importance": 0.822491
+    },
+    {
+      "idx": 159,
+      "name": "agg_f66",
+      "importance": 0.818728
+    },
+    {
+      "idx": 88,
+      "name": "local_f89",
+      "importance": 0.789583
+    },
+    {
+      "idx": 113,
+      "name": "agg_f20",
+      "importance": 0.759559
+    },
+    {
+      "idx": 51,
+      "name": "local_f52",
+      "importance": 0.75681
+    },
+    {
+      "idx": 6,
+      "name": "local_f7",
+      "importance": 0.748213
+    },
+    {
+      "idx": 161,
+      "name": "agg_f68",
+      "importance": 0.740105
+    },
+    {
+      "idx": 148,
+      "name": "agg_f55",
+      "importance": 0.7363
+    },
+    {
+      "idx": 54,
+      "name": "local_f55",
+      "importance": 0.713845
+    },
+    {
+      "idx": 123,
+      "name": "agg_f30",
+      "importance": 0.705333
+    },
+    {
+      "idx": 18,
+      "name": "local_f19",
+      "importance": 0.659369
+    },
+    {
+      "idx": 17,
+      "name": "local_f18",
+      "importance": 0.636314
+    },
+    {
+      "idx": 0,
+      "name": "local_f1",
+      "importance": 0.63598
+    },
+    {
+      "idx": 117,
+      "name": "agg_f24",
+      "importance": 0.627984
+    },
+    {
+      "idx": 81,
+      "name": "local_f82",
+      "importance": 0.61118
+    },
+    {
+      "idx": 131,
+      "name": "agg_f38",
+      "importance": 0.604849
+    },
+    {
+      "idx": 16,
+      "name": "local_f17",
+      "importance": 0.600054
+    },
+    {
+      "idx": 126,
+      "name": "agg_f33",
+      "importance": 0.584761
+    },
+    {
+      "idx": 45,
+      "name": "local_f46",
+      "importance": 0.56731
+    },
+    {
+      "idx": 90,
+      "name": "local_f91",
+      "importance": 0.565007
+    },
+    {
+      "idx": 86,
+      "name": "local_f87",
+      "importance": 0.56193
+    },
+    {
+      "idx": 132,
+      "name": "agg_f39",
+      "importance": 0.557846
+    },
+    {
+      "idx": 85,
+      "name": "local_f86",
+      "importance": 0.556029
+    },
+    {
+      "idx": 48,
+      "name": "local_f49",
+      "importance": 0.547659
+    },
+    {
+      "idx": 46,
+      "name": "local_f47",
+      "importance": 0.538589
+    },
+    {
+      "idx": 120,
+      "name": "agg_f27",
+      "importance": 0.531147
+    },
+    {
+      "idx": 12,
+      "name": "local_f13",
+      "importance": 0.52245
+    },
+    {
+      "idx": 154,
+      "name": "agg_f61",
+      "importance": 0.521471
+    },
+    {
+      "idx": 10,
+      "name": "local_f11",
+      "importance": 0.521113
+    },
+    {
+      "idx": 91,
+      "name": "local_f92",
+      "importance": 0.510492
+    },
+    {
+      "idx": 53,
+      "name": "local_f54",
+      "importance": 0.507816
+    },
+    {
+      "idx": 108,
+      "name": "agg_f15",
+      "importance": 0.494489
+    },
+    {
+      "idx": 66,
+      "name": "local_f67",
+      "importance": 0.485845
+    },
+    {
+      "idx": 57,
+      "name": "local_f58",
+      "importance": 0.479771
+    },
+    {
+      "idx": 124,
+      "name": "agg_f31",
+      "importance": 0.475896
+    },
+    {
+      "idx": 63,
+      "name": "local_f64",
+      "importance": 0.464841
+    },
+    {
+      "idx": 41,
+      "name": "local_f42",
+      "importance": 0.445178
+    },
+    {
+      "idx": 105,
+      "name": "agg_f12",
+      "importance": 0.445028
+    },
+    {
+      "idx": 95,
+      "name": "agg_f2",
+      "importance": 0.436802
+    },
+    {
+      "idx": 39,
+      "name": "local_f40",
+      "importance": 0.436007
+    },
+    {
+      "idx": 143,
+      "name": "agg_f50",
+      "importance": 0.435348
+    },
+    {
+      "idx": 83,
+      "name": "local_f84",
+      "importance": 0.433585
+    },
+    {
+      "idx": 137,
+      "name": "agg_f44",
+      "importance": 0.427422
+    },
+    {
+      "idx": 7,
+      "name": "local_f8",
+      "importance": 0.423198
+    },
+    {
+      "idx": 60,
+      "name": "local_f61",
+      "importance": 0.41043
+    },
+    {
+      "idx": 89,
+      "name": "local_f90",
+      "importance": 0.405665
+    },
+    {
+      "idx": 106,
+      "name": "agg_f13",
+      "importance": 0.405204
+    },
+    {
+      "idx": 82,
+      "name": "local_f83",
+      "importance": 0.40323
+    },
+    {
+      "idx": 129,
+      "name": "agg_f36",
+      "importance": 0.402807
+    },
+    {
+      "idx": 160,
+      "name": "agg_f67",
+      "importance": 0.397715
+    },
+    {
+      "idx": 42,
+      "name": "local_f43",
+      "importance": 0.378476
+    },
+    {
+      "idx": 8,
+      "name": "local_f9",
+      "importance": 0.37171
+    },
+    {
+      "idx": 44,
+      "name": "local_f45",
+      "importance": 0.369556
+    },
+    {
+      "idx": 15,
+      "name": "local_f16",
+      "importance": 0.368922
+    },
+    {
+      "idx": 130,
+      "name": "agg_f37",
+      "importance": 0.361186
+    },
+    {
+      "idx": 157,
+      "name": "agg_f64",
+      "importance": 0.361104
+    },
+    {
+      "idx": 102,
+      "name": "agg_f9",
+      "importance": 0.355067
+    },
+    {
+      "idx": 164,
+      "name": "agg_f71",
+      "importance": 0.35263
+    },
+    {
+      "idx": 103,
+      "name": "agg_f10",
+      "importance": 0.35226
+    },
+    {
+      "idx": 116,
+      "name": "agg_f23",
+      "importance": 0.347529
+    },
+    {
+      "idx": 98,
+      "name": "agg_f5",
+      "importance": 0.346975
+    },
+    {
+      "idx": 84,
+      "name": "local_f85",
+      "importance": 0.338354
+    },
+    {
+      "idx": 142,
+      "name": "agg_f49",
+      "importance": 0.336846
+    },
+    {
+      "idx": 128,
+      "name": "agg_f35",
+      "importance": 0.335002
+    },
+    {
+      "idx": 1,
+      "name": "local_f2",
+      "importance": 0.333875
+    },
+    {
+      "idx": 64,
+      "name": "local_f65",
+      "importance": 0.33029
+    },
+    {
+      "idx": 100,
+      "name": "agg_f7",
+      "importance": 0.328927
+    },
+    {
+      "idx": 65,
+      "name": "local_f66",
+      "importance": 0.327906
+    },
+    {
+      "idx": 133,
+      "name": "agg_f40",
+      "importance": 0.32677
+    },
+    {
+      "idx": 153,
+      "name": "agg_f60",
+      "importance": 0.321046
+    },
+    {
+      "idx": 114,
+      "name": "agg_f21",
+      "importance": 0.316628
+    },
+    {
+      "idx": 140,
+      "name": "agg_f47",
+      "importance": 0.309125
+    },
+    {
+      "idx": 9,
+      "name": "local_f10",
+      "importance": 0.308973
+    },
+    {
+      "idx": 56,
+      "name": "local_f57",
+      "importance": 0.301276
+    },
+    {
+      "idx": 135,
+      "name": "agg_f42",
+      "importance": 0.297372
+    },
+    {
+      "idx": 94,
+      "name": "agg_f1",
+      "importance": 0.294964
+    },
+    {
+      "idx": 61,
+      "name": "local_f62",
+      "importance": 0.290903
+    },
+    {
+      "idx": 5,
+      "name": "local_f6",
+      "importance": 0.288934
+    },
+    {
+      "idx": 27,
+      "name": "local_f28",
+      "importance": 0.287272
+    },
+    {
+      "idx": 99,
+      "name": "agg_f6",
+      "importance": 0.286386
+    },
+    {
+      "idx": 139,
+      "name": "agg_f46",
+      "importance": 0.278131
+    },
+    {
+      "idx": 150,
+      "name": "agg_f57",
+      "importance": 0.272015
+    },
+    {
+      "idx": 163,
+      "name": "agg_f70",
+      "importance": 0.271539
+    },
+    {
+      "idx": 141,
+      "name": "agg_f48",
+      "importance": 0.269618
+    },
+    {
+      "idx": 104,
+      "name": "agg_f11",
+      "importance": 0.264151
+    },
+    {
+      "idx": 59,
+      "name": "local_f60",
+      "importance": 0.260533
+    },
+    {
+      "idx": 58,
+      "name": "local_f59",
+      "importance": 0.254339
+    },
+    {
+      "idx": 40,
+      "name": "local_f41",
+      "importance": 0.251203
+    },
+    {
+      "idx": 152,
+      "name": "agg_f59",
+      "importance": 0.249648
+    },
+    {
+      "idx": 74,
+      "name": "local_f75",
+      "importance": 0.2489
+    },
+    {
+      "idx": 155,
+      "name": "agg_f62",
+      "importance": 0.246592
+    },
+    {
+      "idx": 43,
+      "name": "local_f44",
+      "importance": 0.245564
+    },
+    {
+      "idx": 111,
+      "name": "agg_f18",
+      "importance": 0.242207
+    },
+    {
+      "idx": 101,
+      "name": "agg_f8",
+      "importance": 0.241851
+    },
+    {
+      "idx": 138,
+      "name": "agg_f45",
+      "importance": 0.239345
+    },
+    {
+      "idx": 32,
+      "name": "local_f33",
+      "importance": 0.239304
+    },
+    {
+      "idx": 144,
+      "name": "agg_f51",
+      "importance": 0.236836
+    },
+    {
+      "idx": 35,
+      "name": "local_f36",
+      "importance": 0.236135
+    },
+    {
+      "idx": 119,
+      "name": "agg_f26",
+      "importance": 0.232119
+    },
+    {
+      "idx": 73,
+      "name": "local_f74",
+      "importance": 0.231568
+    },
+    {
+      "idx": 78,
+      "name": "local_f79",
+      "importance": 0.229666
+    },
+    {
+      "idx": 62,
+      "name": "local_f63",
+      "importance": 0.226806
+    },
+    {
+      "idx": 122,
+      "name": "agg_f29",
+      "importance": 0.224654
+    },
+    {
+      "idx": 55,
+      "name": "local_f56",
+      "importance": 0.224566
+    },
+    {
+      "idx": 125,
+      "name": "agg_f32",
+      "importance": 0.224411
+    },
+    {
+      "idx": 75,
+      "name": "local_f76",
+      "importance": 0.221698
+    },
+    {
+      "idx": 30,
+      "name": "local_f31",
+      "importance": 0.2213
+    },
+    {
+      "idx": 11,
+      "name": "local_f12",
+      "importance": 0.220688
+    },
+    {
+      "idx": 158,
+      "name": "agg_f65",
+      "importance": 0.218222
+    },
+    {
+      "idx": 92,
+      "name": "local_f93",
+      "importance": 0.216815
+    },
+    {
+      "idx": 127,
+      "name": "agg_f34",
+      "importance": 0.21415
+    },
+    {
+      "idx": 26,
+      "name": "local_f27",
+      "importance": 0.211907
+    },
+    {
+      "idx": 97,
+      "name": "agg_f4",
+      "importance": 0.207326
+    },
+    {
+      "idx": 21,
+      "name": "local_f22",
+      "importance": 0.202677
+    },
+    {
+      "idx": 24,
+      "name": "local_f25",
+      "importance": 0.2017
+    },
+    {
+      "idx": 146,
+      "name": "agg_f53",
+      "importance": 0.201594
+    },
+    {
+      "idx": 107,
+      "name": "agg_f14",
+      "importance": 0.197697
+    },
+    {
+      "idx": 77,
+      "name": "local_f78",
+      "importance": 0.194192
+    },
+    {
+      "idx": 112,
+      "name": "agg_f19",
+      "importance": 0.192667
+    },
+    {
+      "idx": 110,
+      "name": "agg_f17",
+      "importance": 0.192233
+    },
+    {
+      "idx": 76,
+      "name": "local_f77",
+      "importance": 0.192046
+    },
+    {
+      "idx": 121,
+      "name": "agg_f28",
+      "importance": 0.188936
+    },
+    {
+      "idx": 37,
+      "name": "local_f38",
+      "importance": 0.188911
+    },
+    {
+      "idx": 151,
+      "name": "agg_f58",
+      "importance": 0.188034
+    },
+    {
+      "idx": 115,
+      "name": "agg_f22",
+      "importance": 0.187632
+    },
+    {
+      "idx": 38,
+      "name": "local_f39",
+      "importance": 0.183733
+    },
+    {
+      "idx": 96,
+      "name": "agg_f3",
+      "importance": 0.18063
+    },
+    {
+      "idx": 31,
+      "name": "local_f32",
+      "importance": 0.180217
+    },
+    {
+      "idx": 22,
+      "name": "local_f23",
+      "importance": 0.176008
+    },
+    {
+      "idx": 25,
+      "name": "local_f26",
+      "importance": 0.172656
+    },
+    {
+      "idx": 93,
+      "name": "local_f94",
+      "importance": 0.171521
+    },
+    {
+      "idx": 3,
+      "name": "local_f4",
+      "importance": 0.169679
+    },
+    {
+      "idx": 156,
+      "name": "agg_f63",
+      "importance": 0.162034
+    },
+    {
+      "idx": 109,
+      "name": "agg_f16",
+      "importance": 0.161871
+    },
+    {
+      "idx": 20,
+      "name": "local_f21",
+      "importance": 0.160322
+    },
+    {
+      "idx": 134,
+      "name": "agg_f41",
+      "importance": 0.156724
+    },
+    {
+      "idx": 47,
+      "name": "local_f48",
+      "importance": 0.150466
+    },
+    {
+      "idx": 28,
+      "name": "local_f29",
+      "importance": 0.134555
+    },
+    {
+      "idx": 68,
+      "name": "local_f69",
+      "importance": 0.129327
+    },
+    {
+      "idx": 145,
+      "name": "agg_f52",
+      "importance": 0.126693
+    },
+    {
+      "idx": 19,
+      "name": "local_f20",
+      "importance": 0.116496
+    },
+    {
+      "idx": 49,
+      "name": "local_f50",
+      "importance": 0.115344
+    },
+    {
+      "idx": 23,
+      "name": "local_f24",
+      "importance": 0.110411
+    },
+    {
+      "idx": 33,
+      "name": "local_f34",
+      "importance": 0.110055
+    },
+    {
+      "idx": 29,
+      "name": "local_f30",
+      "importance": 0.104716
+    },
+    {
+      "idx": 67,
+      "name": "local_f68",
+      "importance": 0.096972
+    },
+    {
+      "idx": 69,
+      "name": "local_f70",
+      "importance": 0.095284
+    },
+    {
+      "idx": 34,
+      "name": "local_f35",
+      "importance": 0.093344
+    },
+    {
+      "idx": 71,
+      "name": "local_f72",
+      "importance": 0.088049
+    },
+    {
+      "idx": 36,
+      "name": "local_f37",
+      "importance": 0.083817
+    },
+    {
+      "idx": 50,
+      "name": "local_f51",
+      "importance": 0.074694
+    },
+    {
+      "idx": 72,
+      "name": "local_f73",
+      "importance": 0.062132
+    },
+    {
+      "idx": 14,
+      "name": "local_f15",
+      "importance": 0.050534
+    },
+    {
+      "idx": 70,
+      "name": "local_f71",
+      "importance": 0.033852
+    }
+  ]
+}

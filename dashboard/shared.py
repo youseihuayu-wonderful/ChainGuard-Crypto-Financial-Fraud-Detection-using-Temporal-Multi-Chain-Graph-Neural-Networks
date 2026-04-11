@@ -403,9 +403,22 @@ def _render_sidebar():
                 auc_val = f"{_abl['M3']['auc_roc']:.4f}"
             except Exception:
                 auc_val = "—"
+        # Load real node/edge counts from timestep_stats.json
+        _nodes_str = "203,769"
+        _edges_str = "234,355"
+        try:
+            _base2 = os.path.join(os.path.dirname(__file__), "../experiments/results")
+            with open(os.path.join(_base2, "timestep_stats.json")) as _tf:
+                _ts_data = json.load(_tf)
+            _total_nodes = sum(v["nodes"] for v in _ts_data.values())
+            _total_edges = sum(v.get("edges", 0) for v in _ts_data.values())
+            _nodes_str = f"{_total_nodes:,}"
+            _edges_str = f"{_total_edges:,}"
+        except Exception:
+            pass
         stats = [
-            ("Nodes", "203,769"),
-            ("Edges", "2,193,245"),
+            ("Nodes", _nodes_str),
+            ("Edges", _edges_str),
             ("Model", "TH-GNN (M3)"),
             ("AUC", auc_val),
         ]

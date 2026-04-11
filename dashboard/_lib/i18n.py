@@ -43,7 +43,7 @@ TRANSLATIONS = {
         # ── Executive Dashboard ──
         "exec_title": "Executive Dashboard",
         "exec_subtitle": "Enterprise fraud monitoring — **click any section to drill down**",
-        "exec_disclaimer": "Timeline, alerts, and fund flow data are simulated for demo. KPIs and model metrics are from real experiments.",
+        "exec_disclaimer": "All data from the Elliptic Bitcoin Dataset and real experiment results.",
         "kpis": "KPIs",
         "detection": "Detection",
         "timeline": "Timeline",
@@ -111,7 +111,7 @@ TRANSLATIONS = {
         # ── Transaction Scanner ──
         "scanner_title": "Transaction Scanner",
         "scanner_subtitle": "Multi-layer fraud risk assessment with anti-evasion detection",
-        "scanner_disclaimer": "Transaction data below is simulated for demo purposes. Model metrics are from real experiments.",
+        "scanner_disclaimer": "Rule-based risk engine for demonstration. Real M3 model predictions shown below if available.",
         "alert_autoloaded": "Alert Auto-Loaded from Executive",
         "risk_filter": "Risk Filter",
         "layer1_title": "Layer 1: Transaction Features",

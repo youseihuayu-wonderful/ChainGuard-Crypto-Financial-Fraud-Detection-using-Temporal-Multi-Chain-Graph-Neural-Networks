@@ -71,6 +71,7 @@ modules = [
     ("🕸️", "Network Explorer", "Chainalysis Reactor", "Investigators — Real Elliptic graph topology", "#8B5CF6"),
     ("📋", "Forensics Lab", "Compliance", "AML/Audit — Detection evidence, research findings", "#EF4444"),
     ("🧠", "GNN Explainability", "XAI", "Research — Real feature importance, node explanations, training curves", "#8B5CF6"),
+    ("📜", "Activity Log", "Audit Trail", "Team Leads — Analyst activity timeline, investigation history", "#10B981"),
 ]
 
 for icon, name, ref, desc, color in modules:

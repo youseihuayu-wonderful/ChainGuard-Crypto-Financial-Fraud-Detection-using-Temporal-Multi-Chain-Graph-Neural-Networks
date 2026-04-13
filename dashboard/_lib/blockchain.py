@@ -176,9 +176,9 @@ def _assess_risk(transactions):
 
 def render(DATA, navigate_to):
     """Render the Real-Time Blockchain Scanner page."""
-    st.markdown("# :link: Real-Time Blockchain Scanner")
-    st.markdown("Look up real Ethereum addresses and transaction hashes via the Etherscan public API.")
-    st.caption("Live data from Etherscan API. Risk assessment uses rule-based engine, not GNN.")
+    st.markdown(f"# :link: {t('blockchain_title')}")
+    st.markdown(t("blockchain_subtitle"))
+    st.caption(t("blockchain_caption"))
 
     st.markdown("---")
 
@@ -186,24 +186,24 @@ def render(DATA, navigate_to):
     col_input, col_info = st.columns([2, 1])
 
     with col_input:
-        st.markdown("### Enter Address or Transaction Hash")
+        st.markdown(f"### {t('enter_address_or_hash')}")
         query = st.text_input(
-            "Ethereum address (0x...) or transaction hash",
+            t("eth_address_or_hash"),
             placeholder="0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
             key="blockchain_query",
         )
 
-        lookup_btn = st.button("Search", type="primary", use_container_width=True, key="blockchain_search")
+        lookup_btn = st.button(t("search"), type="primary", use_container_width=True, key="blockchain_search")
 
     with col_info:
-        st.markdown("### Supported Lookups")
+        st.markdown(f"### {t('supported_lookups')}")
         st.markdown(
             '<div class="glass-card">'
-            '<p style="color:#E5E7EB; margin:0"><strong style="color:#00D4AA">Address</strong> '
-            '(0x + 40 hex chars)<br>Shows balance and recent transactions</p>'
+            f'<p style="color:#E5E7EB; margin:0"><strong style="color:#00D4AA">{t("address_desc")}</strong> '
+            f'{t("address_detail")}</p>'
             '<br>'
-            '<p style="color:#E5E7EB; margin:0"><strong style="color:#3B82F6">Tx Hash</strong> '
-            '(0x + 64 hex chars)<br>Shows transaction details</p>'
+            f'<p style="color:#E5E7EB; margin:0"><strong style="color:#3B82F6">{t("tx_hash_desc")}</strong> '
+            f'{t("tx_hash_detail")}</p>'
             '</div>',
             unsafe_allow_html=True,
         )
@@ -218,15 +218,12 @@ def render(DATA, navigate_to):
         elif _is_eth_tx_hash(query):
             _render_tx_lookup(query)
         else:
-            st.error(
-                "Invalid input. Please enter a valid Ethereum address (0x + 40 hex characters) "
-                "or transaction hash (0x + 64 hex characters)."
-            )
+            st.error(t("invalid_input"))
 
     elif not lookup_btn:
         # Show example addresses
-        st.markdown("### Example Addresses")
-        st.markdown("Try these well-known Ethereum addresses:")
+        st.markdown(f"### {t('example_addresses')}")
+        st.markdown(t("try_example_addresses"))
 
         examples = [
             ("Ethereum Foundation", "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe"),
@@ -244,45 +241,42 @@ def render(DATA, navigate_to):
             )
 
         st.markdown("")
-        st.info("Enter an address or transaction hash above and click **Search** to begin.")
+        st.info(t("search_prompt"))
 
 
 def _render_address_lookup(address):
     """Render results for an Ethereum address lookup."""
-    st.markdown(f"### Address: `{address[:10]}...{address[-6:]}`")
+    st.markdown(f"### {t('address_label')}: `{address[:10]}...{address[-6:]}`")
 
-    with st.spinner("Fetching data from Etherscan..."):
+    with st.spinner(t("fetching_etherscan")):
         balance = _fetch_balance(address)
         transactions = _fetch_transactions(address, count=10)
 
     if balance is None and not transactions:
-        st.warning(
-            "Could not fetch data from Etherscan. This may be due to rate limiting "
-            "(max 5 requests/sec without API key) or network issues. Please try again in a moment."
-        )
+        st.warning(t("fetch_failed"))
         return
 
     # Balance display
     m1, m2, m3 = st.columns(3)
     with m1:
         if balance is not None:
-            st.metric("ETH Balance", f"{balance:.4f} ETH")
+            st.metric(t("eth_balance"), f"{balance:.4f} ETH")
         else:
-            st.metric("ETH Balance", "N/A")
+            st.metric(t("eth_balance"), "N/A")
 
     with m2:
-        st.metric("Transactions Found", len(transactions))
+        st.metric(t("transactions_found"), len(transactions))
 
     with m3:
         if transactions:
             total_val = sum(int(tx.get("value", "0")) / 1e18 for tx in transactions)
-            st.metric("Total Value (Last 10)", f"{total_val:.4f} ETH")
+            st.metric(t("total_value_last10"), f"{total_val:.4f} ETH")
         else:
-            st.metric("Total Value (Last 10)", "N/A")
+            st.metric(t("total_value_last10"), "N/A")
 
     # Transaction list
     if transactions:
-        st.markdown("### Recent Transactions")
+        st.markdown(f"### {t('recent_transactions')}")
 
         tx_rows = []
         for tx in transactions:
@@ -298,13 +292,13 @@ def _render_address_lookup(address):
             direction = "OUT" if from_addr.lower() == address.lower() else "IN"
 
             tx_rows.append({
-                "Time": time_str,
-                "Direction": direction,
-                "Value (ETH)": f"{val_eth:.6f}",
-                "From": f"{from_addr[:8]}...{from_addr[-4:]}" if len(from_addr) > 12 else from_addr,
-                "To": f"{to_addr[:8]}...{to_addr[-4:]}" if len(to_addr) > 12 else to_addr,
-                "Gas Used": f"{gas_used:,}",
-                "Status": "Failed" if is_error else "Success",
+                t("time_col"): time_str,
+                t("direction_col"): direction,
+                t("value_eth_col"): f"{val_eth:.6f}",
+                t("from_label"): f"{from_addr[:8]}...{from_addr[-4:]}" if len(from_addr) > 12 else from_addr,
+                t("to_label"): f"{to_addr[:8]}...{to_addr[-4:]}" if len(to_addr) > 12 else to_addr,
+                t("gas_used_col"): f"{gas_used:,}",
+                t("status_col"): t("failed") if is_error else t("success"),
                 "Tx Hash": f"{tx_hash[:10]}...{tx_hash[-6:]}" if len(tx_hash) > 16 else tx_hash,
             })
 
@@ -313,25 +307,26 @@ def _render_address_lookup(address):
 
         # Risk Assessment
         st.markdown("---")
-        st.markdown("### Risk Assessment")
-        st.caption("Rule-based assessment from transaction patterns. Not a GNN prediction.")
+        st.markdown(f"### {t('risk_assessment')}")
+        st.caption(t("risk_assessment_caption"))
 
         risk_score, factors = _assess_risk(transactions)
         level = "HIGH" if risk_score > 0.7 else ("MEDIUM" if risk_score > 0.4 else "LOW")
         color = {"HIGH": "#EF4444", "MEDIUM": "#F59E0B", "LOW": "#00D4AA"}[level]
         css_class = {"HIGH": "risk-high", "MEDIUM": "risk-medium", "LOW": "risk-low"}[level]
 
+        level_text = {"HIGH": t("high_risk"), "MEDIUM": t("medium_risk"), "LOW": t("low_risk")}[level]
         st.markdown(
             f'<div class="{css_class}" style="text-align:center; padding:20px">'
-            f'<h2 style="color:{color}; margin:0">{level} RISK</h2>'
+            f'<h2 style="color:{color}; margin:0">{level_text}</h2>'
             f'<h1 style="color:{color}; margin:0; font-size:3rem">{risk_score:.0%}</h1>'
             f'<p style="color:#9CA3AF; margin:4px 0 0 0; font-size:0.8rem">'
-            f'Rule-based engine | {len(factors)} factor{"s" if len(factors) != 1 else ""} analyzed</p>'
+            f'{t("rule_based_engine")} | {len(factors)} {t("factors_analyzed")}</p>'
             f'</div>',
             unsafe_allow_html=True,
         )
 
-        st.markdown("#### Risk Factors")
+        st.markdown(f"#### {t('risk_factors')}")
         for name, weight, sev in sorted(factors, key=lambda x: -x[1]):
             sc_color = {"HIGH": "#EF4444", "MEDIUM": "#F59E0B", "LOW": "#00D4AA"}[sev]
             pct = f"+{weight:.0%}" if weight > 0 else "0%"
@@ -343,14 +338,14 @@ def _render_address_lookup(address):
                 unsafe_allow_html=True,
             )
     else:
-        st.info("No transactions found for this address, or the address has no activity on Ethereum mainnet.")
+        st.info(t("no_tx_found"))
 
 
 def _render_tx_lookup(tx_hash):
     """Render results for a transaction hash lookup."""
-    st.markdown(f"### Transaction: `{tx_hash[:10]}...{tx_hash[-6:]}`")
+    st.markdown(f"### {t('transaction_label')}: `{tx_hash[:10]}...{tx_hash[-6:]}`")
 
-    with st.spinner("Fetching transaction from Etherscan..."):
+    with st.spinner(t("fetching_tx")):
         try:
             resp = requests.get(
                 ETHERSCAN_BASE,
@@ -368,11 +363,7 @@ def _render_tx_lookup(tx_hash):
             tx = None
 
     if not tx:
-        st.warning(
-            "Could not fetch transaction data. This may be due to Etherscan rate limiting "
-            "(max 5 requests/sec without API key) or the transaction hash may not exist. "
-            "Please try again in a moment."
-        )
+        st.warning(t("tx_fetch_failed"))
         return
 
     # Display transaction details
@@ -389,23 +380,23 @@ def _render_tx_lookup(tx_hash):
 
     m1, m2 = st.columns(2)
     with m1:
-        st.metric("Value", f"{value_eth:.6f} ETH")
-        st.metric("Block", f"{block:,}")
+        st.metric(t("value"), f"{value_eth:.6f} ETH")
+        st.metric(t("block"), f"{block:,}")
     with m2:
-        st.metric("Gas Limit", f"{gas:,}")
-        st.metric("Nonce", nonce)
+        st.metric(t("gas_limit"), f"{gas:,}")
+        st.metric(t("nonce"), nonce)
 
-    st.markdown("#### Addresses")
+    st.markdown(f"#### {t('addresses')}")
     st.markdown(
         f'<div class="stat-row">'
-        f'<span style="color:#9CA3AF">From</span>'
+        f'<span style="color:#9CA3AF">{t("from_label")}</span>'
         f'<code style="color:#00D4AA">{from_addr}</code>'
         f'</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
         f'<div class="stat-row">'
-        f'<span style="color:#9CA3AF">To</span>'
+        f'<span style="color:#9CA3AF">{t("to_label")}</span>'
         f'<code style="color:#3B82F6">{to_addr}</code>'
         f'</div>',
         unsafe_allow_html=True,
@@ -414,12 +405,12 @@ def _render_tx_lookup(tx_hash):
     # Check if it's a contract call
     input_data = tx.get("input", "0x")
     if input_data and input_data != "0x":
-        st.markdown("#### Contract Interaction")
+        st.markdown(f"#### {t('contract_interaction')}")
         st.markdown(
             '<div class="risk-medium">'
-            '<strong style="color:#F59E0B">Smart Contract Call Detected</strong><br>'
-            f'<span style="color:#E5E7EB">Input data length: {len(input_data)} characters</span><br>'
-            f'<span style="color:#9CA3AF">Method ID: {input_data[:10]}</span>'
+            f'<strong style="color:#F59E0B">{t("smart_contract_detected")}</strong><br>'
+            f'<span style="color:#E5E7EB">{t("input_data_length").format(length=len(input_data))}</span><br>'
+            f'<span style="color:#9CA3AF">{t("method_id").format(method=input_data[:10])}</span>'
             '</div>',
             unsafe_allow_html=True,
         )

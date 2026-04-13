@@ -409,7 +409,7 @@ def _render_sidebar():
             'border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px">🛡️</div>'
             '<div>'
             '<div style="font-size:1.1rem; font-weight:700; color:#F9FAFB; letter-spacing:-0.02em">ChainGuard</div>'
-            '<div style="font-size:0.7rem; color:#6B7280; letter-spacing:0.05em; text-transform:uppercase">Fraud Detection Platform</div>'
+            f'<div style="font-size:0.7rem; color:#6B7280; letter-spacing:0.05em; text-transform:uppercase">{t("platform_subtitle")}</div>'
             '</div></div></div>',
             unsafe_allow_html=True,
         )
@@ -418,18 +418,18 @@ def _render_sidebar():
 
         # System status
         st.markdown(
-            '<div style="font-size:0.7rem; color:#6B7280; text-transform:uppercase; '
-            'letter-spacing:0.08em; font-weight:600; margin-bottom:8px">System Status</div>',
+            f'<div style="font-size:0.7rem; color:#6B7280; text-transform:uppercase; '
+            f'letter-spacing:0.08em; font-weight:600; margin-bottom:8px">{t("system_status")}</div>',
             unsafe_allow_html=True,
         )
         st.markdown(
-            '<div style="display:flex; align-items:center; gap:8px; padding:8px 12px; '
-            'background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15); border-radius:6px">'
-            '<div style="width:8px; height:8px; background:#10B981; border-radius:50%; '
-            'box-shadow:0 0 6px rgba(16,185,129,0.5)"></div>'
-            '<span style="color:#10B981; font-size:0.8rem; font-weight:600">Model Online</span>'
-            '<span style="color:#6B7280; font-size:0.75rem; margin-left:auto">v1.0</span>'
-            '</div>',
+            f'<div style="display:flex; align-items:center; gap:8px; padding:8px 12px; '
+            f'background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15); border-radius:6px">'
+            f'<div style="width:8px; height:8px; background:#10B981; border-radius:50%; '
+            f'box-shadow:0 0 6px rgba(16,185,129,0.5)"></div>'
+            f'<span style="color:#10B981; font-size:0.8rem; font-weight:600">{t("model_online")}</span>'
+            f'<span style="color:#6B7280; font-size:0.75rem; margin-left:auto">v1.0</span>'
+            f'</div>',
             unsafe_allow_html=True,
         )
 
@@ -454,10 +454,10 @@ def _render_sidebar():
         st.markdown("")
 
         # Theme toggle
-        theme_options = {"dark": "Dark", "light": "Light"}
+        theme_options = {"dark": t("dark"), "light": t("light")}
         current_theme = st.session_state.get("theme", "dark")
         selected_theme = st.radio(
-            "Theme",
+            t("theme"),
             options=list(theme_options.keys()),
             format_func=lambda x: theme_options[x],
             index=0 if current_theme == "dark" else 1,
@@ -497,10 +497,10 @@ def _render_sidebar():
         except Exception:
             pass
         stats = [
-            ("Nodes", _nodes_str),
-            ("Edges", _edges_str),
-            ("Model", "TH-GNN (M3)"),
-            ("AUC", auc_val),
+            (t("nodes"), _nodes_str),
+            (t("edges"), _edges_str),
+            (t("model"), "TH-GNN (M3)"),
+            (t("auc_label"), auc_val),
         ]
         for label, val in stats:
             st.markdown(
@@ -518,7 +518,7 @@ def _render_sidebar():
         from datetime import datetime
         st.markdown(
             f'<div style="text-align:center; padding:4px 0">'
-            f'<div style="color:#4B5563; font-size:0.65rem">DATA AS OF</div>'
+            f'<div style="color:#4B5563; font-size:0.65rem">{t("data_as_of")}</div>'
             f'<div style="color:#6B7280; font-size:0.75rem; font-family:JetBrains Mono,monospace">'
             f'{datetime.now().strftime("%Y-%m-%d %H:%M")}</div>'
             f'</div>',
@@ -526,10 +526,10 @@ def _render_sidebar():
         )
 
         st.markdown(
-            '<div style="text-align:center; padding:4px 0">'
-            '<div style="color:#4B5563; font-size:0.7rem">NYU Tandon School of Engineering</div>'
-            '<div style="color:#4B5563; font-size:0.7rem">MS Thesis 2026</div>'
-            '</div>',
+            f'<div style="text-align:center; padding:4px 0">'
+            f'<div style="color:#4B5563; font-size:0.7rem">{t("nyu_tandon")}</div>'
+            f'<div style="color:#4B5563; font-size:0.7rem">{t("ms_thesis")}</div>'
+            f'</div>',
             unsafe_allow_html=True,
         )
 

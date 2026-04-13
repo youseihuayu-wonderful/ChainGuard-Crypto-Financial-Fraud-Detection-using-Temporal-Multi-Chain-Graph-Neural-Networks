@@ -106,14 +106,14 @@ def _generate_activity_log(DATA):
         risk_level = "HIGH" if node["risk_score"] > 0.7 else ("MEDIUM" if node["risk_score"] > 0.4 else "LOW")
         correct = (node["risk_score"] > 0.5 and node["true_label"] == 1) or \
                   (node["risk_score"] <= 0.5 and node["true_label"] == 0)
+        true_label = "ILLICIT" if node["true_label"] == 1 else "LICIT"
+        correct_str = "Correct \u2705" if correct else "Misclass \u274c"
         activities.append({
             "timestamp": base_time + timedelta(hours=hours_offset),
             "analyst": ANALYSTS[0],  # Sarah
             "action": f"Scanned Node {node['node_id']}",
             "module": "Scanner",
-            "detail": f"Risk: {node['risk_score']:.1%} ({risk_level}) | "
-                      f"True: {'ILLICIT' if node['true_label'] == 1 else 'LICIT'} | "
-                      f"TS: {node['timestep']} | {'Correct \u2705' if correct else 'Misclass \u274c'}",
+            "detail": f"Risk: {node['risk_score']:.1%} ({risk_level}) | True: {true_label} | TS: {node['timestep']} | {correct_str}",
             "severity": "critical" if risk_level == "HIGH" else ("warning" if risk_level == "MEDIUM" else "low"),
         })
 
@@ -194,16 +194,15 @@ def _generate_activity_log(DATA):
 
 
 def render(DATA, navigate_to):
-    st.markdown("# \U0001f4dc Activity Log")
-    st.markdown("Team usage history and investigation timeline")
-    st.caption("\U0001f6c8 User profiles are demo data for showcase. "
-               "All referenced node IDs, risk scores, and metrics are from real experiments.")
+    st.markdown(f"# \U0001f4dc {t('activity_title')}")
+    st.markdown(t("activity_subtitle"))
+    st.caption(t("activity_caption"))
     st.markdown("---")
 
     activities = _generate_activity_log(DATA)
 
     # ── Team Overview ──
-    st.markdown("### \U0001f465 Team")
+    st.markdown(f"### \U0001f465 {t('team')}")
     cols = st.columns(len(ANALYSTS))
     for col, analyst in zip(cols, ANALYSTS):
         with col:
@@ -217,7 +216,7 @@ def render(DATA, navigate_to):
                 f'<div style="color:#00D4AA; font-size:0.75rem">{analyst["role"]}</div>'
                 f'<div style="color:#6B7280; font-size:0.7rem">{analyst["department"]}</div>'
                 f'<div style="color:#9CA3AF; font-size:0.8rem; margin-top:8px">'
-                f'<span style="font-family:JetBrains Mono,monospace; font-weight:600">{count}</span> actions</div>'
+                f'<span style="font-family:JetBrains Mono,monospace; font-weight:600">{count}</span> {t("actions_suffix")}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
@@ -225,7 +224,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # ── Activity Stats ──
-    st.markdown("### \U0001f4ca Activity Summary")
+    st.markdown(f"### \U0001f4ca {t('activity_summary')}")
     module_counts = {}
     severity_counts = {"critical": 0, "warning": 0, "info": 0, "low": 0}
     for a in activities:
@@ -233,10 +232,10 @@ def render(DATA, navigate_to):
         severity_counts[a["severity"]] = severity_counts.get(a["severity"], 0) + 1
 
     s1, s2, s3, s4 = st.columns(4)
-    s1.metric("Total Actions", len(activities))
-    s2.metric("High Risk Scans", severity_counts["critical"])
-    s3.metric("Medium Risk", severity_counts["warning"])
-    s4.metric("Modules Used", len(module_counts))
+    s1.metric(t("total_actions"), len(activities))
+    s2.metric(t("high_risk_scans"), severity_counts["critical"])
+    s3.metric(t("medium_risk_label"), severity_counts["warning"])
+    s4.metric(t("modules_used"), len(module_counts))
 
     # Module usage chart
     fig_mod = go.Figure(go.Bar(
@@ -256,29 +255,31 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # ── Filters ──
-    st.markdown("### \U0001f50d Filter Activity")
+    st.markdown(f"### \U0001f50d {t('filter_activity')}")
     f1, f2, f3 = st.columns(3)
     with f1:
-        filter_analyst = st.selectbox("Analyst", ["All"] + [a["name"] for a in ANALYSTS], key="act_analyst")
+        filter_analyst = st.selectbox(t("analyst_label"), [t("all_filter")] + [a["name"] for a in ANALYSTS], key="act_analyst")
     with f2:
-        filter_module = st.selectbox("Module", ["All"] + list(module_counts.keys()), key="act_module")
+        filter_module = st.selectbox(t("module_label"), [t("all_filter")] + list(module_counts.keys()), key="act_module")
     with f3:
-        filter_severity = st.selectbox("Severity", ["All", "Critical", "Warning", "Info", "Low"], key="act_sev")
+        filter_severity = st.selectbox(t("severity_label_filter"), [t("all_filter"), t("critical_filter"), t("warning_filter"), t("info_filter"), t("low_filter")], key="act_sev")
 
     # Apply filters
     filtered = activities
-    if filter_analyst != "All":
+    if filter_analyst != t("all_filter"):
         filtered = [a for a in filtered if a["analyst"]["name"] == filter_analyst]
-    if filter_module != "All":
+    if filter_module != t("all_filter"):
         filtered = [a for a in filtered if a["module"] == filter_module]
-    if filter_severity != "All":
-        filtered = [a for a in filtered if a["severity"] == filter_severity.lower()]
+    if filter_severity != t("all_filter"):
+        sev_map = {t("critical_filter"): "critical", t("warning_filter"): "warning", t("info_filter"): "info", t("low_filter"): "low"}
+        sev_val = sev_map.get(filter_severity, filter_severity.lower())
+        filtered = [a for a in filtered if a["severity"] == sev_val]
 
-    st.markdown(f"Showing **{len(filtered)}** of {len(activities)} activities")
+    st.markdown(t("showing_activities").format(shown=len(filtered), total=len(activities)))
     st.markdown("---")
 
     # ── Activity Timeline ──
-    st.markdown("### \U0001f4c5 Timeline")
+    st.markdown(f"### \U0001f4c5 {t('timeline_title')}")
 
     severity_colors = {
         "critical": "#EF4444",
@@ -347,11 +348,11 @@ def render(DATA, navigate_to):
     st.markdown("---")
     c1, c2, c3 = st.columns(3)
     with c1:
-        if st.button("\U0001f4ca Back to Executive", key="act_to_exec"):
+        if st.button(f"\U0001f4ca {t('back_to_exec')}", key="act_to_exec"):
             navigate_to("Executive"); st.rerun()
     with c2:
-        if st.button("\U0001f50d Go to Scanner", key="act_to_scan"):
+        if st.button(f"\U0001f50d {t('go_to_scanner')}", key="act_to_scan"):
             navigate_to("Scanner"); st.rerun()
     with c3:
-        if st.button("\U0001f4cb Go to Forensics", key="act_to_for"):
+        if st.button(f"\U0001f4cb {t('go_to_forensics')}", key="act_to_for"):
             navigate_to("Forensics"); st.rerun()

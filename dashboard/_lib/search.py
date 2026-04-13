@@ -80,9 +80,9 @@ def _find_node_neighbors(node_id, graph_data, timestep):
 
 def render(DATA, navigate_to):
     """Render the Node Search page."""
-    st.markdown("# :mag: Node Search")
-    st.markdown("Search across real M3 model predictions for specific nodes.")
-    st.caption("All data from real M3 model predictions and Elliptic dataset.")
+    st.markdown(f"# :mag: {t('search_title')}")
+    st.markdown(t("search_subtitle"))
+    st.caption(t("search_caption"))
 
     st.markdown("---")
 
@@ -92,35 +92,32 @@ def render(DATA, navigate_to):
     graph_data = _load_graph_data()
 
     if not predictions:
-        st.error(
-            "M3 predictions not found. Run `train_and_save_m3.py` to generate "
-            "model predictions before using Node Search."
-        )
+        st.error(t("search_predictions_missing"))
         return
 
     # Search interface
     search_col, info_col = st.columns([2, 1])
 
     with search_col:
-        st.markdown("### Search by Node ID")
+        st.markdown(f"### {t('search_by_node_id')}")
         node_id_input = st.text_input(
-            "Enter Node ID",
+            t("enter_node_id"),
             placeholder="e.g., 168060",
             key="search_node_id",
-            help="Enter a numeric node ID from the Elliptic dataset.",
+            help=t("enter_node_id_help"),
         )
 
-        search_btn = st.button("Search", type="primary", use_container_width=True, key="search_btn")
+        search_btn = st.button(t("search"), type="primary", use_container_width=True, key="search_btn")
 
     with info_col:
-        st.markdown("### Dataset Info")
+        st.markdown(f"### {t('dataset_info')}")
         n_predictions = len(predictions.get("test_predictions", []))
         st.markdown(
             f'<div class="glass-card">'
             f'<p style="color:#E5E7EB; margin:0">'
-            f'<strong style="color:#00D4AA">{n_predictions:,}</strong> nodes in test set<br>'
+            f'<strong style="color:#00D4AA">{n_predictions:,}</strong> {t("nodes_in_test")}<br>'
             f'<strong style="color:#3B82F6">AUC: {predictions.get("test_auc", 0):.4f}</strong><br>'
-            f'<span style="color:#9CA3AF">Timesteps 42-49</span>'
+            f'<span style="color:#9CA3AF">{t("timesteps_range")}</span>'
             f'</p>'
             f'</div>',
             unsafe_allow_html=True,
@@ -130,8 +127,8 @@ def render(DATA, navigate_to):
 
     # Quick-access: show some high-risk nodes
     if not search_btn or not node_id_input:
-        st.markdown("### Quick Access: Top Risk Nodes")
-        st.markdown("Click any node ID below, then paste it in the search box above.")
+        st.markdown(f"### {t('quick_access_top')}")
+        st.markdown(t("quick_access_hint"))
 
         top_nodes = predictions.get("test_predictions", [])[:20]
         rows = []
@@ -153,21 +150,17 @@ def render(DATA, navigate_to):
     try:
         node_id = int(node_id_input.strip())
     except ValueError:
-        st.error("Please enter a valid numeric node ID.")
+        st.error(t("invalid_node_id"))
         return
 
     # Search for the node
     node = _find_node_in_predictions(node_id, predictions)
 
     if not node:
-        st.warning(
-            f"Node {node_id} not found in M3 test predictions. "
-            f"The test set contains nodes from timesteps 42-49. "
-            f"Try a node ID from the quick access table below."
-        )
+        st.warning(t("node_not_found").format(node_id=node_id))
 
         # Show nearby nodes
-        st.markdown("### Nearby Node IDs in Test Set")
+        st.markdown(f"### {t('nearby_node_ids')}")
         test_preds = predictions.get("test_predictions", [])
         all_ids = sorted([p["node_id"] for p in test_preds])
 
@@ -210,13 +203,13 @@ def render(DATA, navigate_to):
 
     # Metrics
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Risk Score", f"{risk:.4f}")
-    m2.metric("True Label", "ILLICIT" if node["true_label"] == 1 else "LICIT")
-    m3.metric("Timestep", node["timestep"])
+    m1.metric(t("risk_score_label"), f"{risk:.4f}")
+    m2.metric(t("true_label_label"), "ILLICIT" if node["true_label"] == 1 else "LICIT")
+    m3.metric(t("timestep"), node["timestep"])
 
     # Model confidence
     confidence = risk if risk > 0.5 else (1 - risk)
-    m4.metric("Model Confidence", f"{confidence:.2%}")
+    m4.metric(t("model_confidence"), f"{confidence:.2%}")
 
     # Prediction correctness
     predicted_illicit = risk > 0.5
@@ -226,17 +219,17 @@ def render(DATA, navigate_to):
     if correct:
         st.markdown(
             '<div class="risk-low">'
-            '<strong style="color:#10B981">Correct Prediction</strong><br>'
-            '<span style="color:#E5E7EB">Model prediction matches ground truth label.</span>'
+            f'<strong style="color:#10B981">{t("correct_prediction")}</strong><br>'
+            f'<span style="color:#E5E7EB">{t("correct_pred_desc")}</span>'
             '</div>',
             unsafe_allow_html=True,
         )
     else:
-        error_type = "False Positive" if predicted_illicit and not actual_illicit else "False Negative"
+        error_type = t("false_positive") if predicted_illicit and not actual_illicit else t("false_negative")
         st.markdown(
             f'<div class="risk-high">'
-            f'<strong style="color:#EF4444">Incorrect Prediction ({error_type})</strong><br>'
-            f'<span style="color:#E5E7EB">Model prediction does not match ground truth label.</span>'
+            f'<strong style="color:#EF4444">{t("incorrect_prediction").format(error_type=error_type)}</strong><br>'
+            f'<span style="color:#E5E7EB">{t("incorrect_pred_desc")}</span>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -247,13 +240,13 @@ def render(DATA, navigate_to):
     explanation = _find_node_explanation(node_id, explanations)
 
     if explanation:
-        st.markdown("### Node Explanation")
-        st.caption("Real gradient-based feature contributions from trained M3 model.")
+        st.markdown(f"### {t('node_explanation_title')}")
+        st.caption(t("node_expl_caption"))
 
         # Top features
         top_features = explanation.get("top_features", [])
         if top_features:
-            st.markdown("#### Top Feature Contributions")
+            st.markdown(f"#### {t('top_feature_contributions')}")
 
             feat_names = [f["feature_name"] for f in top_features[:10]]
             contributions = [f["contribution"] for f in top_features[:10]]
@@ -278,42 +271,39 @@ def render(DATA, navigate_to):
             st.plotly_chart(fig_feat, use_container_width=True)
 
             # Feature details table
-            with st.expander("Feature Details"):
+            with st.expander(t("feature_details_expander")):
                 feat_rows = []
                 for f in top_features:
                     feat_rows.append({
-                        "Feature": f["feature_name"],
-                        "Value": f"{f['value']:.4f}",
-                        "Gradient": f"{f['gradient']:.4f}",
-                        "Contribution": f"{f['contribution']:.4f}",
-                        "Direction": "Risk-increasing" if f["contribution"] > 0 else "Risk-decreasing",
+                        t("feature_col"): f["feature_name"],
+                        t("value_col"): f"{f['value']:.4f}",
+                        t("gradient_col"): f"{f['gradient']:.4f}",
+                        t("contribution_col"): f"{f['contribution']:.4f}",
+                        t("direction_label"): t("risk_increasing") if f["contribution"] > 0 else t("risk_decreasing"),
                     })
                 st.dataframe(pd.DataFrame(feat_rows), use_container_width=True, hide_index=True)
 
         # Neighbor info from explanation
         neighbor_info = explanation.get("neighbor_info", {})
         if neighbor_info:
-            st.markdown("#### Neighbor Influence")
+            st.markdown(f"#### {t('neighbor_influence_title')}")
             ni1, ni2, ni3 = st.columns(3)
-            ni1.metric("Total Neighbors", neighbor_info.get("n_neighbors", "N/A"))
-            ni2.metric("Illicit Neighbors", neighbor_info.get("n_illicit", "N/A"))
+            ni1.metric(t("total_neighbors"), neighbor_info.get("n_neighbors", "N/A"))
+            ni2.metric(t("illicit_neighbors"), neighbor_info.get("n_illicit", "N/A"))
             pct = neighbor_info.get("illicit_pct", 0)
-            ni3.metric("Illicit %", f"{pct:.1f}%")
+            ni3.metric(t("illicit_pct_label"), f"{pct:.1f}%")
 
     else:
-        st.info(
-            f"No detailed explanation available for node {node_id}. "
-            f"Explanations are generated for the top 50 riskiest nodes."
-        )
+        st.info(t("no_explanation").format(node_id=node_id))
 
     st.markdown("---")
 
     # Graph Neighbors
-    st.markdown("### Graph Neighbors")
+    st.markdown(f"### {t('graph_neighbors_title')}")
     neighbors = _find_node_neighbors(node_id, graph_data, node["timestep"])
 
     if neighbors:
-        st.markdown(f"Found **{len(neighbors)}** neighbors at timestep {node['timestep']}")
+        st.markdown(t("found_neighbors").format(n=len(neighbors), ts=node['timestep']))
 
         neighbor_rows = []
         n_illicit_neighbors = 0
@@ -344,39 +334,36 @@ def render(DATA, navigate_to):
 
         # Neighbor summary
         ns1, ns2, ns3 = st.columns(3)
-        ns1.metric("Illicit Neighbors", n_illicit_neighbors)
-        ns2.metric("Licit Neighbors", n_licit_neighbors)
-        ns3.metric("Unknown Neighbors", n_unknown_neighbors)
+        ns1.metric(t("illicit_neighbors_metric"), n_illicit_neighbors)
+        ns2.metric(t("licit_neighbors_metric"), n_licit_neighbors)
+        ns3.metric(t("unknown_neighbors_metric"), n_unknown_neighbors)
 
         st.dataframe(pd.DataFrame(neighbor_rows), use_container_width=True, hide_index=True, height=300)
 
         if len(neighbors) > 50:
-            st.caption(f"Showing 50 of {len(neighbors)} neighbors.")
+            st.caption(t("showing_neighbors").format(n=len(neighbors)))
     else:
-        st.info(
-            f"No neighbor data found for node {node_id} at timestep {node['timestep']}. "
-            f"Graph data may not be available for this timestep."
-        )
+        st.info(t("no_neighbors").format(node_id=node_id, ts=node['timestep']))
 
     # Navigation
     st.markdown("---")
-    st.markdown("### Navigate")
+    st.markdown(f"### {t('navigate')}")
     nav_col1, nav_col2, nav_col3 = st.columns(3)
 
     with nav_col1:
         if st.button(
-            f"View Network (t={node['timestep']})",
+            t("view_network_ts").format(ts=node['timestep']),
             key="search_to_network",
         ):
             navigate_to("Network", selected_timestep=node["timestep"])
             st.rerun()
 
     with nav_col2:
-        if st.button("Explainability", key="search_to_explain"):
+        if st.button(t("explainability_btn"), key="search_to_explain"):
             navigate_to("Explainability")
             st.rerun()
 
     with nav_col3:
-        if st.button("Alert Center", key="search_to_alerts"):
+        if st.button(t("alert_center_btn"), key="search_to_alerts"):
             navigate_to("Alerts")
             st.rerun()

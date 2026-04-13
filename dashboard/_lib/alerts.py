@@ -173,44 +173,41 @@ def _generate_slack_payload(alerts, threshold):
 
 def render(DATA, navigate_to):
     """Render the Alert Center page."""
-    st.markdown("# :bell: Alert Center")
-    st.markdown("Monitor high-risk nodes from real M3 model predictions and configure notification settings.")
-    st.caption("Alert data from real M3 model predictions on Elliptic test set.")
+    st.markdown(f"# :bell: {t('alert_center_title')}")
+    st.markdown(t("alert_center_subtitle"))
+    st.caption(t("alert_center_caption"))
 
     st.markdown("---")
 
     # Check if predictions are available
     predictions = load_predictions()
     if not predictions:
-        st.error(
-            "M3 predictions not found. Run `train_and_save_m3.py` to generate "
-            "model predictions before using the Alert Center."
-        )
+        st.error(t("alert_predictions_missing"))
         return
 
     # Settings panel
-    st.markdown("### Alert Settings")
+    st.markdown(f"### {t('alert_settings')}")
     settings_col1, settings_col2, settings_col3 = st.columns(3)
 
     with settings_col1:
         threshold = st.slider(
-            "Risk Score Threshold",
+            t("risk_score_threshold"),
             min_value=0.5,
             max_value=0.99,
             value=0.7,
             step=0.01,
             key="alert_threshold",
-            help="Nodes with risk scores above this threshold will trigger alerts.",
+            help=t("threshold_help"),
         )
 
     with settings_col2:
-        notify_email = st.checkbox("Email Notifications", value=True, key="alert_email")
-        notify_slack = st.checkbox("Slack Notifications", value=True, key="alert_slack")
+        notify_email = st.checkbox(t("email_notifications"), value=True, key="alert_email")
+        notify_slack = st.checkbox(t("slack_notifications"), value=True, key="alert_slack")
 
     with settings_col3:
         severity_filter = st.selectbox(
-            "Severity Filter",
-            ["All", "Critical (>0.95)", "High (>0.85)", "Medium (>0.7)"],
+            t("severity_filter"),
+            [t("all_severity"), t("critical_severity"), t("high_severity"), t("medium_severity")],
             key="alert_severity",
         )
 
@@ -220,17 +217,17 @@ def render(DATA, navigate_to):
     high_risk = _get_high_risk_nodes(threshold)
 
     # Apply severity filter
-    if severity_filter == "Critical (>0.95)":
+    if severity_filter == t("critical_severity"):
         filtered = [n for n in high_risk if n["risk_score"] > 0.95]
-    elif severity_filter == "High (>0.85)":
+    elif severity_filter == t("high_severity"):
         filtered = [n for n in high_risk if n["risk_score"] > 0.85]
-    elif severity_filter == "Medium (>0.7)":
+    elif severity_filter == t("medium_severity"):
         filtered = [n for n in high_risk if n["risk_score"] > 0.7]
     else:
         filtered = high_risk
 
     # Summary metrics
-    st.markdown("### Alert Dashboard")
+    st.markdown(f"### {t('alert_dashboard')}")
     m1, m2, m3, m4 = st.columns(4)
 
     n_total = len(filtered)
@@ -238,18 +235,18 @@ def render(DATA, navigate_to):
     n_licit = n_total - n_illicit
     n_critical = sum(1 for n in filtered if n["risk_score"] > 0.95)
 
-    m1.metric("Total Alerts", f"{n_total:,}")
-    m2.metric("Confirmed Illicit", f"{n_illicit:,}", help="Nodes with true_label=1 in ground truth")
-    m3.metric("False Positives", f"{n_licit:,}", help="Nodes with true_label=0 flagged as high risk")
-    m4.metric("Critical (>95%)", f"{n_critical:,}")
+    m1.metric(t("total_alerts"), f"{n_total:,}")
+    m2.metric(t("confirmed_illicit"), f"{n_illicit:,}", help=t("confirmed_illicit_help"))
+    m3.metric(t("false_positives"), f"{n_licit:,}", help=t("false_positives_help"))
+    m4.metric(t("critical_95"), f"{n_critical:,}")
 
     st.markdown("---")
 
     # Alert table
-    st.markdown("### Alert Queue")
+    st.markdown(f"### {t('alert_queue_title')}")
 
     if not filtered:
-        st.info(f"No alerts at threshold {threshold:.0%}. Try lowering the threshold.")
+        st.info(t("no_alerts_msg").format(threshold=f"{threshold:.0%}"))
         return
 
     # Build DataFrame
@@ -266,13 +263,13 @@ def render(DATA, navigate_to):
             severity = "LOW"
 
         rows.append({
-            "Node ID": node["node_id"],
-            "Risk Score": f"{node['risk_score']:.4f}",
-            "Risk %": f"{node['risk_score']:.2%}",
-            "Severity": severity,
-            "True Label": label_text,
-            "Timestep": node["timestep"],
-            "Correct": "Yes" if (
+            t("node_id"): node["node_id"],
+            t("risk_score_label"): f"{node['risk_score']:.4f}",
+            t("risk_pct"): f"{node['risk_score']:.2%}",
+            t("severity_label"): severity,
+            t("true_label_label"): label_text,
+            t("timestep"): node["timestep"],
+            t("correct_label"): "Yes" if (
                 (node["risk_score"] > 0.5 and node["true_label"] == 1) or
                 (node["risk_score"] <= 0.5 and node["true_label"] == 0)
             ) else "No",
@@ -281,10 +278,10 @@ def render(DATA, navigate_to):
     df = pd.DataFrame(rows)
     st.dataframe(df, use_container_width=True, hide_index=True, height=400)
 
-    st.markdown(f"*Showing {len(rows)} of {n_total} alerts (threshold: {threshold:.0%})*")
+    st.markdown(f"*{t('showing_alerts').format(shown=len(rows), total=n_total, threshold=f'{threshold:.0%}')}*")
 
     # Timestep distribution
-    st.markdown("### Alerts by Timestep")
+    st.markdown(f"### {t('alerts_by_timestep')}")
     ts_counts = {}
     for node in filtered:
         ts = node["timestep"]
@@ -306,32 +303,32 @@ def render(DATA, navigate_to):
         fig.add_trace(go.Bar(
             x=[f"t={ts}" for ts in timesteps],
             y=totals,
-            name="Total Alerts",
+            name=t("total_alerts_legend"),
             marker_color="#3B82F6",
         ))
         fig.add_trace(go.Bar(
             x=[f"t={ts}" for ts in timesteps],
             y=illicits,
-            name="Confirmed Illicit",
+            name=t("confirmed_illicit_legend"),
             marker_color="#EF4444",
         ))
         fig.update_layout(
             **CHART_LAYOUT,
             barmode="overlay",
             height=300,
-            title=dict(text="Alert Distribution by Timestep", font=dict(size=14)),
+            title=dict(text=t("alert_dist_by_ts"), font=dict(size=14)),
         )
         st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
 
     # Export & Notifications
-    st.markdown("### Export & Notifications")
+    st.markdown(f"### {t('export_notifications_title')}")
 
-    tab_csv, tab_email, tab_slack = st.tabs(["CSV Export", "Email Preview", "Slack Preview"])
+    tab_csv, tab_email, tab_slack = st.tabs([t("csv_export"), t("email_preview_tab"), t("slack_preview_tab")])
 
     with tab_csv:
-        st.markdown("Download all alerts as CSV for external analysis or compliance reporting.")
+        st.markdown(t("csv_export_desc"))
 
         # Build export DataFrame
         export_rows = []
@@ -355,7 +352,7 @@ def render(DATA, navigate_to):
         csv_data = csv_buffer.getvalue()
 
         st.download_button(
-            label=f"Download {len(export_rows)} Alerts as CSV",
+            label=t("download_n_alerts").format(n=len(export_rows)),
             data=csv_data,
             file_name=f"chainguard_alerts_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv",
@@ -363,29 +360,29 @@ def render(DATA, navigate_to):
             key="download_alerts_csv",
         )
 
-        st.markdown("#### Preview")
+        st.markdown(f"#### {t('preview')}")
         st.dataframe(export_df.head(10), use_container_width=True, hide_index=True)
 
     with tab_email:
-        st.markdown("Preview of what an alert notification email would look like.")
+        st.markdown(t("email_preview_desc"))
         if notify_email:
             st.markdown(
                 '<div class="stat-row">'
-                '<span style="color:#9CA3AF">Subject</span>'
-                f'<span style="color:#E5E7EB">ChainGuard Alert: {n_total} High-Risk Nodes Detected</span>'
+                f'<span style="color:#9CA3AF">{t("email_subject")}</span>'
+                f'<span style="color:#E5E7EB">ChainGuard Alert: {t("high_risk_detected").format(n=n_total)}</span>'
                 '</div>',
                 unsafe_allow_html=True,
             )
             st.markdown(
                 '<div class="stat-row">'
-                '<span style="color:#9CA3AF">From</span>'
+                f'<span style="color:#9CA3AF">{t("email_from")}</span>'
                 '<span style="color:#E5E7EB">alerts@chainguard.nyu.edu</span>'
                 '</div>',
                 unsafe_allow_html=True,
             )
             st.markdown(
                 '<div class="stat-row">'
-                '<span style="color:#9CA3AF">To</span>'
+                f'<span style="color:#9CA3AF">{t("email_to")}</span>'
                 '<span style="color:#E5E7EB">compliance-team@example.com</span>'
                 '</div>',
                 unsafe_allow_html=True,
@@ -395,28 +392,28 @@ def render(DATA, navigate_to):
                 email_html = _generate_email_html(filtered, threshold)
                 st.markdown(email_html, unsafe_allow_html=True)
         else:
-            st.info("Enable Email Notifications in settings above to see email preview.")
+            st.info(t("email_disabled"))
 
     with tab_slack:
-        st.markdown("Preview of the Slack webhook JSON payload that would be sent.")
+        st.markdown(t("slack_preview_desc"))
         if notify_slack:
             payload = _generate_slack_payload(filtered, threshold)
             st.json(payload)
         else:
-            st.info("Enable Slack Notifications in settings above to see Slack payload preview.")
+            st.info(t("slack_disabled"))
 
     # Navigation
     st.markdown("---")
     nav_col1, nav_col2, nav_col3 = st.columns(3)
     with nav_col1:
-        if st.button("Investigate in Scanner", key="alert_to_scanner"):
+        if st.button(t("investigate_scanner"), key="alert_to_scanner"):
             navigate_to("Scanner")
             st.rerun()
     with nav_col2:
-        if st.button("View Network", key="alert_to_network"):
+        if st.button(t("view_network_btn"), key="alert_to_network"):
             navigate_to("Network")
             st.rerun()
     with nav_col3:
-        if st.button("Search Node", key="alert_to_search"):
+        if st.button(t("search_node_btn"), key="alert_to_search"):
             navigate_to("Search")
             st.rerun()

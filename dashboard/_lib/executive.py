@@ -34,7 +34,7 @@ def render(DATA, navigate_to):
         f'<a href="#risk-timeline" style="padding:6px 14px; background:#111827; border:1px solid #1F2937; '
         f'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500">\U0001f4c8 {t("timeline")}</a>'
         f'<a href="#dataset-overview" style="padding:6px 14px; background:#111827; border:1px solid #1F2937; '
-        f'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500">\U0001f4ca Dataset</a>'
+        f'border-radius:6px; color:#9CA3AF; text-decoration:none; font-size:0.8rem; font-weight:500">\U0001f4ca {t("dataset_label")}</a>'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -80,23 +80,23 @@ def render(DATA, navigate_to):
     with c2:
         st.markdown(f"### {t('risk_alerts')}")
         st.markdown(f'<div class="risk-high"><strong>HIGH — {cs["m3_high_conf"]}</strong><br>'
-                    f'<span style="color:#9CA3AF">High-confidence detections (>0.9 score)</span></div>',
+                    f'<span style="color:#9CA3AF">{t("high_confidence_desc")}</span></div>',
                     unsafe_allow_html=True)
         st.markdown(f'<div class="risk-medium"><strong>DETECTED — {total_detected}</strong><br>'
-                    f'<span style="color:#9CA3AF">Total illicit transactions detected by TH-GNN</span></div>',
+                    f'<span style="color:#9CA3AF">{t("total_detected_desc")}</span></div>',
                     unsafe_allow_html=True)
         st.markdown(f'<div class="risk-low"><strong>UNDETECTED — {cs["neither"]}</strong><br>'
-                    f'<span style="color:#9CA3AF">Illicit transactions missed by all models ({cs["neither"]}/{cs["total_illicit_test"]})</span></div>',
+                    f'<span style="color:#9CA3AF">{t("undetected_miss_desc").format(neither=cs["neither"], total=cs["total_illicit_test"])}</span></div>',
                     unsafe_allow_html=True)
 
-        st.caption("All counts from real case study analysis (case_study_results.json)")
+        st.caption(t("exec_real_data_caption"))
 
     st.markdown("---")
 
     # ── Risk Timeline (REAL Elliptic data) ──
     st.markdown('<div id="risk-timeline"></div>', unsafe_allow_html=True)
     st.markdown(f"### \U0001f4c8 {t('risk_timeline')}")
-    st.caption("Real illicit transaction rates per timestep from the Elliptic Bitcoin Dataset")
+    st.caption(t("exec_timeline_caption"))
 
     timesteps = list(range(1, 50))
     rates = [ts_risk[t_val]["risk_rate"] for t_val in timesteps]
@@ -111,7 +111,7 @@ def render(DATA, navigate_to):
                    for i, (t_val, r) in enumerate(zip(timesteps, rates))],
         hoverinfo="text"))
     fig_tl.update_layout(height=250, xaxis=dict(title=t("timestep"), color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
-                         yaxis=dict(title="Illicit Rate (%)", color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
+                         yaxis=dict(title=t("illicit_rate"), color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
                          paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
                          font=dict(color="#E5E7EB"), margin=dict(l=40, r=20, t=10, b=40), showlegend=False)
     st.plotly_chart(fig_tl, use_container_width=True)
@@ -124,15 +124,15 @@ def render(DATA, navigate_to):
         st.markdown(f"**TS {sel_ts}** | {ti['nodes']:,} nodes | {ti['illicit']} illicit ({ti['risk_rate']:.2f}%) | {ti['zone']}")
         if ti.get('edges'):
             st.markdown(f"Edges: {ti['edges']:,}")
-        if st.button(f"\U0001f578\ufe0f Explore TS {sel_ts} in Network \u2192", key="ts_drill"):
+        if st.button(f"\U0001f578\ufe0f {t('explore_ts_network').format(ts=sel_ts)}", key="ts_drill"):
             navigate_to("Network", selected_timestep=sel_ts); st.rerun()
 
     st.markdown("---")
 
     # ── Dataset Overview (REAL statistics) ──
     st.markdown('<div id="dataset-overview"></div>', unsafe_allow_html=True)
-    st.markdown("### Dataset Overview")
-    st.caption("Elliptic Bitcoin Transaction Dataset — real statistics")
+    st.markdown(f"### {t('dataset_overview')}")
+    st.caption(t("dataset_caption"))
 
     total_nodes = sum(ts_risk[ts]["nodes"] for ts in range(1, 50))
     total_illicit = sum(ts_risk[ts]["illicit"] for ts in range(1, 50))
@@ -141,31 +141,31 @@ def render(DATA, navigate_to):
     total_edges = sum(ts_risk[ts].get("edges", 0) for ts in range(1, 50))
 
     d1, d2, d3, d4, d5 = st.columns(5)
-    d1.metric("Total Nodes", f"{total_nodes:,}")
-    d2.metric("Total Edges", f"{total_edges:,}")
-    d3.metric("Illicit", f"{total_illicit:,}", f"{total_illicit/total_nodes:.2%}")
-    d4.metric("Licit", f"{total_licit:,}", f"{total_licit/total_nodes:.2%}")
-    d5.metric("Unknown", f"{total_unknown:,}", f"{total_unknown/total_nodes:.2%}")
+    d1.metric(t("total_nodes"), f"{total_nodes:,}")
+    d2.metric(t("total_edges"), f"{total_edges:,}")
+    d3.metric(t("illicit_label"), f"{total_illicit:,}", f"{total_illicit/total_nodes:.2%}")
+    d4.metric(t("licit_label"), f"{total_licit:,}", f"{total_licit/total_nodes:.2%}")
+    d5.metric(t("unknown_label"), f"{total_unknown:,}", f"{total_unknown/total_nodes:.2%}")
 
     # Split info
     train_ill = sum(ts_risk[ts]["illicit"] for ts in range(1, 35))
     val_ill = sum(ts_risk[ts]["illicit"] for ts in range(35, 42))
     test_ill = sum(ts_risk[ts]["illicit"] for ts in range(42, 50))
     sp1, sp2, sp3 = st.columns(3)
-    sp1.metric("Train (TS 1-34)", f"{train_ill} illicit", f"{sum(ts_risk[ts]['nodes'] for ts in range(1,35)):,} nodes")
-    sp2.metric("Val (TS 35-41)", f"{val_ill} illicit", f"{sum(ts_risk[ts]['nodes'] for ts in range(35,42)):,} nodes")
-    sp3.metric("Test (TS 42-49)", f"{test_ill} illicit", f"{sum(ts_risk[ts]['nodes'] for ts in range(42,50)):,} nodes")
+    sp1.metric(t("train_split"), f"{train_ill} {t('illicit_suffix')}", f"{sum(ts_risk[ts]['nodes'] for ts in range(1,35)):,} {t('nodes_suffix')}")
+    sp2.metric(t("val_split"), f"{val_ill} {t('illicit_suffix')}", f"{sum(ts_risk[ts]['nodes'] for ts in range(35,42)):,} {t('nodes_suffix')}")
+    sp3.metric(t("test_split"), f"{test_ill} {t('illicit_suffix')}", f"{sum(ts_risk[ts]['nodes'] for ts in range(42,50)):,} {t('nodes_suffix')}")
 
     st.markdown("---")
 
     # Cross-links
     cl1, cl2, cl3 = st.columns(3)
     with cl1:
-        if st.button(f"\U0001f9ea Full model comparison \u2192 Performance", key="roi_drill"):
+        if st.button(f"\U0001f9ea {t('full_model_comparison')}", key="roi_drill"):
             navigate_to("Performance"); st.rerun()
     with cl2:
-        if st.button(f"\U0001f578\ufe0f Explore graph \u2192 Network", key="net_drill"):
+        if st.button(f"\U0001f578\ufe0f {t('explore_graph')}", key="net_drill"):
             navigate_to("Network"); st.rerun()
     with cl3:
-        if st.button(f"\U0001f4cb Evidence \u2192 Forensics", key="flow_drill"):
+        if st.button(f"\U0001f4cb {t('evidence_forensics')}", key="flow_drill"):
             navigate_to("Forensics"); st.rerun()

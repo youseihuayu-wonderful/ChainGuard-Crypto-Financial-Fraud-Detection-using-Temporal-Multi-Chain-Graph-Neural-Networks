@@ -171,7 +171,7 @@ def render(DATA, navigate_to):
     st.markdown(t("forensics_subtitle"))
     st.markdown("---")
 
-    tab1, tab2, tab3 = st.tabs([t("detection_evidence"), "Ablation Analysis", t("research_conclusions")])
+    tab1, tab2, tab3 = st.tabs([t("detection_evidence"), t("ablation_analysis"), t("research_conclusions")])
 
     with tab1:
         st.markdown(f"### {t('detection_comparison')}")
@@ -201,17 +201,16 @@ def render(DATA, navigate_to):
         e4.metric(t("undetected"), f"{neither}", f"{neither/total:.0%} gap")
 
         st.markdown(f'<div class="risk-low"><strong style="color:#00D4AA">{t("evidence_text")}</strong><br>'
-                    f'<span style="color:#E5E7EB">TH-GNN uniquely catches <b>{m3_only}</b> illicit transactions '
-                    f'({m3_only/total:.0%}) that GCN misses.</span></div>', unsafe_allow_html=True)
+                    f'<span style="color:#E5E7EB">{t("evidence_detail").format(m3_only=m3_only, pct=f"{m3_only/total:.0%}")}</span></div>', unsafe_allow_html=True)
 
-        st.caption("Source: case_study_results.json — real detection overlap analysis on test set")
+        st.caption(t("evidence_source_caption"))
 
         if st.button(f"\U0001f9ea {t('model_details')}", key="ev_to_perf"):
             navigate_to("Performance"); st.rerun()
 
     with tab2:
-        st.markdown("### Ablation Study — Component Contributions")
-        st.caption("Real AUC-ROC and F1 scores from ablation_results.json")
+        st.markdown(f"### {t('ablation_component_contributions')}")
+        st.caption(t("ablation_caption"))
 
         # Ablation bar chart
         models = ["M1", "M2", "M3", "M4", "M5"]
@@ -241,7 +240,7 @@ def render(DATA, navigate_to):
         st.plotly_chart(fig_abl, use_container_width=True)
 
         # Delta analysis
-        st.markdown("#### Component Contribution (AUC-ROC delta vs M1)")
+        st.markdown(f"#### {t('component_contribution_delta')}")
         for m in ["M2", "M3", "M4", "M5"]:
             delta = abl[m]["auc_roc"] - abl["M1"]["auc_roc"]
             pct = delta / abl["M1"]["auc_roc"]
@@ -254,7 +253,7 @@ def render(DATA, navigate_to):
                 f'</div>', unsafe_allow_html=True)
 
         # Detailed metrics table
-        st.markdown("#### Full Metrics Table")
+        st.markdown(f"#### {t('full_metrics_table')}")
         df = pd.DataFrame([{
             "Model": model_names[m],
             "AUC-ROC": f"{abl[m]['auc_roc']:.4f}",
@@ -268,26 +267,23 @@ def render(DATA, navigate_to):
         st.markdown(f"### {t('key_research_findings')}")
 
         findings = [
-            ("Graph Augmentation > Model Complexity",
-             "Temporal k-NN edges contribute more than attention or label propagation. "
-             "M3 adds only heterogeneous edge types to M1, yet achieves the highest AUC.",
+            (t("finding_augmentation_title"),
+             t("finding_augmentation_body"),
              f"M3: {abl['M3']['auc_roc']:.4f} > M4: {abl['M4']['auc_roc']:.4f} > M5: {abl['M5']['auc_roc']:.4f}"),
-            ("Elliptic Has Isolated Timesteps",
-             "The 49 timesteps are completely disconnected subgraphs. Standard GNNs cannot "
-             "propagate information across time, causing them to underperform non-graph ML.",
-             f"GCN: {abl['M1']['auc_roc']:.4f} < RF: 0.8601 (without augmentation)"),
-            ("TH-GNN Beats All Baselines",
-             "With temporal k-NN augmentation, TH-GNN achieves the highest AUC-ROC across "
-             "all 7 baselines including 3 non-graph and 4 graph-based methods.",
+            (t("finding_isolated_title"),
+             t("finding_isolated_body"),
+             f"GCN: {abl['M1']['auc_roc']:.4f} < RF: 0.8601"),
+            (t("finding_beats_title"),
+             t("finding_beats_body"),
              f"TH-GNN: {abl['M3']['auc_roc']:.4f} > GraphSAGE: 0.8624 > RF: 0.8601"),
         ]
         for title, body, evidence in findings:
             st.markdown(f"<div style='background:rgba(255,255,255,0.03); border-radius:8px; padding:16px; margin:10px 0'>"
                         f"<h4 style='color:#00D4AA; margin:0'>{title}</h4>"
                         f"<p style='color:#E5E7EB; margin:8px 0'>{body}</p>"
-                        f"<p style='color:#F59E0B; font-size:0.85rem; margin:0'>Evidence: {evidence}</p></div>", unsafe_allow_html=True)
+                        f"<p style='color:#F59E0B; font-size:0.85rem; margin:0'>{t('evidence_label')}: {evidence}</p></div>", unsafe_allow_html=True)
 
-        st.caption("All evidence values from ablation_results.json and baseline_comparison.json")
+        st.caption(t("findings_caption"))
 
         st.markdown('<div style="background:rgba(100,255,218,0.05); border-radius:12px; padding:24px; text-align:center; margin-top:20px">'
                     '<h3 style="color:#00D4AA; margin:0">ChainGuard</h3>'
@@ -304,7 +300,7 @@ def render(DATA, navigate_to):
     # ── PDF Report Generation ──
     st.markdown("---")
     st.markdown(f"### {t('generate_sar')}")
-    st.caption("Report contains only real experiment results — no simulated data")
+    st.caption(t("report_contains_real"))
 
     try:
         import fpdf  # noqa: F401

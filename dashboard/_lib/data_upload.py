@@ -11,6 +11,8 @@ import pandas as pd
 import numpy as np
 import io
 
+from _lib.i18n import t
+
 
 def _score_row(row, numeric_cols):
     """
@@ -116,55 +118,55 @@ def _score_row(row, numeric_cols):
 
 def render(DATA, navigate_to):
     """Render the Data Upload & Analysis page."""
-    st.markdown("# :outbox_tray: Data Upload & Analysis")
-    st.markdown("Upload a CSV file with transaction features and get risk scores from the rule-based engine.")
-    st.caption("Risk scoring uses rule-based engine. Upload your own transaction data for analysis.")
+    st.markdown(f"# :outbox_tray: {t('upload_title')}")
+    st.markdown(t("upload_subtitle"))
+    st.caption(t("upload_caption"))
 
     st.markdown("---")
 
     # File upload
-    st.markdown("### Upload Transaction Data")
+    st.markdown(f"### {t('upload_tx_data')}")
     uploaded_file = st.file_uploader(
-        "Upload CSV file",
+        t("upload_csv_file"),
         type=["csv"],
         key="upload_csv",
-        help="Upload a CSV with numeric transaction features. Each row is scored independently.",
+        help=t("upload_csv_help"),
     )
 
     if uploaded_file is None:
         # Show instructions
-        st.markdown("### Instructions")
+        st.markdown(f"### {t('instructions')}")
         st.markdown(
             '<div class="glass-card">'
-            '<h4 style="color:#00D4AA; margin-top:0">How it works</h4>'
+            f'<h4 style="color:#00D4AA; margin-top:0">{t("how_it_works")}</h4>'
             '<ol style="color:#E5E7EB">'
-            '<li>Upload a CSV file with transaction features</li>'
-            '<li>The system identifies numeric columns for analysis</li>'
-            '<li>Each row is scored using the rule-based risk engine</li>'
-            '<li>Results show risk scores, levels, and flagged transactions</li>'
-            '<li>Download scored results as CSV</li>'
+            f'<li>{t("step1")}</li>'
+            f'<li>{t("step2")}</li>'
+            f'<li>{t("step3")}</li>'
+            f'<li>{t("step4")}</li>'
+            f'<li>{t("step5")}</li>'
             '</ol>'
             '</div>',
             unsafe_allow_html=True,
         )
 
-        st.markdown("### Expected Format")
+        st.markdown(f"### {t('expected_format')}")
         st.markdown(
             '<div class="glass-card">'
-            '<p style="color:#E5E7EB; margin-top:0">The CSV should have:</p>'
+            f'<p style="color:#E5E7EB; margin-top:0">{t("csv_should_have")}</p>'
             '<ul style="color:#9CA3AF">'
-            '<li><strong style="color:#E5E7EB">Numeric columns</strong> — transaction features (amount, degree, f1..f166, etc.)</li>'
-            '<li><strong style="color:#E5E7EB">Optional ID column</strong> — node_id, transaction_id, etc.</li>'
-            '<li><strong style="color:#E5E7EB">Optional label column</strong> — true_label, label, class (for validation)</li>'
+            f'<li><strong style="color:#E5E7EB">{t("numeric_columns_desc")}</strong> — {t("numeric_columns_detail")}</li>'
+            f'<li><strong style="color:#E5E7EB">{t("optional_id_desc")}</strong> — {t("optional_id_detail")}</li>'
+            f'<li><strong style="color:#E5E7EB">{t("optional_label_desc")}</strong> — {t("optional_label_detail")}</li>'
             '</ul>'
-            '<p style="color:#6B7280; margin-bottom:0">Supports Elliptic dataset format (166 features) and custom formats.</p>'
+            f'<p style="color:#6B7280; margin-bottom:0">{t("supports_formats")}</p>'
             '</div>',
             unsafe_allow_html=True,
         )
 
         # Sample data generator
-        st.markdown("### Generate Sample Data")
-        if st.button("Download Sample CSV", key="download_sample"):
+        st.markdown(f"### {t('generate_sample')}")
+        if st.button(t("download_sample_csv"), key="download_sample"):
             sample_data = {
                 "node_id": [1001, 1002, 1003, 1004, 1005],
                 "amount": [0.5, 15.2, 0.1, 85.3, 2.1],
@@ -178,7 +180,7 @@ def render(DATA, navigate_to):
             csv_buf = io.StringIO()
             sample_df.to_csv(csv_buf, index=False)
             st.download_button(
-                "Download",
+                t("download"),
                 csv_buf.getvalue(),
                 "chainguard_sample.csv",
                 "text/csv",
@@ -191,30 +193,30 @@ def render(DATA, navigate_to):
     try:
         df = pd.read_csv(uploaded_file)
     except Exception as e:
-        st.error(f"Error reading CSV: {e}")
+        st.error(t("error_reading_csv").format(error=e))
         return
 
     if df.empty:
-        st.warning("The uploaded CSV is empty.")
+        st.warning(t("empty_csv"))
         return
 
-    st.success(f"Loaded {len(df):,} rows x {len(df.columns)} columns")
+    st.success(t("loaded_rows").format(rows=f"{len(df):,}", cols=len(df.columns)))
 
     # Data preview
-    st.markdown("### Data Preview")
+    st.markdown(f"### {t('data_preview')}")
     st.dataframe(df.head(20), use_container_width=True, hide_index=True)
 
     # Identify numeric columns
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
 
     if not numeric_cols:
-        st.error("No numeric columns found. The risk engine requires at least some numeric features to analyze.")
+        st.error(t("no_numeric_cols"))
         return
 
-    st.markdown(f"**Numeric columns identified:** {len(numeric_cols)}")
+    st.markdown(t("numeric_cols_identified").format(n=len(numeric_cols)))
 
     # Column summary
-    with st.expander("Column Details"):
+    with st.expander(t("column_details")):
         col_info = []
         for col in numeric_cols:
             col_info.append({
@@ -230,10 +232,10 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # Score all rows
-    st.markdown("### Risk Analysis")
+    st.markdown(f"### {t('risk_analysis')}")
 
-    if st.button("Analyze All Rows", type="primary", use_container_width=True, key="analyze_upload"):
-        progress = st.progress(0, text="Scoring transactions...")
+    if st.button(t("analyze_all_rows"), type="primary", use_container_width=True, key="analyze_upload"):
+        progress = st.progress(0, text=t("scoring_transactions"))
         results = []
 
         for idx, row in df.iterrows():
@@ -263,9 +265,9 @@ def render(DATA, navigate_to):
             results.append(result)
 
             if idx % max(1, len(df) // 100) == 0:
-                progress.progress(min(1.0, (idx + 1) / len(df)), text=f"Scoring... {idx + 1}/{len(df)}")
+                progress.progress(min(1.0, (idx + 1) / len(df)), text=t("scoring_progress").format(current=idx + 1, total=len(df)))
 
-        progress.progress(1.0, text="Scoring complete!")
+        progress.progress(1.0, text=t("scoring_complete"))
 
         results_df = pd.DataFrame(results)
         st.session_state["upload_results"] = results_df
@@ -282,13 +284,13 @@ def render(DATA, navigate_to):
         n_low = (results_df["risk_level"] == "LOW").sum()
         avg_risk = results_df["risk_score"].mean()
 
-        m1.metric("Average Risk", f"{avg_risk:.2%}")
-        m2.metric("High Risk", f"{n_high:,}", help="Risk score > 70%")
-        m3.metric("Medium Risk", f"{n_medium:,}", help="Risk score 40-70%")
-        m4.metric("Low Risk", f"{n_low:,}", help="Risk score < 40%")
+        m1.metric(t("average_risk"), f"{avg_risk:.2%}")
+        m2.metric(t("high_risk_label"), f"{n_high:,}", help="Risk score > 70%")
+        m3.metric(t("medium_risk_label"), f"{n_medium:,}", help="Risk score 40-70%")
+        m4.metric(t("low_risk_label"), f"{n_low:,}", help="Risk score < 40%")
 
         # Risk distribution
-        st.markdown("### Risk Distribution")
+        st.markdown(f"### {t('risk_distribution')}")
 
         import plotly.graph_objects as go
         from shared import CHART_LAYOUT
@@ -305,14 +307,14 @@ def render(DATA, navigate_to):
         fig.update_layout(
             **CHART_LAYOUT,
             height=300,
-            title=dict(text="Risk Score Distribution", font=dict(size=14)),
-            xaxis_title="Risk Score",
-            yaxis_title="Count",
+            title=dict(text=t("risk_score_distribution"), font=dict(size=14)),
+            xaxis_title=t("risk_score_axis"),
+            yaxis_title=t("count_axis"),
         )
         st.plotly_chart(fig, use_container_width=True)
 
         # Flagged transactions
-        st.markdown("### Flagged Transactions")
+        st.markdown(f"### {t('flagged_transactions')}")
         flagged = results_df[results_df["risk_level"].isin(["HIGH", "MEDIUM"])].sort_values(
             "risk_score", ascending=False
         )
@@ -328,11 +330,11 @@ def render(DATA, navigate_to):
             display_df["risk_score"] = display_df["risk_score"].apply(lambda x: f"{x:.2%}")
 
             st.dataframe(display_df, use_container_width=True, hide_index=True, height=400)
-            st.markdown(f"*Showing {min(100, len(flagged))} of {len(flagged)} flagged transactions*")
+            st.markdown(f"*{t('showing_flagged').format(shown=min(100, len(flagged)), total=len(flagged))}*")
 
             # Accuracy check if labels are available
             if "true_label" in results_df.columns:
-                st.markdown("### Validation (vs. True Labels)")
+                st.markdown(f"### {t('validation_vs_labels')}")
                 try:
                     labels = results_df["true_label"].astype(int)
                     preds = (results_df["risk_score"] > 0.5).astype(int)
@@ -347,26 +349,26 @@ def render(DATA, navigate_to):
                     f1 = 2 * precision * recall / max(precision + recall, 1e-8)
 
                     v1, v2, v3, v4 = st.columns(4)
-                    v1.metric("Precision", f"{precision:.2%}")
-                    v2.metric("Recall", f"{recall:.2%}")
-                    v3.metric("F1 Score", f"{f1:.2%}")
-                    v4.metric("Accuracy", f"{(tp + tn) / len(results_df):.2%}")
+                    v1.metric(t("precision"), f"{precision:.2%}")
+                    v2.metric(t("recall"), f"{recall:.2%}")
+                    v3.metric(t("f1_score"), f"{f1:.2%}")
+                    v4.metric(t("accuracy"), f"{(tp + tn) / len(results_df):.2%}")
 
-                    st.caption("Validation metrics using threshold=0.5 on rule-based risk scores.")
+                    st.caption(t("validation_caption"))
                 except Exception:
-                    st.caption("Could not compute validation metrics. Ensure true_label column contains 0/1 values.")
+                    st.caption(t("validation_error"))
         else:
-            st.info("No transactions flagged as HIGH or MEDIUM risk.")
+            st.info(t("no_flagged"))
 
         # Download results
         st.markdown("---")
-        st.markdown("### Download Results")
+        st.markdown(f"### {t('download_results')}")
 
         csv_buf = io.StringIO()
         results_df.to_csv(csv_buf, index=False)
 
         st.download_button(
-            label=f"Download Scored Results ({len(results_df):,} rows)",
+            label=t("download_scored_results").format(n=f"{len(results_df):,}"),
             data=csv_buf.getvalue(),
             file_name="chainguard_risk_scores.csv",
             mime="text/csv",

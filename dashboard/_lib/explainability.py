@@ -33,19 +33,19 @@ def render(DATA, navigate_to):
         st.markdown(f'<div class="breadcrumb">← from {st.session_state["drill_from"]}</div>',
                     unsafe_allow_html=True)
 
-    st.markdown("# 🧠 GNN Explainability")
-    st.markdown("Real model outputs from trained TH-GNN (M3)")
+    st.markdown(f"# 🧠 {t('explain_title')}")
+    st.markdown(t("expl_real_model_subtitle"))
 
     if not _model_available():
-        st.error("**Model outputs not available.** Run `experiments/scripts/train_and_save_m3.py` first to generate real model predictions, feature importance, and node explanations.")
+        st.error(t("expl_model_not_available"))
         st.code("cd chainguard-repo && .venv/bin/python experiments/scripts/train_and_save_m3.py", language="bash")
         return
 
-    st.caption("All visualizations below use REAL outputs from the trained M3 (R-GCN + Heterogeneous Edges) model.")
+    st.caption(t("expl_all_real_caption"))
     st.markdown("---")
 
     tab1, tab2, tab3, tab4 = st.tabs([
-        "Feature Importance", "Node Explanations", "Training History", "Statistical Tests"
+        t("feature_importance"), t("node_explanations_tab"), t("training_history_tab"), t("statistical_tests_tab")
     ])
 
     # ══════════════════════════════════════════
@@ -54,10 +54,10 @@ def render(DATA, navigate_to):
     with tab1:
         feat_imp = load_feature_importance()
         if feat_imp is None:
-            st.warning("Feature importance data not found.")
+            st.warning(t("feature_imp_not_found"))
             return
 
-        st.markdown("### Gradient-Based Feature Importance")
+        st.markdown(f"### {t('gradient_feature_importance')}")
         st.caption(f"Method: {feat_imp['method']} | Model: {feat_imp['model']} | {feat_imp['n_features']} features")
 
         # Top 20 features
@@ -86,7 +86,7 @@ def render(DATA, navigate_to):
         # Interpretation
         top3 = features[:3]
         st.markdown(
-            f'<div class="risk-low"><strong style="color:#00D4AA">Interpretation</strong><br>'
+            f'<div class="risk-low"><strong style="color:#00D4AA">{t("interpretation")}</strong><br>'
             f'<span style="color:#E5E7EB">The top 3 most important features are: '
             f'<b>{top3[0]["name"]}</b> ({top3[0]["importance"]:.4f}), '
             f'<b>{top3[1]["name"]}</b> ({top3[1]["importance"]:.4f}), '
@@ -98,9 +98,8 @@ def render(DATA, navigate_to):
         # Local vs Aggregated breakdown
         n_local_in_top = sum(1 for f in features[:15] if f["name"].startswith("local_"))
         n_agg_in_top = sum(1 for f in features[:15] if f["name"].startswith("agg_"))
-        st.markdown(f"**Top 15 breakdown:** {n_local_in_top} local features, {n_agg_in_top} aggregated features")
-        st.caption("Local features (f1-f94) describe the transaction itself. "
-                   "Aggregated features (f95-f165) describe the neighborhood.")
+        st.markdown(t("top15_breakdown").format(n_local=n_local_in_top, n_agg=n_agg_in_top))
+        st.caption(t("local_features_desc"))
 
     # ══════════════════════════════════════════
     # Tab 2: Node Explanations
@@ -108,11 +107,11 @@ def render(DATA, navigate_to):
     with tab2:
         explanations = load_node_explanations()
         if explanations is None:
-            st.warning("Node explanation data not found.")
+            st.warning(t("node_expl_not_found"))
             return
 
-        st.markdown("### Per-Node Explanations (Top Riskiest Nodes)")
-        st.caption(f"Showing {len(explanations)} highest-risk test nodes with gradient × feature contributions")
+        st.markdown(f"### {t('per_node_explanations')}")
+        st.caption(t("per_node_caption").format(n=len(explanations)))
 
         # Node selector
         node_options = [
@@ -120,7 +119,7 @@ def render(DATA, navigate_to):
             f"{'ILLICIT' if e['true_label'] == 1 else 'LICIT'} | TS {e['timestep']}"
             for e in explanations
         ]
-        selected_idx = st.selectbox("Select node to explain:", range(len(node_options)),
+        selected_idx = st.selectbox(t("select_node_explain"), range(len(node_options)),
                                      format_func=lambda i: node_options[i], key="expl_node")
 
         expl = explanations[selected_idx]
@@ -129,14 +128,14 @@ def render(DATA, navigate_to):
         c1, c2, c3, c4 = st.columns(4)
         label_color = "#EF4444" if expl["true_label"] == 1 else "#10B981"
         label_text = "ILLICIT" if expl["true_label"] == 1 else "LICIT"
-        c1.metric("Node ID", expl["node_id"])
-        c2.metric("Risk Score", f"{expl['risk_score']:.2%}")
-        c3.metric("True Label", label_text)
-        c4.metric("Timestep", expl["timestep"])
+        c1.metric(t("node_id"), expl["node_id"])
+        c2.metric(t("risk_score_label"), f"{expl['risk_score']:.2%}")
+        c3.metric(t("true_label_label"), label_text)
+        c4.metric(t("timestep"), expl["timestep"])
 
         # Feature contributions (waterfall chart)
-        st.markdown("#### Feature Contributions (gradient × value)")
-        st.caption("Positive = pushes toward ILLICIT, Negative = pushes toward LICIT")
+        st.markdown(f"#### {t('feature_contributions_gradient')}")
+        st.caption(t("positive_illicit_desc"))
 
         top_feats = expl["top_features"]
         feat_names = [f["feature_name"] for f in top_feats]
@@ -162,7 +161,7 @@ def render(DATA, navigate_to):
         st.plotly_chart(fig_wf, use_container_width=True)
 
         # Feature details table
-        st.markdown("#### Feature Details")
+        st.markdown(f"#### {t('feature_details')}")
         feat_df = pd.DataFrame([{
             "Feature": f["feature_name"],
             "Value": f"{f['value']:.4f}",
@@ -173,8 +172,8 @@ def render(DATA, navigate_to):
 
         # Neighbor influence
         if expl.get("neighbors"):
-            st.markdown("#### Neighbor Influence (Real Graph Connections)")
-            st.caption("These are the actual neighbors of this node in the Elliptic graph")
+            st.markdown(f"#### {t('neighbor_influence_real')}")
+            st.caption(t("neighbor_caption"))
 
             neighbors = expl["neighbors"]
             n_illicit = sum(1 for n in neighbors if n["label"] == 1)
@@ -184,11 +183,11 @@ def render(DATA, navigate_to):
             n_temp = sum(1 for n in neighbors if n["edge_type"] == 1)
 
             nc1, nc2, nc3, nc4, nc5 = st.columns(5)
-            nc1.metric("Total Neighbors", len(neighbors))
-            nc2.metric("Illicit", n_illicit, f"{n_illicit/max(len(neighbors),1):.0%}")
-            nc3.metric("Licit", n_licit)
-            nc4.metric("Original Edges", n_orig)
-            nc5.metric("Temporal Edges", n_temp)
+            nc1.metric(t("total_neighbors"), len(neighbors))
+            nc2.metric(t("illicit"), n_illicit, f"{n_illicit/max(len(neighbors),1):.0%}")
+            nc3.metric(t("licit_label"), n_licit)
+            nc4.metric(t("original_edges"), n_orig)
+            nc5.metric(t("temporal_edges"), n_temp)
 
             # Neighbor bar chart
             fig_nb = go.Figure()
@@ -219,10 +218,10 @@ def render(DATA, navigate_to):
     with tab3:
         history = load_training_history()
         if history is None:
-            st.warning("Training history not found.")
+            st.warning(t("training_hist_not_found"))
             return
 
-        st.markdown("### Training Curves (Real M3 Training Run)")
+        st.markdown(f"### {t('training_curves')}")
         st.caption(f"Seed: 42 | {len(history)} evaluation checkpoints | Early stopping with patience=20")
 
         epochs = [h["epoch"] for h in history]
@@ -240,7 +239,7 @@ def render(DATA, navigate_to):
             font=dict(color="#E5E7EB"), margin=dict(l=40, r=20, t=30, b=40),
             xaxis=dict(title="Epoch", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
             yaxis=dict(title="BCE Loss", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
-            title=dict(text="Training Loss", font=dict(size=14, color="#E5E7EB")),
+            title=dict(text=t("training_loss"), font=dict(size=14, color="#E5E7EB")),
         )
         st.plotly_chart(fig_loss, use_container_width=True)
 
@@ -262,18 +261,18 @@ def render(DATA, navigate_to):
             font=dict(color="#E5E7EB"), margin=dict(l=40, r=20, t=30, b=40),
             xaxis=dict(title="Epoch", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
             yaxis=dict(title="Score", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)", range=[0, 1]),
-            title=dict(text="Validation Metrics", font=dict(size=14, color="#E5E7EB")),
+            title=dict(text=t("validation_metrics"), font=dict(size=14, color="#E5E7EB")),
             legend=dict(orientation="h", y=1.15, x=0.3),
         )
         st.plotly_chart(fig_metrics, use_container_width=True)
 
         # Summary stats
-        st.markdown("#### Training Summary")
+        st.markdown(f"#### {t('training_summary')}")
         ts1, ts2, ts3, ts4 = st.columns(4)
-        ts1.metric("Best Val AUC", f"{best_auc:.4f}")
-        ts2.metric("Best Epoch", best_epoch)
-        ts3.metric("Final Loss", f"{losses[-1]:.4f}")
-        ts4.metric("Total Epochs", epochs[-1])
+        ts1.metric(t("best_val_auc"), f"{best_auc:.4f}")
+        ts2.metric(t("best_epoch"), best_epoch)
+        ts3.metric(t("final_loss"), f"{losses[-1]:.4f}")
+        ts4.metric(t("total_epochs"), epochs[-1])
 
     # ══════════════════════════════════════════
     # Tab 4: Statistical Tests
@@ -281,10 +280,10 @@ def render(DATA, navigate_to):
     with tab4:
         stat_tests = load_statistical_tests()
         if stat_tests is None:
-            st.warning("Statistical test results not found.")
+            st.warning(t("stat_tests_not_found"))
             return
 
-        st.markdown("### Statistical Significance Tests")
+        st.markdown(f"### {t('stat_tests_title')}")
         st.caption(f"Method: {stat_tests['method']} | Seeds: {stat_tests['seeds']} | n={stat_tests['n_seeds']}")
 
         comparisons = stat_tests["comparisons"]
@@ -329,10 +328,10 @@ def render(DATA, navigate_to):
         non_sig = [m for m, r in comparisons.items() if not r["significant_005"]]
 
         st.markdown(
-            f'<div class="risk-low"><strong style="color:#00D4AA">Key Findings</strong><br>'
+            f'<div class="risk-low"><strong style="color:#00D4AA">{t("key_findings")}</strong><br>'
             f'<span style="color:#E5E7EB">'
-            f'M3 is <b>statistically significantly better</b> than: {", ".join(sig_comparisons) if sig_comparisons else "none"} (p < 0.05).<br>'
-            f'<b>Not significant</b> vs: {", ".join(non_sig) if non_sig else "none"}.<br>'
+            f'{t("stat_sig_better").format(sig=", ".join(sig_comparisons) if sig_comparisons else "none")}<br>'
+            f'{t("not_significant_vs").format(non_sig=", ".join(non_sig) if non_sig else "none")}<br>'
             f'Note: {stat_tests["note"]}</span></div>',
             unsafe_allow_html=True)
 
@@ -340,8 +339,8 @@ def render(DATA, navigate_to):
     st.markdown("---")
     n1, n2 = st.columns(2)
     with n1:
-        if st.button("🔍 Try Scanner →", key="expl_to_scan"):
+        if st.button(f"🔍 {t('try_scanner')}", key="expl_to_scan"):
             navigate_to("Scanner"); st.rerun()
     with n2:
-        if st.button("📋 Evidence → Forensics", key="expl_to_for"):
+        if st.button(f"📋 {t('evidence_to_forensics')}", key="expl_to_for"):
             navigate_to("Forensics"); st.rerun()

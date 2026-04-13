@@ -38,7 +38,7 @@ def render(DATA, navigate_to):
     km4.metric(t("models_compared"), f"{len(bl['results'])}", t("ablation_baselines"))
     st.markdown("---")
 
-    tab1, tab2, tab3 = st.tabs([t("ablation_study"), t("baseline_comparison"), "Metrics Deep-Dive"])
+    tab1, tab2, tab3 = st.tabs([t("ablation_study"), t("baseline_comparison"), t("metrics_deep_dive")])
 
     with tab1:
         st.markdown(f"### {t('component_contribution')}")
@@ -73,9 +73,7 @@ def render(DATA, navigate_to):
         max_jump_idx = max(range(1, 5), key=lambda i: aucs[i] - aucs[i-1])
         max_jump = aucs[max_jump_idx] - aucs[max_jump_idx - 1]
         st.markdown(f'<div class="risk-low"><strong style="color:#00D4AA">{t("key_finding")}</strong><br>'
-                    f'<span style="color:#E5E7EB">Largest single improvement: {short[max_jump_idx]} '
-                    f'(+{max_jump:.1%} AUC-ROC). '
-                    f'Graph augmentation (temporal k-NN edges) > model complexity.</span></div>', unsafe_allow_html=True)
+                    f'<span style="color:#E5E7EB">{t("largest_improvement").format(model=short[max_jump_idx], delta=f"{max_jump:.1%}")}</span></div>', unsafe_allow_html=True)
 
         if st.button(f"\U0001f4cb {t('see_evidence')}", key="abl_to_for"):
             navigate_to("Forensics"); st.rerun()
@@ -108,17 +106,17 @@ def render(DATA, navigate_to):
 
         # Rank position
         rank = next(i for i, (k, _) in enumerate(sorted(res.items(), key=lambda x: -x[1]["auc_roc"]), 1) if k == "thgnn_m3_ours")
+        prec_delta_str = f"{best['precision'] - res['graphsage']['precision']:.1%}"
         st.markdown(f'<div class="risk-low"><strong style="color:#00D4AA">{t("ranking")}</strong><br>'
-                    f'<span style="color:#E5E7EB">TH-GNN ranks #{rank} out of {len(res)} methods on AUC-ROC. '
-                    f'Tied with GraphSAGE on AUC but +{best["precision"] - res["graphsage"]["precision"]:.1%} higher precision.</span></div>',
+                    f'<span style="color:#E5E7EB">{t("ranking_detail").format(rank=rank, n=len(res), delta=prec_delta_str)}</span></div>',
                     unsafe_allow_html=True)
 
         if st.button(f"\U0001f50d {t('try_model')}", key="bl_to_scan"):
             navigate_to("Scanner"); st.rerun()
 
     with tab3:
-        st.markdown("### All Models — Full Metrics Comparison")
-        st.caption("All values from real experiment results (ablation_results.json, baseline_comparison.json)")
+        st.markdown(f"### {t('all_models_full_metrics')}")
+        st.caption(t("all_models_caption"))
 
         # Complete metrics table for all methods
         all_methods = []
@@ -137,7 +135,7 @@ def render(DATA, navigate_to):
         st.dataframe(df_all, use_container_width=True, hide_index=True)
 
         # Precision vs Recall tradeoff
-        st.markdown("#### Precision-Recall Tradeoff")
+        st.markdown(f"#### {t('precision_recall_tradeoff')}")
         fig_pr = go.Figure()
         for k, v in res.items():
             name = names_map.get(k, k)
@@ -156,9 +154,10 @@ def render(DATA, navigate_to):
         st.plotly_chart(fig_pr, use_container_width=True)
 
         # Key insight
+        auc_str = f"{best['auc_roc']:.4f}"
+        prec_str = f"{best['precision']:.4f}"
         st.markdown(
-            '<div class="risk-low"><strong style="color:#00D4AA">Key Observation</strong><br>'
-            '<span style="color:#E5E7EB">'
-            f'TH-GNN (M3) achieves the best AUC-ROC ({best["auc_roc"]:.4f}) with highest precision ({best["precision"]:.4f}). '
-            f'This means fewer false alarms per detection — critical for operational teams.</span></div>',
+            f'<div class="risk-low"><strong style="color:#00D4AA">{t("key_observation")}</strong><br>'
+            f'<span style="color:#E5E7EB">'
+            f'{t("key_obs_detail").format(auc=auc_str, prec=prec_str)}</span></div>',
             unsafe_allow_html=True)

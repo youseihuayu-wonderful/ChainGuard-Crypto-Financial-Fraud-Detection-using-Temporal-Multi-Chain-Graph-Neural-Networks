@@ -26,9 +26,9 @@ METRIC_LABELS = {
 
 def render(DATA, navigate_to):
     """Render the Model Comparison Dashboard page."""
-    st.markdown("# :bar_chart: Model Comparison")
-    st.markdown("Side-by-side comparison of models using real experiment results.")
-    st.caption("All metrics from real experiment results.")
+    st.markdown(f"# :bar_chart: {t('comparison_title')}")
+    st.markdown(t("comparison_subtitle"))
+    st.caption(t("comparison_caption"))
 
     st.markdown("---")
 
@@ -63,12 +63,12 @@ def render(DATA, navigate_to):
     model_names = list(all_models.keys())
 
     # Model selection
-    st.markdown("### Select Models to Compare")
+    st.markdown(f"### {t('select_models_compare')}")
     sel_col1, sel_col2 = st.columns(2)
 
     with sel_col1:
         model_a_name = st.selectbox(
-            "Model A",
+            t("model_a"),
             model_names,
             index=model_names.index("M3: R-GCN + Heterogeneous Edges") if "M3: R-GCN + Heterogeneous Edges" in model_names else 0,
             key="compare_model_a",
@@ -77,7 +77,7 @@ def render(DATA, navigate_to):
     with sel_col2:
         default_b = model_names.index("M1: GCN Baseline") if "M1: GCN Baseline" in model_names else 1
         model_b_name = st.selectbox(
-            "Model B",
+            t("model_b"),
             model_names,
             index=default_b,
             key="compare_model_b",
@@ -89,7 +89,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # Side-by-side metrics
-    st.markdown("### Head-to-Head Metrics")
+    st.markdown(f"### {t('head_to_head')}")
 
     for metric in METRICS:
         label = METRIC_LABELS[metric]
@@ -142,14 +142,14 @@ def render(DATA, navigate_to):
     wins_b = sum(1 for m in METRICS if model_b[m] > model_a[m])
     ties = 4 - wins_a - wins_b
 
-    winner_text = model_a_name if wins_a > wins_b else (model_b_name if wins_b > wins_a else "Tie")
+    winner_text = model_a_name if wins_a > wins_b else (model_b_name if wins_b > wins_a else t("tie"))
     winner_color = "#00D4AA" if wins_a > wins_b else ("#3B82F6" if wins_b > wins_a else "#F59E0B")
 
     st.markdown(
         f'<div class="glass-card" style="text-align:center">'
-        f'<div style="color:#6B7280; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em">Overall Winner</div>'
+        f'<div style="color:#6B7280; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em">{t("overall_winner")}</div>'
         f'<div style="color:{winner_color}; font-size:1.5rem; font-weight:700; margin:4px 0">{winner_text}</div>'
-        f'<div style="color:#9CA3AF">{model_a_name}: {wins_a} wins | {model_b_name}: {wins_b} wins | Ties: {ties}</div>'
+        f'<div style="color:#9CA3AF">{model_a_name}: {wins_a} {t("wins")} | {model_b_name}: {wins_b} {t("wins")} | {t("ties")}: {ties}</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -157,7 +157,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # Bar chart comparison
-    st.markdown("### Bar Chart Comparison")
+    st.markdown(f"### {t('bar_chart_comparison')}")
 
     fig_bar = go.Figure()
     fig_bar.add_trace(go.Bar(
@@ -182,8 +182,8 @@ def render(DATA, navigate_to):
         **CHART_LAYOUT,
         barmode="group",
         height=400,
-        title=dict(text="Metric Comparison", font=dict(size=14)),
-        yaxis_title="Score",
+        title=dict(text=t("metric_comparison"), font=dict(size=14)),
+        yaxis_title=t("score"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     st.plotly_chart(fig_bar, use_container_width=True)
@@ -191,7 +191,7 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # Radar chart
-    st.markdown("### Radar Chart Overlay")
+    st.markdown(f"### {t('radar_chart_overlay')}")
 
     categories = [METRIC_LABELS[m] for m in METRICS]
     # Close the radar polygon
@@ -233,14 +233,14 @@ def render(DATA, navigate_to):
             ),
         ),
         legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5),
-        title=dict(text="Model Performance Profile", font=dict(size=14)),
+        title=dict(text=t("model_performance_profile"), font=dict(size=14)),
     )
     st.plotly_chart(fig_radar, use_container_width=True)
 
     st.markdown("---")
 
     # Delta analysis table
-    st.markdown("### Delta Analysis")
+    st.markdown(f"### {t('delta_analysis')}")
 
     delta_rows = []
     for metric in METRICS:
@@ -248,15 +248,15 @@ def render(DATA, navigate_to):
         val_b = model_b[metric]
         diff = val_a - val_b
         pct = diff / max(val_b, 1e-8) * 100
-        winner = model_a_name if diff > 0 else (model_b_name if diff < 0 else "Tie")
+        winner = model_a_name if diff > 0 else (model_b_name if diff < 0 else t("tie"))
 
         delta_rows.append({
-            "Metric": METRIC_LABELS[metric],
+            t("metric_label"): METRIC_LABELS[metric],
             f"{model_a_name}": f"{val_a:.4f}",
             f"{model_b_name}": f"{val_b:.4f}",
-            "Difference": f"{diff:+.4f}",
-            "% Change": f"{pct:+.1f}%",
-            "Winner": winner,
+            t("difference"): f"{diff:+.4f}",
+            t("pct_change"): f"{pct:+.1f}%",
+            t("winner"): winner,
         })
 
     st.dataframe(pd.DataFrame(delta_rows), use_container_width=True, hide_index=True)
@@ -264,18 +264,18 @@ def render(DATA, navigate_to):
     st.markdown("---")
 
     # Full leaderboard
-    st.markdown("### Full Model Leaderboard")
+    st.markdown(f"### {t('full_model_leaderboard')}")
 
     leaderboard_rows = []
     for name, metrics in sorted(all_models.items(), key=lambda x: -x[1]["auc_roc"]):
         leaderboard_rows.append({
-            "Rank": len(leaderboard_rows) + 1,
-            "Model": name,
+            t("rank_col"): len(leaderboard_rows) + 1,
+            t("model"): name,
             "AUC-ROC": f"{metrics['auc_roc']:.4f}",
             "F1": f"{metrics['f1']:.4f}",
             "Precision": f"{metrics['precision']:.4f}",
             "Recall": f"{metrics['recall']:.4f}",
-            "Source": metrics["source"],
+            t("source"): metrics["source"],
         })
 
     st.dataframe(pd.DataFrame(leaderboard_rows), use_container_width=True, hide_index=True)
@@ -284,10 +284,10 @@ def render(DATA, navigate_to):
     st.markdown("---")
     nav_col1, nav_col2 = st.columns(2)
     with nav_col1:
-        if st.button("Detailed Performance", key="comp_to_perf"):
+        if st.button(t("detailed_performance"), key="comp_to_perf"):
             navigate_to("Performance")
             st.rerun()
     with nav_col2:
-        if st.button("View Explainability", key="comp_to_explain"):
+        if st.button(t("view_explainability"), key="comp_to_explain"):
             navigate_to("Explainability")
             st.rerun()

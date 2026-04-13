@@ -65,18 +65,18 @@ st.markdown(
 )
 
 modules = [
-    ("📊", "Executive Dashboard", "TRM Labs", "CEO/CRO — KPIs, real dataset statistics, detection analysis", "#00D4AA"),
-    ("🧪", "Model Performance", "ML Platform", "Data Scientists — Ablation study, baseline comparison", "#3B82F6"),
-    ("🔍", "Transaction Scanner", "Elliptic Navigator", "Operations — Rule-based transaction risk scoring", "#F59E0B"),
-    ("🕸️", "Network Explorer", "Chainalysis Reactor", "Investigators — Real Elliptic graph topology", "#8B5CF6"),
-    ("📋", "Forensics Lab", "Compliance", "AML/Audit — Detection evidence, research findings", "#EF4444"),
-    ("🧠", "GNN Explainability", "XAI", "Research — Real feature importance, node explanations, training curves", "#8B5CF6"),
-    ("📜", "Activity Log", "Audit Trail", "Team Leads — Analyst activity timeline, investigation history", "#10B981"),
-    ("🔗", "Blockchain Scanner", "Etherscan", "Investigators — Live Ethereum address/tx lookup via Etherscan API", "#3B82F6"),
-    ("🔔", "Alert Center", "Notifications", "Operations — High-risk node alerts from real M3 predictions", "#EF4444"),
-    ("📤", "Data Upload", "Analysis", "Analysts — Upload CSV data for rule-based risk scoring", "#F59E0B"),
-    ("📊", "Model Comparison", "Benchmarks", "Researchers — Side-by-side model comparison with real metrics", "#00D4AA"),
-    ("🔎", "Node Search", "Lookup", "Investigators — Search nodes in real M3 predictions and explanations", "#8B5CF6"),
+    ("📊", t("mod_executive"), t("mod_executive_ref"), t("mod_executive_desc"), "#00D4AA"),
+    ("🧪", t("mod_performance"), t("mod_performance_ref"), t("mod_performance_desc"), "#3B82F6"),
+    ("🔍", t("mod_scanner"), t("mod_scanner_ref"), t("mod_scanner_desc"), "#F59E0B"),
+    ("🕸️", t("mod_network"), t("mod_network_ref"), t("mod_network_desc"), "#8B5CF6"),
+    ("📋", t("mod_forensics"), t("mod_forensics_ref"), t("mod_forensics_desc"), "#EF4444"),
+    ("🧠", t("mod_explainability"), t("mod_explainability_ref"), t("mod_explainability_desc"), "#8B5CF6"),
+    ("📜", t("mod_activity"), t("mod_activity_ref"), t("mod_activity_desc"), "#10B981"),
+    ("🔗", t("mod_blockchain"), t("mod_blockchain_ref"), t("mod_blockchain_desc"), "#3B82F6"),
+    ("🔔", t("mod_alerts"), t("mod_alerts_ref"), t("mod_alerts_desc"), "#EF4444"),
+    ("📤", t("mod_upload"), t("mod_upload_ref"), t("mod_upload_desc"), "#F59E0B"),
+    ("📊", t("mod_comparison"), t("mod_comparison_ref"), t("mod_comparison_desc"), "#00D4AA"),
+    ("🔎", t("mod_search"), t("mod_search_ref"), t("mod_search_desc"), "#8B5CF6"),
 ]
 
 for icon, name, ref, desc, color in modules:
@@ -103,11 +103,11 @@ st.markdown(
 )
 st.markdown(f"""{t("data_flow_desc")}
 
-- **Executive** → Scanner *(investigate)*, Network *(explore graph)*, Performance *(why)*, Forensics *(evidence)*
-- **Scanner** → Network *(view neighbors)*, Forensics *(submit evidence)*
-- **Network** → Scanner *(scan node)*, Forensics *(submit findings)*
-- **Performance** → Scanner *(try model)*, Forensics *(see evidence)*
-- **Forensics** → Executive *(back to overview)*, Performance *(model details)*
+- {t("flow_executive")}
+- {t("flow_scanner")}
+- {t("flow_network")}
+- {t("flow_performance")}
+- {t("flow_forensics")}
 """)
 
 st.markdown("---")
@@ -115,9 +115,9 @@ bl_res = DATA["baseline"]["results"]
 rank = next(i for i, (k, _) in enumerate(sorted(bl_res.items(), key=lambda x: -x[1]["auc_roc"]), 1) if k == "thgnn_m3_ours")
 st.markdown(
     f'<div style="text-align:center; padding:24px 0">'
-    f'<p style="color:#6B7280; font-size:0.8rem">NYU Tandon School of Engineering | MS Thesis 2026</p>'
+    f'<p style="color:#6B7280; font-size:0.8rem">{t("nyu_footer")}</p>'
     f'<p style="color:#00D4AA; font-size:1.1rem; font-weight:600; font-family:JetBrains Mono,monospace">'
-    f'AUC-ROC: {best["auc_roc"]:.4f} | Rank #{rank} across {len(bl_res)} baselines</p>'
+    f'AUC-ROC: {best["auc_roc"]:.4f} | {t("rank_across_baselines").format(rank=rank, n=len(bl_res))}</p>'
     f'</div>',
     unsafe_allow_html=True,
 )

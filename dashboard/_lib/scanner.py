@@ -129,10 +129,9 @@ def render(DATA, navigate_to):
 
     has_model = _model_available()
     if has_model:
-        st.caption("Rule-based scanner below + real M3 model predictions at bottom of page.")
+        st.caption(t("scanner_rule_caption"))
     else:
-        st.caption("This scanner uses a hand-crafted rule engine. "
-                   "Run train_and_save_m3.py to enable real GNN predictions.")
+        st.caption(t("scanner_no_model_caption"))
 
     st.markdown("---")
 
@@ -226,9 +225,9 @@ def render(DATA, navigate_to):
                     f'<div class="risk-high" style="margin-top:12px">'
                     f'<strong style="color:#EF4444">{t("anti_evasion")}</strong><br>'
                     '<span style="color:#E5E7EB">'
-                    + ("Address aggregation triggered. " if addr_active else "")
-                    + ("Behavioral combo detected. " if combo_active else "")
-                    + ("Graph neighborhood flagged. " if graph_active else "")
+                    + (t("address_agg_triggered") if addr_active else "")
+                    + (t("combo_detected") if combo_active else "")
+                    + (t("graph_flagged") if graph_active else "")
                     + '</span></div>',
                     unsafe_allow_html=True,
                 )
@@ -258,11 +257,8 @@ def render(DATA, navigate_to):
             """)
             st.markdown(
                 '<div class="risk-low" style="margin-top:12px">'
-                '<strong style="color:#10B981">Key upgrade from v1.0</strong><br>'
-                '<span style="color:#E5E7EB">'
-                'v1.0 used additive single-transaction rules \u2014 a launderer could split into small amounts '
-                'and bypass detection. v2.0 adds address-level aggregation, frequency analysis, '
-                'multiplicative combo detection, and graph-level neighborhood risk propagation.</span>'
+                f'<strong style="color:#10B981">{t("key_upgrade_title")}</strong><br>'
+                f'<span style="color:#E5E7EB">{t("key_upgrade_desc")}</span>'
                 '</div>',
                 unsafe_allow_html=True,
             )
@@ -272,19 +268,19 @@ def render(DATA, navigate_to):
     # ══════════════════════════════════════════
     if has_model:
         st.markdown("---")
-        st.markdown("### 🧠 Real TH-GNN (M3) Predictions")
-        st.caption("These are ACTUAL predictions from the trained R-GCN model on Elliptic test set nodes.")
+        st.markdown(f"### 🧠 {t('real_thgnn_predictions')}")
+        st.caption(t("real_predictions_caption"))
 
         predictions = load_predictions()
         if predictions:
             pm1, pm2, pm3, pm4 = st.columns(4)
-            pm1.metric("Test AUC-ROC", f"{predictions['test_auc']:.4f}")
-            pm2.metric("Test F1", f"{predictions['test_f1']:.4f}")
-            pm3.metric("Test Precision", f"{predictions['test_precision']:.4f}")
-            pm4.metric("Test Recall", f"{predictions['test_recall']:.4f}")
+            pm1.metric(t("test_auc_roc"), f"{predictions['test_auc']:.4f}")
+            pm2.metric(t("test_f1"), f"{predictions['test_f1']:.4f}")
+            pm3.metric(t("test_precision"), f"{predictions['test_precision']:.4f}")
+            pm4.metric(t("test_recall"), f"{predictions['test_recall']:.4f}")
 
             # Top risk nodes table
-            st.markdown("#### Top 20 Highest-Risk Nodes (Real Model Scores)")
+            st.markdown(f"#### {t('top_risk_nodes')}")
             top_nodes = get_top_risk_nodes(20, predictions)
             df_top = pd.DataFrame([{
                 "Node ID": n["node_id"],
@@ -296,5 +292,5 @@ def render(DATA, navigate_to):
             } for n in top_nodes])
             st.dataframe(df_top, use_container_width=True, hide_index=True, height=400)
 
-            if st.button("🧠 See full explanations → Explainability", key="scan_to_expl"):
+            if st.button(f"🧠 {t('see_full_explanations')}", key="scan_to_expl"):
                 navigate_to("Explainability"); st.rerun()

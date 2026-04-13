@@ -44,20 +44,20 @@ def render(DATA, navigate_to):
         st.markdown(f"### {t('timestep_info')}")
         st.metric(t("nodes"), f"{ti['nodes']:,}")
         st.metric(t("illicit"), f"{ti['illicit']}", f"{ti['risk_rate']:.1f}%")
-        st.metric("Licit", f"{ti.get('licit', 0):,}")
-        st.metric("Unknown", f"{ti.get('unknown', 0):,}")
+        st.metric(t("licit_label"), f"{ti.get('licit', 0):,}")
+        st.metric(t("unknown_label"), f"{ti.get('unknown', 0):,}")
         st.metric(t("zone"), ti['zone'].upper())
         if ti.get('edges'):
-            st.metric("Edges", f"{ti['edges']:,}")
+            st.metric(t("edges"), f"{ti['edges']:,}")
 
         st.markdown("---")
         st.markdown(f"### {t('legend')}")
-        st.markdown("\U0001f534 Illicit &nbsp;&nbsp; \U0001f535 Licit &nbsp;&nbsp; \u26aa Unknown")
+        st.markdown(t("legend_text"))
 
     with nc2:
         ts_key = str(net_ts)
         if ts_key not in graph_data:
-            st.warning("Graph data not available for this timestep.")
+            st.warning(t("graph_not_available"))
         else:
             gd = graph_data[ts_key]
             all_labels = gd["labels"]  # real labels from Elliptic
@@ -187,8 +187,8 @@ def render(DATA, navigate_to):
         illicit_ratio = n_illicit / total_n if total_n > 0 else 0
         s1.metric(t("graph_density"), f"{density:.6f}")
         s2.metric(t("avg_degree"), f"{avg_degree:.2f}")
-        s3.metric("Illicit Ratio", f"{illicit_ratio:.2%}")
-        s4.metric("Licit / Unknown", f"{n_licit} / {total_n - n_illicit - n_licit}")
+        s3.metric(t("illicit_ratio"), f"{illicit_ratio:.2%}")
+        s4.metric(t("licit_unknown"), f"{n_licit} / {total_n - n_illicit - n_licit}")
 
     # Cross-links
     st.markdown("---")

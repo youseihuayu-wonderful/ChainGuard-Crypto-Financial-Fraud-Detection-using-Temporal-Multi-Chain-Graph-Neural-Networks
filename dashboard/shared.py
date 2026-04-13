@@ -39,6 +39,7 @@ def _init_session_state():
         "selected_model": "M3",
         "drill_from": None,
         "lang": "en",
+        "theme": "dark",
     }
     for key, val in defaults.items():
         if key not in st.session_state:
@@ -72,267 +73,329 @@ COLORS = {
 
 
 def _apply_css():
-    st.markdown("""
+    theme = st.session_state.get("theme", "dark")
+    is_light = theme == "light"
+
+    # Theme-dependent color variables
+    if is_light:
+        bg = "#FFFFFF"
+        surface = "#F3F4F6"
+        surface2 = "#E5E7EB"
+        border = "#E5E7EB"
+        sidebar_bg = "#F9FAFB"
+        text1 = "#111827"
+        text2 = "#6B7280"
+        text3 = "#9CA3AF"
+        text_strong = "#111827"
+        accent = "#0D9488"
+        accent_hover = "#0F766E"
+        accent_bg = "rgba(13,148,136,0.08)"
+        accent_bg2 = "rgba(13,148,136,0.12)"
+        header_bg = "#FFFFFF"
+        metric_label = "#6B7280"
+        metric_value = "#111827"
+        metric_delta = "#059669"
+        tab_bg = "#F3F4F6"
+        tab_active_bg = "#FFFFFF"
+        btn_bg = "#F3F4F6"
+        btn_text = "#374151"
+        btn_primary_text = "#FFFFFF"
+        input_bg = "#FFFFFF"
+        grid_color = "rgba(209,213,219,0.5)"
+        glass_bg = "rgba(243,244,246,0.9)"
+        stat_row_bg = "#F9FAFB"
+        breadcrumb_bg = "#F3F4F6"
+    else:
+        bg = "#0A0E17"
+        surface = "#111827"
+        surface2 = "#1F2937"
+        border = "#1F2937"
+        sidebar_bg = "#0D1117"
+        text1 = "#F9FAFB"
+        text2 = "#9CA3AF"
+        text3 = "#6B7280"
+        text_strong = "#E5E7EB"
+        accent = "#00D4AA"
+        accent_hover = "#00E6B8"
+        accent_bg = "rgba(0,212,170,0.08)"
+        accent_bg2 = "rgba(0,212,170,0.12)"
+        header_bg = "#0A0E17"
+        metric_label = "#6B7280"
+        metric_value = "#F9FAFB"
+        metric_delta = "#10B981"
+        tab_bg = "#111827"
+        tab_active_bg = "#1F2937"
+        btn_bg = "#111827"
+        btn_text = "#D1D5DB"
+        btn_primary_text = "#0A0E17"
+        input_bg = "#111827"
+        grid_color = "rgba(75,85,99,0.3)"
+        glass_bg = "rgba(17,24,39,0.8)"
+        stat_row_bg = "#111827"
+        breadcrumb_bg = "#111827"
+
+    st.markdown(f"""
     <style>
         /* ══════════════════════════════════════════════
            BLOOMBERG / CHAINALYSIS FINANCIAL DESIGN SYSTEM
+           Theme: {theme}
            ══════════════════════════════════════════════ */
 
         /* Google Fonts - Inter (professional finance font) */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
         /* ── Base ── */
-        .stApp {
-            background: #0A0E17 !important;
+        .stApp {{
+            background: {bg} !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        }
-        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important; }
+        }}
+        * {{ font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important; }}
 
         /* ── Sidebar ── */
-        [data-testid="stSidebar"] {
-            background: #0D1117 !important;
-            border-right: 1px solid #1F2937 !important;
-        }
-        [data-testid="stSidebar"] * { color: #D1D5DB !important; }
-        [data-testid="stSidebar"] a {
-            color: #9CA3AF !important;
+        [data-testid="stSidebar"] {{
+            background: {sidebar_bg} !important;
+            border-right: 1px solid {border} !important;
+        }}
+        [data-testid="stSidebar"] * {{ color: {text2} !important; }}
+        [data-testid="stSidebar"] a {{
+            color: {text2} !important;
             transition: color 0.2s, background 0.2s;
             border-radius: 6px;
-        }
-        [data-testid="stSidebar"] a:hover { color: #00D4AA !important; background: rgba(0,212,170,0.08) !important; }
-        [data-testid="stSidebar"] a[aria-current="page"] {
-            color: #00D4AA !important;
-            background: rgba(0,212,170,0.12) !important;
+        }}
+        [data-testid="stSidebar"] a:hover {{ color: {accent} !important; background: {accent_bg} !important; }}
+        [data-testid="stSidebar"] a[aria-current="page"] {{
+            color: {accent} !important;
+            background: {accent_bg2} !important;
             font-weight: 600 !important;
-        }
+        }}
 
         /* ── Typography ── */
-        h1 {
-            color: #F9FAFB !important;
+        h1 {{
+            color: {text1} !important;
             font-weight: 700 !important;
             letter-spacing: -0.02em !important;
             font-size: 1.875rem !important;
-        }
-        h2 {
-            color: #F3F4F6 !important;
+        }}
+        h2 {{
+            color: {text1} !important;
             font-weight: 600 !important;
             letter-spacing: -0.01em !important;
             font-size: 1.375rem !important;
-        }
-        h3 {
-            color: #E5E7EB !important;
+        }}
+        h3 {{
+            color: {text_strong} !important;
             font-weight: 600 !important;
             font-size: 1.125rem !important;
-        }
-        h4 {
-            color: #D1D5DB !important;
+        }}
+        h4 {{
+            color: {text2} !important;
             font-weight: 500 !important;
             font-size: 0.975rem !important;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-        }
-        p, li { color: #9CA3AF !important; line-height: 1.6 !important; }
-        strong { color: #E5E7EB !important; }
+        }}
+        p, li {{ color: {text2} !important; line-height: 1.6 !important; }}
+        strong {{ color: {text_strong} !important; }}
 
         /* ── Metric Cards (Bloomberg style) ── */
-        [data-testid="stMetric"] {
-            background: #111827 !important;
-            border: 1px solid #1F2937 !important;
+        [data-testid="stMetric"] {{
+            background: {surface} !important;
+            border: 1px solid {border} !important;
             border-radius: 8px !important;
             padding: 20px 16px !important;
             transition: border-color 0.2s;
-        }
-        [data-testid="stMetric"]:hover {
-            border-color: #374151 !important;
-        }
-        [data-testid="stMetric"] label {
-            color: #6B7280 !important;
+        }}
+        [data-testid="stMetric"]:hover {{
+            border-color: {surface2} !important;
+        }}
+        [data-testid="stMetric"] label {{
+            color: {metric_label} !important;
             font-size: 0.75rem !important;
             font-weight: 500 !important;
             text-transform: uppercase !important;
             letter-spacing: 0.05em !important;
-        }
-        [data-testid="stMetric"] [data-testid="stMetricValue"] {
-            color: #F9FAFB !important;
+        }}
+        [data-testid="stMetric"] [data-testid="stMetricValue"] {{
+            color: {metric_value} !important;
             font-size: 1.5rem !important;
             font-weight: 700 !important;
             font-family: 'JetBrains Mono', monospace !important;
-        }
-        [data-testid="stMetric"] [data-testid="stMetricDelta"] svg { display: none; }
-        [data-testid="stMetric"] [data-testid="stMetricDelta"] {
-            color: #10B981 !important;
+        }}
+        [data-testid="stMetric"] [data-testid="stMetricDelta"] svg {{ display: none; }}
+        [data-testid="stMetric"] [data-testid="stMetricDelta"] {{
+            color: {metric_delta} !important;
             font-size: 0.8rem !important;
             font-weight: 500 !important;
-        }
+        }}
 
         /* ── Tabs (clean segment control) ── */
-        .stTabs [data-baseweb="tab-list"] {
+        .stTabs [data-baseweb="tab-list"] {{
             gap: 4px !important;
-            background: #111827;
+            background: {tab_bg};
             border-radius: 8px;
             padding: 4px;
-            border: 1px solid #1F2937;
-        }
-        .stTabs [data-baseweb="tab"] {
+            border: 1px solid {border};
+        }}
+        .stTabs [data-baseweb="tab"] {{
             background: transparent !important;
             border-radius: 6px !important;
-            color: #6B7280 !important;
+            color: {text3} !important;
             padding: 8px 20px !important;
             font-weight: 500 !important;
             font-size: 0.875rem !important;
-        }
-        .stTabs [aria-selected="true"] {
-            background: #1F2937 !important;
-            color: #00D4AA !important;
+        }}
+        .stTabs [aria-selected="true"] {{
+            background: {tab_active_bg} !important;
+            color: {accent} !important;
             font-weight: 600 !important;
-        }
+        }}
 
         /* ── Buttons ── */
-        .stButton > button {
-            background: #111827 !important;
-            border: 1px solid #1F2937 !important;
-            color: #D1D5DB !important;
+        .stButton > button {{
+            background: {btn_bg} !important;
+            border: 1px solid {border} !important;
+            color: {btn_text} !important;
             border-radius: 6px !important;
             font-weight: 500 !important;
             font-size: 0.875rem !important;
             padding: 8px 16px !important;
             transition: all 0.2s !important;
-        }
-        .stButton > button:hover {
-            border-color: #00D4AA !important;
-            color: #00D4AA !important;
-            background: rgba(0,212,170,0.08) !important;
-        }
-        .stButton > button[kind="primary"] {
-            background: #00D4AA !important;
-            color: #0A0E17 !important;
+        }}
+        .stButton > button:hover {{
+            border-color: {accent} !important;
+            color: {accent} !important;
+            background: {accent_bg} !important;
+        }}
+        .stButton > button[kind="primary"] {{
+            background: {accent} !important;
+            color: {btn_primary_text} !important;
             border: none !important;
             font-weight: 600 !important;
-        }
-        .stButton > button[kind="primary"]:hover {
-            background: #00E6B8 !important;
-        }
+        }}
+        .stButton > button[kind="primary"]:hover {{
+            background: {accent_hover} !important;
+        }}
 
         /* ── Data Frames ── */
-        [data-testid="stDataFrame"] {
-            border: 1px solid #1F2937 !important;
+        [data-testid="stDataFrame"] {{
+            border: 1px solid {border} !important;
             border-radius: 8px !important;
-        }
+        }}
 
         /* ── Selectbox / Inputs ── */
-        [data-baseweb="select"] > div {
-            background: #111827 !important;
-            border-color: #1F2937 !important;
-        }
-        input, textarea {
-            background: #111827 !important;
-            border-color: #1F2937 !important;
-            color: #E5E7EB !important;
-        }
+        [data-baseweb="select"] > div {{
+            background: {input_bg} !important;
+            border-color: {border} !important;
+        }}
+        input, textarea {{
+            background: {input_bg} !important;
+            border-color: {border} !important;
+            color: {text_strong} !important;
+        }}
 
         /* ── Slider ── */
-        [data-testid="stSlider"] > div > div > div { color: #9CA3AF !important; }
+        [data-testid="stSlider"] > div > div > div {{ color: {text2} !important; }}
 
         /* ── Dividers ── */
-        hr { border-color: #1F2937 !important; }
+        hr {{ border-color: {border} !important; }}
 
         /* ── Risk Status Cards ── */
-        .risk-critical {
+        .risk-critical {{
             background: rgba(239,68,68,0.08);
             border: 1px solid rgba(239,68,68,0.2);
             border-left: 3px solid #EF4444;
             padding: 14px 18px;
             border-radius: 6px;
             margin: 6px 0;
-        }
-        .risk-high {
+        }}
+        .risk-high {{
             background: rgba(239,68,68,0.06);
             border: 1px solid rgba(239,68,68,0.15);
             border-left: 3px solid #EF4444;
             padding: 14px 18px;
             border-radius: 6px;
             margin: 6px 0;
-        }
-        .risk-medium {
+        }}
+        .risk-medium {{
             background: rgba(245,158,11,0.06);
             border: 1px solid rgba(245,158,11,0.15);
             border-left: 3px solid #F59E0B;
             padding: 14px 18px;
             border-radius: 6px;
             margin: 6px 0;
-        }
-        .risk-low {
+        }}
+        .risk-low {{
             background: rgba(16,185,129,0.06);
             border: 1px solid rgba(16,185,129,0.15);
             border-left: 3px solid #10B981;
             padding: 14px 18px;
             border-radius: 6px;
             margin: 6px 0;
-        }
+        }}
 
         /* ── Glass Card (for featured content) ── */
-        .glass-card {
-            background: rgba(17,24,39,0.8);
+        .glass-card {{
+            background: {glass_bg};
             backdrop-filter: blur(12px);
-            border: 1px solid #1F2937;
+            border: 1px solid {border};
             border-radius: 12px;
             padding: 24px;
             margin: 8px 0;
-        }
+        }}
 
         /* ── Status Badge ── */
-        .badge {
+        .badge {{
             display: inline-block;
             padding: 2px 10px;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
             letter-spacing: 0.02em;
-        }
-        .badge-red { background: rgba(239,68,68,0.15); color: #EF4444; }
-        .badge-amber { background: rgba(245,158,11,0.15); color: #F59E0B; }
-        .badge-green { background: rgba(16,185,129,0.15); color: #10B981; }
-        .badge-blue { background: rgba(59,130,246,0.15); color: #3B82F6; }
-        .badge-gray { background: rgba(107,114,128,0.15); color: #9CA3AF; }
+        }}
+        .badge-red {{ background: rgba(239,68,68,0.15); color: #EF4444; }}
+        .badge-amber {{ background: rgba(245,158,11,0.15); color: #F59E0B; }}
+        .badge-green {{ background: rgba(16,185,129,0.15); color: #10B981; }}
+        .badge-blue {{ background: rgba(59,130,246,0.15); color: #3B82F6; }}
+        .badge-gray {{ background: rgba(107,114,128,0.15); color: #9CA3AF; }}
 
         /* ── Pattern Card ── */
-        .pattern-card {
-            background: #111827;
-            border: 1px solid #1F2937;
+        .pattern-card {{
+            background: {surface};
+            border: 1px solid {border};
             border-radius: 8px;
             padding: 18px;
             margin: 8px 0;
             transition: border-color 0.2s;
-        }
-        .pattern-card:hover { border-color: #374151; }
+        }}
+        .pattern-card:hover {{ border-color: {surface2}; }}
 
         /* ── Stat Row ── */
-        .stat-row {
+        .stat-row {{
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px 14px;
-            background: #111827;
-            border: 1px solid #1F2937;
+            background: {stat_row_bg};
+            border: 1px solid {border};
             border-radius: 6px;
             margin: 4px 0;
-        }
+        }}
 
         /* ── Breadcrumb ── */
-        .breadcrumb {
-            color: #6B7280;
+        .breadcrumb {{
+            color: {text3};
             font-size: 0.8rem;
             margin-bottom: 8px;
             padding: 6px 12px;
-            background: #111827;
+            background: {breadcrumb_bg};
             border-radius: 6px;
             display: inline-block;
-        }
+        }}
 
         /* ── Hide Streamlit branding ── */
-        #MainMenu { visibility: hidden; }
-        footer { visibility: hidden; }
-        header[data-testid="stHeader"] { background: #0A0E17 !important; }
+        #MainMenu {{ visibility: hidden; }}
+        footer {{ visibility: hidden; }}
+        header[data-testid="stHeader"] {{ background: {header_bg} !important; }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -386,6 +449,23 @@ def _render_sidebar():
         )
         if selected_lang != st.session_state.get("lang"):
             st.session_state["lang"] = selected_lang
+            st.rerun()
+
+        st.markdown("")
+
+        # Theme toggle
+        theme_options = {"dark": "Dark", "light": "Light"}
+        current_theme = st.session_state.get("theme", "dark")
+        selected_theme = st.radio(
+            "Theme",
+            options=list(theme_options.keys()),
+            format_func=lambda x: theme_options[x],
+            index=0 if current_theme == "dark" else 1,
+            key="theme_toggle",
+            horizontal=True,
+        )
+        if selected_theme != st.session_state.get("theme"):
+            st.session_state["theme"] = selected_theme
             st.rerun()
 
         st.markdown("")

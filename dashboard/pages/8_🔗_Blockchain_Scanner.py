@@ -1,4 +1,4 @@
-TITLE = "ChainGuard | Transaction Scanner"
+TITLE = "ChainGuard | Blockchain Scanner"
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared import setup_page, load_data
@@ -28,6 +28,5 @@ def nav(page, **kwargs):
 setup_page(TITLE)
 DATA = load_data()
 
-# Import and run the render function
-from _lib.scanner import render
+from _lib.blockchain import render
 render(DATA, nav)

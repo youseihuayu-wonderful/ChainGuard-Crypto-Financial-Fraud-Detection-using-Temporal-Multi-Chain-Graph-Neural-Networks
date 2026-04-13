@@ -11,6 +11,12 @@ PAGE_MAP = {
     "Network": "pages/4_🕸️_Network_Explorer.py",
     "Forensics": "pages/5_📋_Forensics_Lab.py",
     "Explainability": "pages/6_🧠_Explainability.py",
+    "Activity": "pages/7_📜_Activity_Log.py",
+    "Blockchain": "pages/8_🔗_Blockchain_Scanner.py",
+    "Alerts": "pages/9_🔔_Alert_Center.py",
+    "Upload": "pages/10_📤_Data_Upload.py",
+    "Comparison": "pages/11_📊_Model_Comparison.py",
+    "Search": "pages/12_🔎_Node_Search.py",
 }
 
 def nav(page, **kwargs):

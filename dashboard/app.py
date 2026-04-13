@@ -72,6 +72,11 @@ modules = [
     ("📋", "Forensics Lab", "Compliance", "AML/Audit — Detection evidence, research findings", "#EF4444"),
     ("🧠", "GNN Explainability", "XAI", "Research — Real feature importance, node explanations, training curves", "#8B5CF6"),
     ("📜", "Activity Log", "Audit Trail", "Team Leads — Analyst activity timeline, investigation history", "#10B981"),
+    ("🔗", "Blockchain Scanner", "Etherscan", "Investigators — Live Ethereum address/tx lookup via Etherscan API", "#3B82F6"),
+    ("🔔", "Alert Center", "Notifications", "Operations — High-risk node alerts from real M3 predictions", "#EF4444"),
+    ("📤", "Data Upload", "Analysis", "Analysts — Upload CSV data for rule-based risk scoring", "#F59E0B"),
+    ("📊", "Model Comparison", "Benchmarks", "Researchers — Side-by-side model comparison with real metrics", "#00D4AA"),
+    ("🔎", "Node Search", "Lookup", "Investigators — Search nodes in real M3 predictions and explanations", "#8B5CF6"),
 ]
 
 for icon, name, ref, desc, color in modules:

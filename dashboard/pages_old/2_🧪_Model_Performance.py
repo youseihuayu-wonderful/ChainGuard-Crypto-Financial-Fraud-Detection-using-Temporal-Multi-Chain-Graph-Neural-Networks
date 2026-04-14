@@ -5,18 +5,18 @@ from shared import setup_page, load_data
 import streamlit as st
 
 PAGE_MAP = {
-    "Executive": "pages/1_📊_Executive_Dashboard.py",
-    "Performance": "pages/2_🧪_Model_Performance.py",
-    "Scanner": "pages/3_🔍_Transaction_Scanner.py",
-    "Network": "pages/4_🕸️_Network_Explorer.py",
-    "Forensics": "pages/5_📋_Forensics_Lab.py",
-    "Explainability": "pages/6_🧠_Explainability.py",
-    "Activity": "pages/7_📜_Activity_Log.py",
-    "Blockchain": "pages/8_🔗_Blockchain_Scanner.py",
-    "Alerts": "pages/9_🔔_Alert_Center.py",
-    "Upload": "pages/10_📤_Data_Upload.py",
-    "Comparison": "pages/11_📊_Model_Comparison.py",
-    "Search": "pages/12_🔎_Node_Search.py",
+    "Executive": "pages_old/1_📊_Executive_Dashboard.py",
+    "Performance": "pages_old/2_🧪_Model_Performance.py",
+    "Scanner": "pages_old/3_🔍_Transaction_Scanner.py",
+    "Network": "pages_old/4_🕸️_Network_Explorer.py",
+    "Forensics": "pages_old/5_📋_Forensics_Lab.py",
+    "Explainability": "pages_old/6_🧠_Explainability.py",
+    "Activity": "pages_old/7_📜_Activity_Log.py",
+    "Blockchain": "pages_old/8_🔗_Blockchain_Scanner.py",
+    "Alerts": "pages_old/9_🔔_Alert_Center.py",
+    "Upload": "pages_old/10_📤_Data_Upload.py",
+    "Comparison": "pages_old/11_📊_Model_Comparison.py",
+    "Search": "pages_old/12_🔎_Node_Search.py",
 }
 
 def nav(page, **kwargs):

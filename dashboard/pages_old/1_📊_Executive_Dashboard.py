@@ -1,4 +1,4 @@
-TITLE = "ChainGuard | Node Search"
+TITLE = "ChainGuard | Executive Dashboard"
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared import setup_page, load_data
@@ -25,8 +25,9 @@ def nav(page, **kwargs):
     if page in PAGE_MAP:
         st.switch_page(PAGE_MAP[page])
 
-setup_page(TITLE)
+# setup handled by app.py
 DATA = load_data()
 
-from _lib.search import render
+# Import and run the render function
+from _lib.executive import render
 render(DATA, nav)

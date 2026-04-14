@@ -392,6 +392,18 @@ def _apply_css():
             display: inline-block;
         }}
 
+        /* ── Show all sidebar pages (no "View N more" truncation) ── */
+        [data-testid="stSidebarNav"] > ul {{
+            max-height: none !important;
+            overflow: visible !important;
+        }}
+        [data-testid="stSidebarNav"] details {{
+            display: none !important;
+        }}
+        [data-testid="stSidebarNav"] > ul > li {{
+            display: list-item !important;
+        }}
+
         /* ── Hide Streamlit branding ── */
         #MainMenu {{ visibility: hidden; }}
         footer {{ visibility: hidden; }}
@@ -401,43 +413,21 @@ def _apply_css():
 
 
 def _render_sidebar():
+    """Minimal pre-navigation sidebar. Language/theme toggles go in render_sidebar_bottom()."""
+    pass
+
+
+def render_sidebar_bottom():
+    """No sidebar bottom widgets — all space reserved for navigation."""
+    pass
+
+
+def render_top_controls():
+    """Render language/theme controls in main content area (top-right)."""
     from _lib.i18n import t
     with st.sidebar:
-        st.markdown(
-            '<div style="padding:8px 0 16px 0">'
-            '<div style="display:flex; align-items:center; gap:10px">'
-            '<div style="width:36px; height:36px; background:linear-gradient(135deg,#00D4AA,#3B82F6); '
-            'border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px">🛡️</div>'
-            '<div>'
-            '<div style="font-size:1.1rem; font-weight:700; color:#F9FAFB; letter-spacing:-0.02em">ChainGuard</div>'
-            f'<div style="font-size:0.7rem; color:#6B7280; letter-spacing:0.05em; text-transform:uppercase">{t("platform_subtitle")}</div>'
-            '</div></div></div>',
-            unsafe_allow_html=True,
-        )
-
         st.markdown("---")
-
-        # System status
-        st.markdown(
-            f'<div style="font-size:0.7rem; color:#6B7280; text-transform:uppercase; '
-            f'letter-spacing:0.08em; font-weight:600; margin-bottom:8px">{t("system_status")}</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div style="display:flex; align-items:center; gap:8px; padding:8px 12px; '
-            f'background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15); border-radius:6px">'
-            f'<div style="width:8px; height:8px; background:#10B981; border-radius:50%; '
-            f'box-shadow:0 0 6px rgba(16,185,129,0.5)"></div>'
-            f'<span style="color:#10B981; font-size:0.8rem; font-weight:600">{t("model_online")}</span>'
-            f'<span style="color:#6B7280; font-size:0.75rem; margin-left:auto">v1.0</span>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
-        st.markdown("")
-
-        # Language toggle
-        lang_options = {"en": "EN English", "zh": "\u4e2d Chinese"}
+        lang_options = {"en": "EN", "zh": "\u4e2d\u6587"}
         current_lang = st.session_state.get("lang", "en")
         selected_lang = st.radio(
             t("language_label"),
@@ -451,10 +441,7 @@ def _render_sidebar():
             st.session_state["lang"] = selected_lang
             st.rerun()
 
-        st.markdown("")
-
-        # Theme toggle
-        theme_options = {"dark": t("dark"), "light": t("light")}
+        theme_options = {"dark": "\u263e", "light": "\u2600\ufe0f"}
         current_theme = st.session_state.get("theme", "dark")
         selected_theme = st.radio(
             t("theme"),
@@ -467,71 +454,6 @@ def _render_sidebar():
         if selected_theme != st.session_state.get("theme"):
             st.session_state["theme"] = selected_theme
             st.rerun()
-
-        st.markdown("")
-
-        # Dynamic stats — AUC loaded from experiment data at runtime
-        auc_val = "—"
-        if "ablation" in st.session_state.get("_data_cache", {}):
-            auc_val = f"{st.session_state['_data_cache']['ablation']['M3']['auc_roc']:.4f}"
-        else:
-            # Fallback: load directly (sidebar renders before page data is available)
-            try:
-                _base = os.path.join(os.path.dirname(__file__), "../experiments/results")
-                with open(os.path.join(_base, "ablation_results.json")) as _f:
-                    _abl = json.load(_f)
-                auc_val = f"{_abl['M3']['auc_roc']:.4f}"
-            except Exception:
-                auc_val = "—"
-        # Load real node/edge counts from timestep_stats.json
-        _nodes_str = "203,769"
-        _edges_str = "234,355"
-        try:
-            _base2 = os.path.join(os.path.dirname(__file__), "../experiments/results")
-            with open(os.path.join(_base2, "timestep_stats.json")) as _tf:
-                _ts_data = json.load(_tf)
-            _total_nodes = sum(v["nodes"] for v in _ts_data.values())
-            _total_edges = sum(v.get("edges", 0) for v in _ts_data.values())
-            _nodes_str = f"{_total_nodes:,}"
-            _edges_str = f"{_total_edges:,}"
-        except Exception:
-            pass
-        stats = [
-            (t("nodes"), _nodes_str),
-            (t("edges"), _edges_str),
-            (t("model"), "TH-GNN (M3)"),
-            (t("auc_label"), auc_val),
-        ]
-        for label, val in stats:
-            st.markdown(
-                f'<div style="display:flex; justify-content:space-between; padding:4px 0; '
-                f'border-bottom:1px solid #1F2937">'
-                f'<span style="color:#6B7280; font-size:0.8rem">{label}</span>'
-                f'<span style="color:#D1D5DB; font-size:0.8rem; font-family:JetBrains Mono,monospace; font-weight:500">{val}</span>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-
-        st.markdown("---")
-
-        # Data timestamp
-        from datetime import datetime
-        st.markdown(
-            f'<div style="text-align:center; padding:4px 0">'
-            f'<div style="color:#4B5563; font-size:0.65rem">{t("data_as_of")}</div>'
-            f'<div style="color:#6B7280; font-size:0.75rem; font-family:JetBrains Mono,monospace">'
-            f'{datetime.now().strftime("%Y-%m-%d %H:%M")}</div>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
-        st.markdown(
-            f'<div style="text-align:center; padding:4px 0">'
-            f'<div style="color:#4B5563; font-size:0.7rem">{t("nyu_tandon")}</div>'
-            f'<div style="color:#4B5563; font-size:0.7rem">{t("ms_thesis")}</div>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
 
 
 @st.cache_data

@@ -1,4 +1,4 @@
-TITLE = "ChainGuard | Model Performance"
+TITLE = "ChainGuard | Activity Log"
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared import setup_page, load_data
@@ -25,9 +25,8 @@ def nav(page, **kwargs):
     if page in PAGE_MAP:
         st.switch_page(PAGE_MAP[page])
 
-setup_page(TITLE)
+# setup handled by app.py
 DATA = load_data()
 
-# Import and run the render function
-from _lib.performance import render
+from _lib.activity import render
 render(DATA, nav)

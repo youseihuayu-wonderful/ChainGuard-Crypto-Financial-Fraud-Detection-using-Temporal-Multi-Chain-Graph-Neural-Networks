@@ -25,7 +25,7 @@ def nav(page, **kwargs):
     if page in PAGE_MAP:
         st.switch_page(PAGE_MAP[page])
 
-setup_page(TITLE)
+# setup handled by app.py
 DATA = load_data()
 
 # Import and run the render function

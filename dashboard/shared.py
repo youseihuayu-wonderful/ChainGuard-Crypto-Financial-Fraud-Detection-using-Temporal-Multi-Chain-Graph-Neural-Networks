@@ -401,6 +401,7 @@ def _apply_css():
 
 
 def _render_sidebar():
+    from _lib.i18n import t
     with st.sidebar:
         st.markdown(
             '<div style="padding:8px 0 16px 0">'
@@ -436,7 +437,6 @@ def _render_sidebar():
         st.markdown("")
 
         # Language toggle
-        from _lib.i18n import t
         lang_options = {"en": "EN English", "zh": "\u4e2d Chinese"}
         current_lang = st.session_state.get("lang", "en")
         selected_lang = st.radio(

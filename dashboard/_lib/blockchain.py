@@ -187,13 +187,13 @@ def render(DATA, navigate_to):
 
     with col_input:
         st.markdown(f"### {t('enter_address_or_hash')}")
-        query = st.text_input(
-            t("eth_address_or_hash"),
-            placeholder="0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
-            key="blockchain_query",
-        )
-
-        lookup_btn = st.button(t("search"), type="primary", use_container_width=True, key="blockchain_search")
+        with st.form("blockchain_form"):
+            query = st.text_input(
+                t("eth_address_or_hash"),
+                placeholder="0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
+                key="blockchain_query",
+            )
+            lookup_btn = st.form_submit_button(t("search"), type="primary", use_container_width=True)
 
     with col_info:
         st.markdown(f"### {t('supported_lookups')}")

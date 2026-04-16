@@ -413,8 +413,51 @@ def _apply_css():
 
 
 def _render_sidebar():
-    """Minimal pre-navigation sidebar. Language/theme toggles go in render_sidebar_bottom()."""
-    pass
+    from _lib.i18n import t
+    with st.sidebar:
+        st.markdown(
+            '<div style="padding:8px 0 16px 0">'
+            '<div style="display:flex; align-items:center; gap:10px">'
+            '<div style="width:36px; height:36px; background:linear-gradient(135deg,#00D4AA,#3B82F6); '
+            'border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px">\U0001f6e1\ufe0f</div>'
+            '<div>'
+            '<div style="font-size:1.1rem; font-weight:700; color:#F9FAFB; letter-spacing:-0.02em">ChainGuard</div>'
+            f'<div style="font-size:0.7rem; color:#6B7280; letter-spacing:0.05em; text-transform:uppercase">{t("platform_subtitle")}</div>'
+            '</div></div></div>',
+            unsafe_allow_html=True,
+        )
+
+        st.markdown("---")
+
+        # Language toggle
+        lang_options = {"en": "EN", "zh": "\u4e2d\u6587"}
+        current_lang = st.session_state.get("lang", "en")
+        selected_lang = st.radio(
+            t("language_label"),
+            options=list(lang_options.keys()),
+            format_func=lambda x: lang_options[x],
+            index=0 if current_lang == "en" else 1,
+            key="lang_toggle",
+            horizontal=True,
+        )
+        if selected_lang != st.session_state.get("lang"):
+            st.session_state["lang"] = selected_lang
+            st.rerun()
+
+        # Theme toggle
+        theme_options = {"dark": t("dark"), "light": t("light")}
+        current_theme = st.session_state.get("theme", "dark")
+        selected_theme = st.radio(
+            t("theme"),
+            options=list(theme_options.keys()),
+            format_func=lambda x: theme_options[x],
+            index=0 if current_theme == "dark" else 1,
+            key="theme_toggle",
+            horizontal=True,
+        )
+        if selected_theme != st.session_state.get("theme"):
+            st.session_state["theme"] = selected_theme
+            st.rerun()
 
 
 def render_sidebar_bottom():

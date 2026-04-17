@@ -179,9 +179,11 @@ def render(DATA, navigate_to):
         textfont=dict(color="#E5E7EB", size=11),
     ))
     fig_bar.update_layout(
-        **CHART_LAYOUT,
         barmode="group",
         height=400,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(17,24,39,0.5)",
+        font=dict(color="#E5E7EB"),
         title=dict(text=t("metric_comparison"), font=dict(size=14)),
         yaxis_title=t("score"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -217,8 +219,9 @@ def render(DATA, navigate_to):
         fillcolor="rgba(59,130,246,0.15)",
     ))
     fig_radar.update_layout(
-        **CHART_LAYOUT,
         height=450,
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#E5E7EB"),
         polar=dict(
             bgcolor="rgba(17,24,39,0.5)",
             radialaxis=dict(

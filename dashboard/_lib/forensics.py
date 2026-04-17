@@ -157,7 +157,7 @@ def _generate_sar_pdf(cs, abl):
     pdf.cell(0, 5, "This report contains only real experiment results from the ChainGuard platform.", ln=True, align="C")
     pdf.cell(0, 5, "NYU Tandon School of Engineering | MS Thesis 2026", ln=True, align="C")
 
-    return pdf.output()
+    return bytes(pdf.output())
 
 
 def render(DATA, navigate_to):

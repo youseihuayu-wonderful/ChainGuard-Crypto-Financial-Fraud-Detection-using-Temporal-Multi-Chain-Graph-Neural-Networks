@@ -429,16 +429,18 @@ def _render_sidebar():
 
         st.markdown("---")
 
-        # Language toggle
-        lang_options = {"en": "EN", "zh": "\u4e2d\u6587"}
+        # Language dropdown (20+ languages)
+        from _lib.i18n import SUPPORTED_LANGUAGES
         current_lang = st.session_state.get("lang", "en")
-        selected_lang = st.radio(
-            t("language_label"),
-            options=list(lang_options.keys()),
-            format_func=lambda x: lang_options[x],
-            index=0 if current_lang == "en" else 1,
-            key="lang_toggle",
-            horizontal=True,
+        lang_codes = list(SUPPORTED_LANGUAGES.keys())
+        lang_labels = list(SUPPORTED_LANGUAGES.values())
+        current_idx = lang_codes.index(current_lang) if current_lang in lang_codes else 0
+        selected_lang = st.selectbox(
+            "\U0001f310 " + t("language_label"),
+            options=lang_codes,
+            format_func=lambda x: SUPPORTED_LANGUAGES.get(x, x),
+            index=current_idx,
+            key="lang_select",
         )
         if selected_lang != st.session_state.get("lang"):
             st.session_state["lang"] = selected_lang

@@ -280,6 +280,34 @@ def render(DATA, navigate_to):
 
     st.markdown(f"*{t('showing_alerts').format(shown=len(rows), total=n_total, threshold=f'{threshold:.0%}')}*")
 
+    # ── Quick Case Creation from Alerts ──
+    st.markdown(f"#### \U0001f4c1 {t('alert_create_case')}")
+    st.caption(t("alert_create_case_desc"))
+
+    top_alerts = filtered[:5]
+    if top_alerts:
+        for i, node in enumerate(top_alerts):
+            label_text = "ILLICIT" if node["true_label"] == 1 else "LICIT"
+            severity = "CRITICAL" if node["risk_score"] > 0.95 else (
+                "HIGH" if node["risk_score"] > 0.85 else "MEDIUM")
+            sev_color = "#EF4444" if severity == "CRITICAL" else (
+                "#F59E0B" if severity == "HIGH" else "#3B82F6")
+
+            ac1, ac2, ac3, ac4 = st.columns([2, 2, 2, 3])
+            ac1.markdown(f'<span style="font-family:JetBrains Mono,monospace; color:#E5E7EB">'
+                         f'Node {node["node_id"]}</span>', unsafe_allow_html=True)
+            ac2.markdown(f'<span style="color:#EF4444; font-weight:600">{node["risk_score"]:.2%}</span>',
+                         unsafe_allow_html=True)
+            ac3.markdown(f'<span class="badge" style="background:{sev_color}20; color:{sev_color}">'
+                         f'{severity}</span>', unsafe_allow_html=True)
+            with ac4:
+                if st.button(f"\U0001f4c1 {t('alert_create_case_btn')}", key=f"alert_case_{i}"):
+                    st.session_state["prefill_case_node"] = node["node_id"]
+                    st.session_state["prefill_case_score"] = node["risk_score"]
+                    st.session_state["prefill_case_ts"] = node["timestep"]
+                    navigate_to("Cases")
+                    st.rerun()
+
     # Timestep distribution
     st.markdown(f"### {t('alerts_by_timestep')}")
     ts_counts = {}

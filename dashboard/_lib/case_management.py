@@ -340,9 +340,27 @@ def render(DATA, navigate_to):
     with tab_create:
         st.markdown(f"### {t('case_create_title')}")
 
+        # Handle prefill from Alert Center or Network Explorer
+        prefill_node = st.session_state.pop("prefill_case_node", None)
+        prefill_score = st.session_state.pop("prefill_case_score", None)
+        prefill_ts = st.session_state.pop("prefill_case_ts", None)
+
+        prefill_title = ""
+        prefill_desc = ""
+        prefill_nodes = ""
+        if prefill_node:
+            score_str = f"{prefill_score:.2%}" if prefill_score else "N/A"
+            ts_str = f" at timestep {prefill_ts}" if prefill_ts else ""
+            prefill_title = f"High-risk node {prefill_node}{ts_str}"
+            prefill_desc = (f"Alert-generated case for node {prefill_node} "
+                           f"with risk score {score_str}{ts_str}. Requires investigation.")
+            prefill_nodes = str(prefill_node)
+
         with st.form("create_case_form"):
-            title = st.text_input(t("case_title_label"), placeholder=t("case_title_placeholder"))
-            description = st.text_area(t("case_desc_label"), placeholder=t("case_desc_placeholder"), height=120)
+            title = st.text_input(t("case_title_label"), value=prefill_title,
+                                  placeholder=t("case_title_placeholder"))
+            description = st.text_area(t("case_desc_label"), value=prefill_desc,
+                                       placeholder=t("case_desc_placeholder"), height=120)
 
             c1, c2, c3 = st.columns(3)
             with c1:
@@ -361,6 +379,7 @@ def render(DATA, navigate_to):
             st.markdown(f"**{t('case_link_nodes')}**")
             node_ids_input = st.text_input(
                 t("case_node_ids_label"),
+                value=prefill_nodes,
                 placeholder=t("case_node_ids_placeholder"),
                 help=t("case_node_ids_help"),
             )

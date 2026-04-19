@@ -4280,6 +4280,24 @@ TRANSLATIONS = {
         "case_search_node": "Search Node",
         "case_view_network": "View in Network",
         "case_view_alerts": "Open Alerts",
+        # Network Explorer enhancements
+        "net_color_by_risk": "Color nodes by risk score",
+        "net_node_detail": "Node Detail Panel",
+        "net_select_node": "Select a high-risk node",
+        "net_create_case": "Create Case",
+        "net_no_predictions": "No M3 predictions available. Run model first.",
+        # Executive export & cross-chain
+        "exec_crosschain_title": "Detection Flow — Data to Decisions",
+        "exec_crosschain_caption": "Sankey diagram: how raw data flows through labeling, detection, and triage stages.",
+        "exec_export_title": "Export Reports",
+        "exec_export_caption": "Download dataset statistics, model comparisons, or a full PDF executive summary.",
+        "exec_download_csv": "Dataset Report (CSV)",
+        "exec_download_models": "Model Comparison (CSV)",
+        "exec_download_pdf": "Executive Summary (PDF)",
+        # Alert-to-Case linking
+        "alert_create_case": "Quick Case Creation",
+        "alert_create_case_desc": "Create a case directly from the top alerts — one click to start an investigation.",
+        "alert_create_case_btn": "Create Case",
     },
     "es": {
         "platform_name": "ChainGuard",

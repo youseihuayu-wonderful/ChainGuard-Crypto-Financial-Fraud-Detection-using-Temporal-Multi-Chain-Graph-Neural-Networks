@@ -141,8 +141,8 @@ def _apply_css():
            Theme: {theme}
            ══════════════════════════════════════════════ */
 
-        /* Google Fonts - Inter (professional finance font) */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        /* Google Fonts - Inter (professional finance font) + Material Symbols for sidebar icons */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Rounded&display=swap');
 
         /* ── Base ── */
         .stApp {{
@@ -402,6 +402,17 @@ def _apply_css():
         }}
         [data-testid="stSidebarNav"] > ul > li {{
             display: list-item !important;
+        }}
+
+        /* ── Sidebar collapse button icon fix ── */
+        [data-testid="stSidebarCollapseButton"] button {{
+            font-family: 'Material Symbols Rounded' !important;
+            overflow: hidden !important;
+            width: 32px !important;
+            height: 32px !important;
+        }}
+        [data-testid="stSidebarCollapseButton"] button span {{
+            font-family: 'Material Symbols Rounded' !important;
         }}
 
         /* ── Hide Streamlit branding ── */

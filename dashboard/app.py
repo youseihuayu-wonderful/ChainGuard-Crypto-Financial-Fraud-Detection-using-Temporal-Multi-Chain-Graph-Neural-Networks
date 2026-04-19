@@ -100,6 +100,11 @@ def page_activity():
     render(DATA, _nav)
 
 
+def page_cases():
+    from _lib.case_management import render
+    render(DATA, _nav)
+
+
 # ═══════════════════════════════════════════
 # Navigation with translated labels
 # ═══════════════════════════════════════════
@@ -116,6 +121,7 @@ pages = [
     st.Page(page_upload, title=t("mod_upload"), icon="\U0001f4e4"),
     st.Page(page_comparison, title=t("mod_comparison"), icon="\U0001f4ca"),
     st.Page(page_search, title=t("mod_search"), icon="\U0001f50e"),
+    st.Page(page_cases, title=t("mod_cases"), icon="\U0001f4c1"),
     st.Page(page_activity, title=t("mod_activity"), icon="\U0001f4dc"),
 ]
 

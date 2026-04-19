@@ -58,6 +58,7 @@ def main(DATA):
         ("\U0001f4e4", t("mod_upload"), t("mod_upload_ref"), t("mod_upload_desc"), "#F59E0B"),
         ("\U0001f4ca", t("mod_comparison"), t("mod_comparison_ref"), t("mod_comparison_desc"), "#00D4AA"),
         ("\U0001f50e", t("mod_search"), t("mod_search_ref"), t("mod_search_desc"), "#8B5CF6"),
+        ("\U0001f4c1", t("mod_cases"), t("mod_cases_ref"), t("mod_cases_desc"), "#F59E0B"),
         ("\U0001f4dc", t("mod_activity"), t("mod_activity_ref"), t("mod_activity_desc"), "#10B981"),
     ]
 

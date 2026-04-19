@@ -60,28 +60,29 @@ def render(DATA, navigate_to):
         st.markdown(f"### {t('gradient_feature_importance')}")
         st.caption(f"Method: {feat_imp['method']} | Model: {feat_imp['model']} | {feat_imp['n_features']} features")
 
-        # Top 20 features
-        top_n = 25
-        features = feat_imp["features"][:top_n]
-        names = [f["name"] for f in features]
-        importances = [f["importance"] for f in features]
+        with st.spinner(t("loading_charts")):
+            # Top 20 features
+            top_n = 25
+            features = feat_imp["features"][:top_n]
+            names = [f["name"] for f in features]
+            importances = [f["importance"] for f in features]
 
-        fig = go.Figure(go.Bar(
-            y=names[::-1], x=importances[::-1],
-            orientation='h',
-            marker_color=["#00D4AA" if i < 5 else "#3B82F6" if i < 10 else "#6B7280"
-                          for i in range(len(names))][::-1],
-            text=[f"{v:.4f}" for v in importances[::-1]],
-            textposition="outside",
-            textfont=dict(color="#E5E7EB", size=10),
-        ))
-        fig.update_layout(
-            height=600, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
-            font=dict(color="#E5E7EB"), margin=dict(l=120, r=60, t=10, b=40),
-            xaxis=dict(title="Mean |Gradient|", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
-            yaxis=dict(color="#E5E7EB"),
-        )
-        st.plotly_chart(fig, width="stretch")
+            fig = go.Figure(go.Bar(
+                y=names[::-1], x=importances[::-1],
+                orientation='h',
+                marker_color=["#00D4AA" if i < 5 else "#3B82F6" if i < 10 else "#6B7280"
+                              for i in range(len(names))][::-1],
+                text=[f"{v:.4f}" for v in importances[::-1]],
+                textposition="outside",
+                textfont=dict(color="#E5E7EB", size=10),
+            ))
+            fig.update_layout(
+                height=600, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
+                font=dict(color="#E5E7EB"), margin=dict(l=120, r=60, t=10, b=40),
+                xaxis=dict(title="Mean |Gradient|", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
+                yaxis=dict(color="#E5E7EB"),
+            )
+            st.plotly_chart(fig, width="stretch")
 
         # Interpretation
         top3 = features[:3]

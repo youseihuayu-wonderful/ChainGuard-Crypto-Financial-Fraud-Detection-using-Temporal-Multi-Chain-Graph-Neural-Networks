@@ -193,7 +193,7 @@ def render(DATA, navigate_to):
                 placeholder="0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
                 key="blockchain_query",
             )
-            lookup_btn = st.form_submit_button(t("search"), type="primary", use_container_width=True)
+            lookup_btn = st.form_submit_button(t("search"), type="primary")
 
     with col_info:
         st.markdown(f"### {t('supported_lookups')}")
@@ -207,6 +207,95 @@ def render(DATA, navigate_to):
             '</div>',
             unsafe_allow_html=True,
         )
+
+    st.markdown("---")
+
+    # ── Live Ethereum Network Feed ──
+    st.markdown(f"### {t('live_feed_title')}")
+    st.caption(t("live_feed_caption"))
+
+    with st.spinner(t("loading_charts")):
+        try:
+            resp_block = requests.get(
+                ETHERSCAN_BASE,
+                params={"module": "proxy", "action": "eth_blockNumber"},
+                timeout=10,
+            )
+            resp_block.raise_for_status()
+            block_hex = resp_block.json().get("result", "0x0")
+            latest_block = int(block_hex, 16)
+
+            lf1, lf2, lf3 = st.columns(3)
+            lf1.metric(t("live_latest_block"), f"{latest_block:,}")
+
+            resp_gas = requests.get(
+                ETHERSCAN_BASE,
+                params={"module": "gastracker", "action": "gasoracle"},
+                timeout=10,
+            )
+            gas_data = resp_gas.json().get("result", {})
+            if isinstance(gas_data, dict):
+                safe_gas = gas_data.get("SafeGasPrice", "N/A")
+                fast_gas = gas_data.get("FastGasPrice", "N/A")
+                lf2.metric(t("live_gas_safe"), f"{safe_gas} Gwei")
+                lf3.metric(t("live_gas_fast"), f"{fast_gas} Gwei")
+            else:
+                lf2.metric(t("live_gas_safe"), "N/A")
+                lf3.metric(t("live_gas_fast"), "N/A")
+
+            resp_txs = requests.get(
+                ETHERSCAN_BASE,
+                params={
+                    "module": "proxy",
+                    "action": "eth_getBlockByNumber",
+                    "tag": hex(latest_block),
+                    "boolean": "true",
+                },
+                timeout=10,
+            )
+            block_data = resp_txs.json().get("result", {})
+            block_txs = block_data.get("transactions", [])
+
+            if block_txs:
+                high_value_txs = []
+                for tx in block_txs:
+                    val_hex = tx.get("value", "0x0")
+                    val_eth = int(val_hex, 16) / 1e18 if val_hex else 0
+                    if val_eth > 0.1:
+                        high_value_txs.append({
+                            "hash": tx.get("hash", ""),
+                            "from": tx.get("from", ""),
+                            "to": tx.get("to", "") or "Contract",
+                            "value_eth": val_eth,
+                        })
+
+                high_value_txs.sort(key=lambda x: -x["value_eth"])
+                top_txs = high_value_txs[:8]
+
+                if top_txs:
+                    st.markdown(f"#### {t('live_high_value')}")
+                    tx_rows = []
+                    for tx in top_txs:
+                        risk_score = min(0.95, 0.1 + (tx["value_eth"] / 500))
+                        level = "HIGH" if risk_score > 0.7 else ("MEDIUM" if risk_score > 0.4 else "LOW")
+                        tx_rows.append({
+                            t("live_tx_hash"): f"{tx['hash'][:12]}...{tx['hash'][-6:]}",
+                            t("from_label"): f"{tx['from'][:10]}...{tx['from'][-4:]}",
+                            t("to_label"): f"{tx['to'][:10]}...{tx['to'][-4:]}" if len(tx["to"]) > 14 else tx["to"],
+                            t("value_eth_col"): f"{tx['value_eth']:.4f}",
+                            t("live_auto_risk"): f"{risk_score:.0%}",
+                            t("severity_label"): level,
+                        })
+                    st.dataframe(pd.DataFrame(tx_rows), width="stretch", hide_index=True)
+                else:
+                    st.info(t("live_no_high_value"))
+
+                st.metric(t("live_block_txs"), f"{len(block_txs):,}")
+            else:
+                st.info(t("live_no_block_data"))
+
+        except Exception:
+            st.warning(t("live_feed_error"))
 
     st.markdown("---")
 

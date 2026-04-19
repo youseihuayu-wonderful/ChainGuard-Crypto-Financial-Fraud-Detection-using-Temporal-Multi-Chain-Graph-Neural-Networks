@@ -14,6 +14,7 @@ from datetime import datetime
 
 from _lib.i18n import t
 from _lib.model_serving import load_predictions
+from _lib import database as db
 
 
 def _get_high_risk_nodes(threshold=0.7):
@@ -279,6 +280,84 @@ def render(DATA, navigate_to):
     st.dataframe(df, width="stretch", hide_index=True, height=400)
 
     st.markdown(f"*{t('showing_alerts').format(shown=len(rows), total=n_total, threshold=f'{threshold:.0%}')}*")
+
+    # ── Model Feedback Loop ──
+    st.markdown(f"### {t('feedback_title')}")
+    st.caption(t("feedback_caption"))
+
+    feedback_stats = db.get_feedback_stats()
+    fs1, fs2, fs3, fs4 = st.columns(4)
+    fs1.metric(t("feedback_total"), feedback_stats["total"])
+    fs2.metric(t("feedback_confirmed"), feedback_stats["confirmed"])
+    fs3.metric(t("feedback_fp"), feedback_stats["false_positive"])
+    fs4.metric(t("feedback_reviewed"), feedback_stats["reviewed_nodes"])
+
+    top_for_feedback = filtered[:10]
+    if top_for_feedback:
+        st.markdown(f"#### {t('feedback_review_nodes')}")
+        for i, node in enumerate(top_for_feedback):
+            label_text = "ILLICIT" if node["true_label"] == 1 else "LICIT"
+            existing = db.get_feedback_for_node(node["node_id"])
+            already_reviewed = len(existing) > 0
+
+            fc1, fc2, fc3, fc4, fc5 = st.columns([2, 2, 1.5, 2, 2])
+            fc1.markdown(f'<span style="font-family:JetBrains Mono,monospace; color:#E5E7EB">'
+                         f'Node {node["node_id"]}</span>', unsafe_allow_html=True)
+            fc2.markdown(f'<span style="color:#EF4444; font-weight:600">{node["risk_score"]:.2%}</span>',
+                         unsafe_allow_html=True)
+            fc3.markdown(f'<span style="color:#9CA3AF">{label_text}</span>', unsafe_allow_html=True)
+
+            if already_reviewed:
+                last = existing[0]
+                badge_color = "#10B981" if last["feedback_type"] == "confirm_fraud" else "#F59E0B"
+                badge_text = t("feedback_confirmed_badge") if last["feedback_type"] == "confirm_fraud" else t("feedback_fp_badge")
+                fc4.markdown(f'<span style="background:{badge_color}20; color:{badge_color}; '
+                             f'padding:2px 8px; border-radius:12px; font-size:0.75rem">{badge_text}</span>',
+                             unsafe_allow_html=True)
+                fc5.markdown("")
+            else:
+                with fc4:
+                    if st.button(f"\u2705 {t('feedback_confirm_btn')}", key=f"fb_confirm_{i}"):
+                        db.save_feedback(node["node_id"], node["risk_score"], node["true_label"],
+                                         node["timestep"], "confirm_fraud")
+                        st.rerun()
+                with fc5:
+                    if st.button(f"\u274c {t('feedback_fp_btn')}", key=f"fb_fp_{i}"):
+                        db.save_feedback(node["node_id"], node["risk_score"], node["true_label"],
+                                         node["timestep"], "false_positive")
+                        st.rerun()
+
+    if feedback_stats["total"] > 0:
+        st.markdown("---")
+        st.markdown(f"#### {t('feedback_confusion_title')}")
+        import plotly.graph_objects as go
+        from shared import CHART_LAYOUT
+
+        all_fb = db.get_all_feedback()
+        tp = sum(1 for f in all_fb if f["feedback_type"] == "confirm_fraud" and f["true_label"] == 1)
+        fp = sum(1 for f in all_fb if f["feedback_type"] == "false_positive" and f["true_label"] == 0)
+        fn = sum(1 for f in all_fb if f["feedback_type"] == "false_positive" and f["true_label"] == 1)
+        tn = sum(1 for f in all_fb if f["feedback_type"] == "confirm_fraud" and f["true_label"] == 0)
+
+        fig_cm = go.Figure(data=go.Heatmap(
+            z=[[tp, fp], [fn, tn]],
+            x=[t("feedback_pred_fraud"), t("feedback_pred_legit")],
+            y=[t("feedback_actual_fraud"), t("feedback_actual_legit")],
+            text=[[str(tp), str(fp)], [str(fn), str(tn)]],
+            texttemplate="%{text}",
+            textfont={"size": 20, "color": "#F9FAFB"},
+            colorscale=[[0, "#111827"], [0.5, "#1E40AF"], [1, "#EF4444"]],
+            showscale=False,
+        ))
+        fig_cm.update_layout(
+            **CHART_LAYOUT, height=300,
+            title=dict(text=t("feedback_confusion_title"), font=dict(size=14)),
+            xaxis=dict(title=t("feedback_predicted")),
+            yaxis=dict(title=t("feedback_actual")),
+        )
+        st.plotly_chart(fig_cm, width="stretch")
+
+    st.markdown("---")
 
     # ── Quick Case Creation from Alerts ──
     st.markdown(f"#### \U0001f4c1 {t('alert_create_case')}")

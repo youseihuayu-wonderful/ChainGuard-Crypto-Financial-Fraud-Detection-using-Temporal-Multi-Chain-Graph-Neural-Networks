@@ -42,25 +42,26 @@ def render(DATA, navigate_to):
 
     with tab1:
         st.markdown(f"### {t('component_contribution')}")
-        short = ["M1: GCN", "M2: +Temporal", "M3: +Hetero", "M4: TH-GNN", "M5: +LP"]
-        aucs = [abl[m]["auc_roc"] for m in abl]
-        f1s = [abl[m]["f1"] for m in abl]
+        with st.spinner(t("loading_charts")):
+            short = ["M1: GCN", "M2: +Temporal", "M3: +Hetero", "M4: TH-GNN", "M5: +LP"]
+            aucs = [abl[m]["auc_roc"] for m in abl]
+            f1s = [abl[m]["f1"] for m in abl]
 
-        fig = go.Figure()
-        colors_auc = ["#3B82F6"] * 5; colors_auc[2] = "#00D4AA"
-        fig.add_trace(go.Bar(name="AUC-ROC", x=short, y=aucs, marker_color=colors_auc,
-                             text=[f"{v:.4f}" for v in aucs], textposition="outside", textfont=dict(color="#E5E7EB")))
-        fig.add_trace(go.Bar(name="F1", x=short, y=f1s, marker_color="#F59E0B",
-                             text=[f"{v:.4f}" for v in f1s], textposition="outside", textfont=dict(color="#E5E7EB")))
-        for i in range(1, 5):
-            d = aucs[i] - aucs[0]
-            fig.add_annotation(x=short[i], y=aucs[i]+0.06, text=f"+{d:.1%}", showarrow=False,
-                               font=dict(color="#EF4444" if i==2 else "#9CA3AF", size=11))
-        fig.update_layout(barmode="group", height=400,
-                          yaxis=dict(range=[0, 1.1], gridcolor="rgba(75,85,99,0.3)", color="#9CA3AF"),
-                          xaxis=dict(color="#E5E7EB"), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
-                          font=dict(color="#E5E7EB"), legend=dict(orientation="h", y=1.1, x=0.3), margin=dict(t=60))
-        st.plotly_chart(fig, width="stretch")
+            fig = go.Figure()
+            colors_auc = ["#3B82F6"] * 5; colors_auc[2] = "#00D4AA"
+            fig.add_trace(go.Bar(name="AUC-ROC", x=short, y=aucs, marker_color=colors_auc,
+                                 text=[f"{v:.4f}" for v in aucs], textposition="outside", textfont=dict(color="#E5E7EB")))
+            fig.add_trace(go.Bar(name="F1", x=short, y=f1s, marker_color="#F59E0B",
+                                 text=[f"{v:.4f}" for v in f1s], textposition="outside", textfont=dict(color="#E5E7EB")))
+            for i in range(1, 5):
+                d = aucs[i] - aucs[0]
+                fig.add_annotation(x=short[i], y=aucs[i]+0.06, text=f"+{d:.1%}", showarrow=False,
+                                   font=dict(color="#EF4444" if i==2 else "#9CA3AF", size=11))
+            fig.update_layout(barmode="group", height=400,
+                              yaxis=dict(range=[0, 1.1], gridcolor="rgba(75,85,99,0.3)", color="#9CA3AF"),
+                              xaxis=dict(color="#E5E7EB"), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
+                              font=dict(color="#E5E7EB"), legend=dict(orientation="h", y=1.1, x=0.3), margin=dict(t=60))
+            st.plotly_chart(fig, width="stretch")
 
         sel = st.radio(t("select_model"), list(abl.keys()), index=2, horizontal=True, key="model_perf")
         st.session_state["selected_model"] = sel

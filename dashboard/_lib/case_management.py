@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 
 from _lib.i18n import t
 from _lib.model_serving import load_predictions
+from _lib import database as db
 
 DETECTION_TYPES = ["M3 Model", "Rule-based", "Manual", "Etherscan"]
 DETECTION_TYPE_COLORS = {
@@ -52,8 +53,8 @@ ANALYSTS = [
 
 
 def _init_cases():
-    """Initialize case storage in session state with seed demo cases."""
-    if "cases" in st.session_state:
+    """Seed demo cases into SQLite if the DB is empty."""
+    if db.get_all_cases():
         return
 
     predictions = load_predictions()
@@ -62,7 +63,6 @@ def _init_cases():
         high_risk = [p for p in predictions["test_predictions"] if p["risk_score"] >= 0.90][:10]
 
     base_time = datetime(2026, 3, 29, 10, 0, 0)
-    seed_cases = []
 
     if len(high_risk) >= 4:
         seed_cases = [
@@ -153,20 +153,14 @@ def _init_cases():
                 ],
             },
         ]
-
-    st.session_state["cases"] = seed_cases
-    st.session_state["case_counter"] = len(seed_cases)
-
-
-def _get_next_case_id():
-    st.session_state["case_counter"] = st.session_state.get("case_counter", 0) + 1
-    return f"CASE-{st.session_state['case_counter']:03d}"
+        for case in seed_cases:
+            db.save_case(case)
 
 
 def render(DATA, navigate_to):
     """Render the Case Management page."""
     _init_cases()
-    cases = st.session_state["cases"]
+    cases = db.get_all_cases()
 
     st.markdown(f"# \U0001f4c1 {t('case_mgmt_title')}")
     st.markdown(t("case_mgmt_subtitle"))
@@ -397,7 +391,7 @@ def render(DATA, navigate_to):
 
                     now = datetime.now()
                     new_case = {
-                        "id": _get_next_case_id(),
+                        "id": db.get_next_case_id(),
                         "title": title.strip(),
                         "detection_type": detection_type,
                         "status": "Open",
@@ -413,7 +407,7 @@ def render(DATA, navigate_to):
                             {"time": now, "action": f"Assigned to {assignee['name']}", "by": "System"},
                         ],
                     }
-                    st.session_state["cases"].append(new_case)
+                    db.save_case(new_case)
                     st.success(t("case_created_msg").format(case_id=new_case["id"]))
                     st.rerun()
 
@@ -594,6 +588,7 @@ def render(DATA, navigate_to):
                             "action": f"Status changed to {new_status}",
                             "by": case["assignee"]["name"],
                         })
+                        db.save_case(case)
                         st.success(t("case_status_updated").format(status=new_status))
                         st.rerun()
 
@@ -614,6 +609,7 @@ def render(DATA, navigate_to):
                             "action": f"Reassigned from {old_name} to {new_assignee}",
                             "by": old_name,
                         })
+                        db.save_case(case)
                         st.success(t("case_reassigned").format(name=new_assignee))
                         st.rerun()
 
@@ -636,6 +632,7 @@ def render(DATA, navigate_to):
                         "action": f"Added finding: {new_finding.strip()[:80]}...",
                         "by": case["assignee"]["name"],
                     })
+                    db.save_case(case)
                     st.success(t("case_finding_added"))
                     st.rerun()
 

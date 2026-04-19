@@ -69,15 +69,16 @@ def render(DATA, navigate_to):
     c1, c2 = st.columns([1.2, 1])
     with c1:
         st.markdown(f"### {t('detection_funnel')}")
-        fig = go.Figure(data=[go.Funnel(
-            y=[t("total_illicit"), t("any_model_detects"), t("thgnn_unique"), t("high_conf")],
-            x=[cs["total_illicit_test"], total_detected + cs["gcn_only"], cs["m3_only"], cs["m3_high_conf"]],
-            textinfo="value+percent initial",
-            marker=dict(color=["#EF4444", "#F59E0B", "#00D4AA", "#10B981"]),
-        )])
-        fig.update_layout(height=280, margin=dict(l=20, r=20, t=5, b=5),
-                          paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"))
-        st.plotly_chart(fig, width="stretch")
+        with st.spinner(t("loading_charts")):
+            fig = go.Figure(data=[go.Funnel(
+                y=[t("total_illicit"), t("any_model_detects"), t("thgnn_unique"), t("high_conf")],
+                x=[cs["total_illicit_test"], total_detected + cs["gcn_only"], cs["m3_only"], cs["m3_high_conf"]],
+                textinfo="value+percent initial",
+                marker=dict(color=["#EF4444", "#F59E0B", "#00D4AA", "#10B981"]),
+            )])
+            fig.update_layout(height=280, margin=dict(l=20, r=20, t=5, b=5),
+                              paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"))
+            st.plotly_chart(fig, width="stretch")
 
     with c2:
         st.markdown(f"### {t('risk_alerts')}")
@@ -108,15 +109,16 @@ def render(DATA, navigate_to):
               else ("rgba(255,152,0,0.6)" if ts_risk[t_val]["zone"] == "val"
                     else "rgba(255,82,82,0.6)") for t_val in timesteps]
 
-    fig_tl = go.Figure(go.Bar(x=timesteps, y=rates, marker_color=colors,
-        hovertext=[f"TS{t_val}: {r:.2f}% illicit\n{illicit_counts[i]} illicit / {node_counts[i]} nodes"
-                   for i, (t_val, r) in enumerate(zip(timesteps, rates))],
-        hoverinfo="text"))
-    fig_tl.update_layout(height=250, xaxis=dict(title=t("timestep"), color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
-                         yaxis=dict(title=t("illicit_rate"), color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
-                         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
-                         font=dict(color="#E5E7EB"), margin=dict(l=40, r=20, t=10, b=40), showlegend=False)
-    st.plotly_chart(fig_tl, width="stretch")
+    with st.spinner(t("loading_charts")):
+        fig_tl = go.Figure(go.Bar(x=timesteps, y=rates, marker_color=colors,
+            hovertext=[f"TS{t_val}: {r:.2f}% illicit\n{illicit_counts[i]} illicit / {node_counts[i]} nodes"
+                       for i, (t_val, r) in enumerate(zip(timesteps, rates))],
+            hoverinfo="text"))
+        fig_tl.update_layout(height=250, xaxis=dict(title=t("timestep"), color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
+                             yaxis=dict(title=t("illicit_rate"), color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
+                             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
+                             font=dict(color="#E5E7EB"), margin=dict(l=40, r=20, t=10, b=40), showlegend=False)
+        st.plotly_chart(fig_tl, width="stretch")
 
     tc1, tc2 = st.columns([1, 1])
     with tc1:

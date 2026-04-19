@@ -81,7 +81,7 @@ def render(DATA, navigate_to):
             xaxis=dict(title="Mean |Gradient|", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
             yaxis=dict(color="#E5E7EB"),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
         # Interpretation
         top3 = features[:3]
@@ -158,7 +158,7 @@ def render(DATA, navigate_to):
                        zerolinecolor="rgba(255,255,255,0.2)"),
             yaxis=dict(color="#E5E7EB"),
         )
-        st.plotly_chart(fig_wf, use_container_width=True)
+        st.plotly_chart(fig_wf, width="stretch")
 
         # Feature details table
         st.markdown(f"#### {t('feature_details')}")
@@ -168,7 +168,7 @@ def render(DATA, navigate_to):
             "Gradient": f"{f['gradient']:.6f}",
             "Contribution": f"{f['contribution']:+.6f}",
         } for f in top_feats])
-        st.dataframe(feat_df, use_container_width=True, hide_index=True)
+        st.dataframe(feat_df, width="stretch", hide_index=True)
 
         # Neighbor influence
         if expl.get("neighbors"):
@@ -210,7 +210,7 @@ def render(DATA, navigate_to):
                            gridcolor="rgba(75,85,99,0.3)"),
                 xaxis=dict(color="#9CA3AF"),
             )
-            st.plotly_chart(fig_nb, use_container_width=True)
+            st.plotly_chart(fig_nb, width="stretch")
 
     # ══════════════════════════════════════════
     # Tab 3: Training History
@@ -241,7 +241,7 @@ def render(DATA, navigate_to):
             yaxis=dict(title="BCE Loss", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
             title=dict(text=t("training_loss"), font=dict(size=14, color="#E5E7EB")),
         )
-        st.plotly_chart(fig_loss, use_container_width=True)
+        st.plotly_chart(fig_loss, width="stretch")
 
         # AUC + F1 curves
         fig_metrics = go.Figure()
@@ -264,7 +264,7 @@ def render(DATA, navigate_to):
             title=dict(text=t("validation_metrics"), font=dict(size=14, color="#E5E7EB")),
             legend=dict(orientation="h", y=1.15, x=0.3),
         )
-        st.plotly_chart(fig_metrics, use_container_width=True)
+        st.plotly_chart(fig_metrics, width="stretch")
 
         # Summary stats
         st.markdown(f"#### {t('training_summary')}")
@@ -301,7 +301,7 @@ def render(DATA, navigate_to):
                 "Significant (p<0.05)": sig_marker,
                 "Effect Size": r["effect_size"],
             })
-        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
 
         # Visualize p-values
         fig_p = go.Figure()
@@ -321,7 +321,7 @@ def render(DATA, navigate_to):
             xaxis=dict(color="#E5E7EB"),
             title=dict(text="Statistical Significance (paired t-test)", font=dict(size=14, color="#E5E7EB")),
         )
-        st.plotly_chart(fig_p, use_container_width=True)
+        st.plotly_chart(fig_p, width="stretch")
 
         # Key finding
         sig_comparisons = [m for m, r in comparisons.items() if r["significant_005"]]

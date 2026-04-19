@@ -188,7 +188,7 @@ def render(DATA, navigate_to):
         yaxis_title=t("score"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
-    st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, width="stretch")
 
     st.markdown("---")
 
@@ -238,7 +238,7 @@ def render(DATA, navigate_to):
         legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5),
         title=dict(text=t("model_performance_profile"), font=dict(size=14)),
     )
-    st.plotly_chart(fig_radar, use_container_width=True)
+    st.plotly_chart(fig_radar, width="stretch")
 
     st.markdown("---")
 
@@ -262,7 +262,7 @@ def render(DATA, navigate_to):
             t("winner"): winner,
         })
 
-    st.dataframe(pd.DataFrame(delta_rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(delta_rows), width="stretch", hide_index=True)
 
     st.markdown("---")
 
@@ -281,7 +281,7 @@ def render(DATA, navigate_to):
             t("source"): metrics["source"],
         })
 
-    st.dataframe(pd.DataFrame(leaderboard_rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(leaderboard_rows), width="stretch", hide_index=True)
 
     # Navigation
     st.markdown("---")

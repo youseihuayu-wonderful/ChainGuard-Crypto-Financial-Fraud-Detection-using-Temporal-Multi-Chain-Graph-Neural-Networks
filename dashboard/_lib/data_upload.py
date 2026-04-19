@@ -204,7 +204,7 @@ def render(DATA, navigate_to):
 
     # Data preview
     st.markdown(f"### {t('data_preview')}")
-    st.dataframe(df.head(20), use_container_width=True, hide_index=True)
+    st.dataframe(df.head(20), width="stretch", hide_index=True)
 
     # Identify numeric columns
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
@@ -227,7 +227,7 @@ def render(DATA, navigate_to):
                 "Max": f"{df[col].max():.4f}",
                 "NaN Count": df[col].isna().sum(),
             })
-        st.dataframe(pd.DataFrame(col_info), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(col_info), width="stretch", hide_index=True)
 
     st.markdown("---")
 
@@ -311,7 +311,7 @@ def render(DATA, navigate_to):
             xaxis_title=t("risk_score_axis"),
             yaxis_title=t("count_axis"),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
         # Flagged transactions
         st.markdown(f"### {t('flagged_transactions')}")
@@ -329,7 +329,7 @@ def render(DATA, navigate_to):
             display_df = flagged[display_cols].head(100).copy()
             display_df["risk_score"] = display_df["risk_score"].apply(lambda x: f"{x:.2%}")
 
-            st.dataframe(display_df, use_container_width=True, hide_index=True, height=400)
+            st.dataframe(display_df, width="stretch", hide_index=True, height=400)
             st.markdown(f"*{t('showing_flagged').format(shown=min(100, len(flagged)), total=len(flagged))}*")
 
             # Accuracy check if labels are available

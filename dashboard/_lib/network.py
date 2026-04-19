@@ -164,7 +164,7 @@ def render(DATA, navigate_to):
                 yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                 legend=dict(orientation="h", y=-0.05, x=0.15, font=dict(color="#E5E7EB")),
                 margin=dict(l=10, r=10, t=10, b=40))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
             # Data source note
             st.caption(f"Showing {n_actual} of {total_n} nodes | {len(sub_edges)} of {gd['n_edges']} edges | Real Elliptic data")

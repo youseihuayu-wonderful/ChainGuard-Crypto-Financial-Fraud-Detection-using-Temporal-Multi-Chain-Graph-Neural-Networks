@@ -250,7 +250,7 @@ def render(DATA, navigate_to):
                           font=dict(color="#E5E7EB"), margin=dict(l=100, r=40, t=10, b=10),
                           xaxis=dict(showgrid=False, color="#9CA3AF"),
                           yaxis=dict(color="#E5E7EB"))
-    st.plotly_chart(fig_mod, use_container_width=True)
+    st.plotly_chart(fig_mod, width="stretch")
 
     st.markdown("---")
 

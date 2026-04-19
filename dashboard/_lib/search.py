@@ -142,7 +142,7 @@ def render(DATA, navigate_to):
             })
 
         if rows:
-            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True, height=350)
+            st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True, height=350)
 
         return
 
@@ -180,7 +180,7 @@ def render(DATA, navigate_to):
                         "True Label": "ILLICIT" if p["true_label"] == 1 else "LICIT",
                         "Timestep": p["timestep"],
                     })
-            st.dataframe(pd.DataFrame(nearby_rows), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(nearby_rows), width="stretch", hide_index=True)
 
         return
 
@@ -268,7 +268,7 @@ def render(DATA, navigate_to):
                 title=dict(text="Feature Contributions (gradient x value)", font=dict(size=14)),
                 xaxis_title="Contribution",
             )
-            st.plotly_chart(fig_feat, use_container_width=True)
+            st.plotly_chart(fig_feat, width="stretch")
 
             # Feature details table
             with st.expander(t("feature_details_expander")):
@@ -281,7 +281,7 @@ def render(DATA, navigate_to):
                         t("contribution_col"): f"{f['contribution']:.4f}",
                         t("direction_label"): t("risk_increasing") if f["contribution"] > 0 else t("risk_decreasing"),
                     })
-                st.dataframe(pd.DataFrame(feat_rows), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(feat_rows), width="stretch", hide_index=True)
 
         # Neighbor info from explanation
         neighbor_info = explanation.get("neighbor_info", {})
@@ -338,7 +338,7 @@ def render(DATA, navigate_to):
         ns2.metric(t("licit_neighbors_metric"), n_licit_neighbors)
         ns3.metric(t("unknown_neighbors_metric"), n_unknown_neighbors)
 
-        st.dataframe(pd.DataFrame(neighbor_rows), use_container_width=True, hide_index=True, height=300)
+        st.dataframe(pd.DataFrame(neighbor_rows), width="stretch", hide_index=True, height=300)
 
         if len(neighbors) > 50:
             st.caption(t("showing_neighbors").format(n=len(neighbors)))

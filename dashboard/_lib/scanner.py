@@ -190,7 +190,7 @@ def render(DATA, navigate_to):
                            threshold=dict(line=dict(color="#EF4444", width=3), thickness=0.8, value=70))))
             fig_g.update_layout(height=200, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"),
                                 margin=dict(l=30, r=30, t=30, b=10))
-            st.plotly_chart(fig_g, use_container_width=True)
+            st.plotly_chart(fig_g, width="stretch")
 
             # Risk factor breakdown
             st.markdown(f"### {t('risk_breakdown')}")
@@ -290,7 +290,7 @@ def render(DATA, navigate_to):
                 "Correct": "✅" if (n["risk_score"] > 0.5 and n["true_label"] == 1) or
                                    (n["risk_score"] <= 0.5 and n["true_label"] == 0) else "❌",
             } for n in top_nodes])
-            st.dataframe(df_top, use_container_width=True, hide_index=True, height=400)
+            st.dataframe(df_top, width="stretch", hide_index=True, height=400)
 
             if st.button(f"🧠 {t('see_full_explanations')}", key="scan_to_expl"):
                 navigate_to("Explainability"); st.rerun()

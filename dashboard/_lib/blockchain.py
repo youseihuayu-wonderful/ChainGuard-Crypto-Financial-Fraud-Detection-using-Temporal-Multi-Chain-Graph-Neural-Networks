@@ -303,7 +303,7 @@ def _render_address_lookup(address):
             })
 
         df = pd.DataFrame(tx_rows)
-        st.dataframe(df, use_container_width=True, hide_index=True, height=400)
+        st.dataframe(df, width="stretch", hide_index=True, height=400)
 
         # Risk Assessment
         st.markdown("---")

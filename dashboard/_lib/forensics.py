@@ -192,7 +192,7 @@ def render(DATA, navigate_to):
         fig.update_layout(height=300, xaxis=dict(range=[-2.5, 4.0], showgrid=False, zeroline=False, showticklabels=False),
                           yaxis=dict(range=[-2.8, 2], showgrid=False, zeroline=False, showticklabels=False, scaleanchor="x"),
                           paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=20, r=20, t=20, b=20))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
         e1, e2, e3, e4 = st.columns(4)
         e1.metric(t("thgnn_total"), f"{both + m3_only}", f"+{m3_only} unique")
@@ -237,7 +237,7 @@ def render(DATA, navigate_to):
                               yaxis=dict(range=[0, 1], gridcolor="rgba(75,85,99,0.3)", color="#9CA3AF"),
                               xaxis=dict(color="#9CA3AF"),
                               legend=dict(font=dict(color="#E5E7EB")))
-        st.plotly_chart(fig_abl, use_container_width=True)
+        st.plotly_chart(fig_abl, width="stretch")
 
         # Delta analysis
         st.markdown(f"#### {t('component_contribution_delta')}")
@@ -261,7 +261,7 @@ def render(DATA, navigate_to):
             "Precision": f"{abl[m]['precision']:.4f}",
             "Recall": f"{abl[m]['recall']:.4f}",
         } for m in models])
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        st.dataframe(df, width="stretch", hide_index=True)
 
     with tab3:
         st.markdown(f"### {t('key_research_findings')}")

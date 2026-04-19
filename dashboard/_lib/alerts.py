@@ -276,7 +276,7 @@ def render(DATA, navigate_to):
         })
 
     df = pd.DataFrame(rows)
-    st.dataframe(df, use_container_width=True, hide_index=True, height=400)
+    st.dataframe(df, width="stretch", hide_index=True, height=400)
 
     st.markdown(f"*{t('showing_alerts').format(shown=len(rows), total=n_total, threshold=f'{threshold:.0%}')}*")
 
@@ -318,7 +318,7 @@ def render(DATA, navigate_to):
             height=300,
             title=dict(text=t("alert_dist_by_ts"), font=dict(size=14)),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     st.markdown("---")
 
@@ -361,7 +361,7 @@ def render(DATA, navigate_to):
         )
 
         st.markdown(f"#### {t('preview')}")
-        st.dataframe(export_df.head(10), use_container_width=True, hide_index=True)
+        st.dataframe(export_df.head(10), width="stretch", hide_index=True)
 
     with tab_email:
         st.markdown(t("email_preview_desc"))

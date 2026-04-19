@@ -75,7 +75,7 @@ def render(DATA, navigate_to):
         )])
         fig.update_layout(height=280, margin=dict(l=20, r=20, t=5, b=5),
                           paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with c2:
         st.markdown(f"### {t('risk_alerts')}")
@@ -114,7 +114,7 @@ def render(DATA, navigate_to):
                          yaxis=dict(title=t("illicit_rate"), color="#9CA3AF", gridcolor="rgba(75,85,99,0.2)"),
                          paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
                          font=dict(color="#E5E7EB"), margin=dict(l=40, r=20, t=10, b=40), showlegend=False)
-    st.plotly_chart(fig_tl, use_container_width=True)
+    st.plotly_chart(fig_tl, width="stretch")
 
     tc1, tc2 = st.columns([1, 1])
     with tc1:

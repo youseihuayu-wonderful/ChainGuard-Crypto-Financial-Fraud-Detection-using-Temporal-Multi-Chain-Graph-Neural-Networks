@@ -60,7 +60,7 @@ def render(DATA, navigate_to):
                           yaxis=dict(range=[0, 1.1], gridcolor="rgba(75,85,99,0.3)", color="#9CA3AF"),
                           xaxis=dict(color="#E5E7EB"), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
                           font=dict(color="#E5E7EB"), legend=dict(orientation="h", y=1.1, x=0.3), margin=dict(t=60))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
         sel = st.radio(t("select_model"), list(abl.keys()), index=2, horizontal=True, key="model_perf")
         st.session_state["selected_model"] = sel
@@ -97,12 +97,12 @@ def render(DATA, navigate_to):
                             angularaxis=dict(gridcolor="rgba(75,85,99,0.3)", color="#E5E7EB"), bgcolor="rgba(0,0,0,0)"),
                             paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#E5E7EB"), height=400,
                             legend=dict(orientation="h", y=-0.1, x=0.1), margin=dict(t=40))
-        st.plotly_chart(fig_r, use_container_width=True)
+        st.plotly_chart(fig_r, width="stretch")
 
         rows = [{"Method": names_map.get(k, k), "Type": v["type"], "AUC": f"{v['auc_roc']:.4f}",
                  "F1": f"{v['f1']:.4f}", "Prec": f"{v['precision']:.4f}", "Rec": f"{v['recall']:.4f}"}
                 for k, v in sorted(res.items(), key=lambda x: -x[1]["auc_roc"])]
-        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
 
         # Rank position
         rank = next(i for i, (k, _) in enumerate(sorted(res.items(), key=lambda x: -x[1]["auc_roc"]), 1) if k == "thgnn_m3_ours")
@@ -132,7 +132,7 @@ def render(DATA, navigate_to):
                 "FDR (1-Prec)": round(1 - v["precision"], 4),
             })
         df_all = pd.DataFrame(all_methods)
-        st.dataframe(df_all, use_container_width=True, hide_index=True)
+        st.dataframe(df_all, width="stretch", hide_index=True)
 
         # Precision vs Recall tradeoff
         st.markdown(f"#### {t('precision_recall_tradeoff')}")
@@ -151,7 +151,7 @@ def render(DATA, navigate_to):
                              yaxis=dict(title="Precision", color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
                              paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(17,24,39,0.5)",
                              font=dict(color="#E5E7EB"), margin=dict(l=40, r=20, t=20, b=40))
-        st.plotly_chart(fig_pr, use_container_width=True)
+        st.plotly_chart(fig_pr, width="stretch")
 
         # Key insight
         auc_str = f"{best['auc_roc']:.4f}"

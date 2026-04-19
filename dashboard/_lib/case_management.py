@@ -312,7 +312,7 @@ def render(DATA, navigate_to):
             xaxis=dict(color="#9CA3AF"),
             yaxis=dict(color="#9CA3AF", gridcolor="rgba(75,85,99,0.3)"),
         )
-        st.plotly_chart(fig_status, use_container_width=True)
+        st.plotly_chart(fig_status, width="stretch")
 
         # Priority distribution
         prio_counts = {p: sum(1 for c in cases if c["priority"] == p) for p in PRIORITIES}
@@ -332,7 +332,7 @@ def render(DATA, navigate_to):
             title=dict(text=t("case_priority_dist"), font=dict(size=14, color="#E5E7EB")),
             legend=dict(font=dict(color="#9CA3AF")),
         )
-        st.plotly_chart(fig_prio, use_container_width=True)
+        st.plotly_chart(fig_prio, width="stretch")
 
     # ═══════════════════════════════════════════
     # TAB 2: Create New Case
@@ -419,7 +419,7 @@ def render(DATA, navigate_to):
                         t("true_label_label"): "ILLICIT" if p["true_label"] == 1 else "LICIT",
                         t("case_linked"): "Yes" if already_linked else "No",
                     })
-                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
                 st.caption(t("case_from_alerts_caption"))
         else:
             st.info(t("case_no_predictions"))

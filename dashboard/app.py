@@ -105,6 +105,11 @@ def page_cases():
     render(DATA, _nav)
 
 
+def page_sql_analytics():
+    from _lib.sql_analytics import render
+    render(DATA, _nav)
+
+
 # ═══════════════════════════════════════════
 # Navigation with translated labels
 # ═══════════════════════════════════════════
@@ -123,6 +128,7 @@ pages = [
     st.Page(page_search, title=t("mod_search"), icon="\U0001f50e"),
     st.Page(page_cases, title=t("mod_cases"), icon="\U0001f4c1"),
     st.Page(page_activity, title=t("mod_activity"), icon="\U0001f4dc"),
+    st.Page(page_sql_analytics, title=t("mod_sql_analytics"), icon="\U0001f4ca"),
 ]
 
 nav = st.navigation(pages)

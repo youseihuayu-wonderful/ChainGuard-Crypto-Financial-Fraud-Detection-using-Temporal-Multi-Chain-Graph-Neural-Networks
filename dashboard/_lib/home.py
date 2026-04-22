@@ -3,7 +3,7 @@ import streamlit as st
 from _lib.i18n import t
 
 
-def main(DATA):
+def render(DATA, nav_callback):
     cs = DATA["case_study"]
     abl = DATA["ablation"]
 

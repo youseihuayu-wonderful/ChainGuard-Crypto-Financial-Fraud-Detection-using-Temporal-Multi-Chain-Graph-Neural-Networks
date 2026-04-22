@@ -73,8 +73,8 @@ def render(DATA, navigate_to):
             fig_tier.update_layout(
                 **CHART_LAYOUT, height=350, barmode="group",
                 title=dict(text=t("sql_tier_chart_title"), font=dict(size=14)),
-                yaxis=dict(title="%", range=[0, 110]),
             )
+            fig_tier.update_yaxes(title="%", range=[0, 110])
             st.plotly_chart(fig_tier, width="stretch")
 
         with st.expander(f"\U0001f4dd {t('sql_show_query')}: CTE + Cumulative Window"):
@@ -157,9 +157,9 @@ def render(DATA, navigate_to):
             fig_trend.update_layout(
                 **CHART_LAYOUT, height=350,
                 title=dict(text=t("sql_trend_chart"), font=dict(size=14)),
-                xaxis=dict(title="Timestep"),
-                yaxis=dict(title="Risk Rate (%)"),
             )
+            fig_trend.update_xaxes(title="Timestep")
+            fig_trend.update_yaxes(title="Risk Rate (%)")
             st.plotly_chart(fig_trend, width="stretch")
 
             spikes = [r for r in trends if r["anomaly_flag"] == "SPIKE"]
@@ -250,9 +250,9 @@ def render(DATA, navigate_to):
             fig_par.update_layout(
                 **CHART_LAYOUT, height=700,
                 title=dict(text=t("sql_pareto_chart"), font=dict(size=14)),
-                xaxis=dict(title="Importance Score"),
                 margin=dict(l=120, r=60, t=40, b=40),
             )
+            fig_par.update_xaxes(title="Importance Score")
             st.plotly_chart(fig_par, width="stretch")
 
             st.dataframe(df_par, width="stretch", hide_index=True)
@@ -287,8 +287,8 @@ def render(DATA, navigate_to):
             fig_cmp.update_layout(
                 **CHART_LAYOUT, height=300, showlegend=True,
                 title=dict(text=t("sql_compare_chart"), font=dict(size=14)),
-                yaxis=dict(title="AUC-ROC", range=[0.6, 1.0]),
             )
+            fig_cmp.update_yaxes(title="AUC-ROC", range=[0.6, 1.0])
             st.plotly_chart(fig_cmp, width="stretch")
 
         with st.expander(f"\U0001f4dd {t('sql_show_query')}: GROUP BY + HAVING + Scalar Subquery"):

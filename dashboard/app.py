@@ -36,8 +36,8 @@ def _nav(page, **kwargs):
 # ═══════════════════════════════════════════
 
 def page_home():
-    from pages_old.home import main as _run
-    _run(DATA)
+    from _lib.home import render
+    render(DATA, _nav)
 
 
 def page_executive():

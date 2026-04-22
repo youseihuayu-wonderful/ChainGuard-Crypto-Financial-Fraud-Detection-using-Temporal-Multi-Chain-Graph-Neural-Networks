@@ -25,6 +25,22 @@ ChainGuard is an end-to-end fraud detection system for cryptocurrency transactio
 
 ---
 
+## Dashboard Preview
+
+| Home | Executive Dashboard |
+|:--:|:--:|
+| ![Home](docs/screenshots/home.png) | ![Executive](docs/screenshots/executive.png) |
+
+| SQL Analytics | Model Performance |
+|:--:|:--:|
+| ![SQL Analytics](docs/screenshots/sql_analytics.png) | ![Model Performance](docs/screenshots/model_performance.png) |
+
+| Network Explorer |
+|:--:|
+| ![Network Explorer](docs/screenshots/network_explorer.png) |
+
+---
+
 ## Architecture
 
 ```
@@ -197,8 +213,7 @@ source .venv/bin/activate  # Linux/Mac
 # .venv\Scripts\activate   # Windows
 
 # Install dependencies
-pip install -e ".[dev]"
-pip install streamlit plotly
+pip install -r requirements.txt
 ```
 
 ### Run the Dashboard
@@ -245,6 +260,7 @@ chainguard/
 │   ├── app.py                     # Main app with st.navigation()
 │   ├── shared.py                  # Theme, CSS, data loading
 │   ├── _lib/                      # Page modules
+│   │   ├── home.py                # Home page with KPIs and module cards
 │   │   ├── analytics_db.py        # SQL warehouse (6 tables, 7 queries)
 │   │   ├── database.py            # SQLite CRUD (cases, feedback)
 │   │   ├── sql_analytics.py       # SQL Analytics dashboard page
@@ -288,8 +304,10 @@ chainguard/
 ├── tests/                         # pytest test suite
 ├── figures/                       # Generated charts (PNG + PDF)
 ├── paper/                         # LaTeX write-up
-├── docs/                          # Research proposals (EN + CN)
+├── docs/                          # Research proposals + screenshots
+│   └── screenshots/               # Dashboard screenshots for README
 ├── notebooks/                     # Data exploration
+├── requirements.txt               # pip install dependencies
 └── pyproject.toml                 # Project config + dependencies
 ```
 

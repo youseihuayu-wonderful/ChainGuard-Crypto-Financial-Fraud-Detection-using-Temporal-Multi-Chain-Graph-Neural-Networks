@@ -2,16 +2,15 @@
 data/raw/
 data/processed/
 data/splits/
-*.csv
-*.parquet
-*.zip
-*.tar.gz
 
 # Model checkpoints
 checkpoints/
 *.pt
 *.pth
 *.ckpt
+
+# SQLite runtime databases
+*.db
 
 # MLflow
 mlruns/
@@ -47,3 +46,6 @@ Thumbs.db
 # Secrets
 .env
 kaggle.json
+
+# Legacy page backups
+dashboard/pages_backup/

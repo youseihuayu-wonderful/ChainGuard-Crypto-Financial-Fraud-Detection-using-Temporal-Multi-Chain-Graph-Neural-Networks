@@ -60,21 +60,30 @@ def render(DATA, nav_callback):
         ("\U0001f50e", t("mod_search"), t("mod_search_ref"), t("mod_search_desc"), "#8B5CF6"),
         ("\U0001f4c1", t("mod_cases"), t("mod_cases_ref"), t("mod_cases_desc"), "#F59E0B"),
         ("\U0001f4dc", t("mod_activity"), t("mod_activity_ref"), t("mod_activity_desc"), "#10B981"),
+        ("\U0001f4ca", t("mod_sql_analytics"), "SQL Warehouse", t("sql_subtitle"), "#00D4AA"),
     ]
 
+    cards_html = ""
     for icon, name, ref, desc, color in modules:
-        st.markdown(
-            f'<div class="pattern-card" style="border-left:3px solid {color}">'
-            f'<div style="display:flex; align-items:center; gap:12px">'
-            f'<span style="font-size:1.5rem">{icon}</span>'
-            f'<div>'
-            f'<div style="color:#F9FAFB; font-weight:600; font-size:0.95rem">{name}</div>'
-            f'<span class="badge" style="background:{color}20; color:{color}">{ref}</span>'
-            f'</div></div>'
-            f'<p style="color:#9CA3AF; margin:8px 0 0 0; font-size:0.85rem">{desc}</p>'
-            f'</div>',
-            unsafe_allow_html=True,
+        cards_html += (
+            f'<div style="background:rgba(17,24,39,0.6); border:1px solid rgba(75,85,99,0.3); '
+            f'border-top:3px solid {color}; border-radius:8px; padding:16px; '
+            f'display:flex; flex-direction:column; gap:8px; min-height:120px">'
+            f'<div style="display:flex; align-items:center; gap:10px">'
+            f'<span style="font-size:1.4rem">{icon}</span>'
+            f'<div style="color:#F9FAFB; font-weight:600; font-size:0.9rem">{name}</div>'
+            f'</div>'
+            f'<span style="background:{color}20; color:{color}; padding:2px 8px; '
+            f'border-radius:4px; font-size:0.7rem; font-weight:600; width:fit-content">{ref}</span>'
+            f'<p style="color:#9CA3AF; margin:0; font-size:0.8rem; line-height:1.4">{desc}</p>'
+            f'</div>'
         )
+
+    st.markdown(
+        f'<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px">'
+        f'{cards_html}</div>',
+        unsafe_allow_html=True,
+    )
 
     st.markdown("---")
 

@@ -3,7 +3,7 @@ import runpy
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "dashboard"))
-os.chdir(os.path.join(os.path.dirname(__file__), "dashboard"))
+_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(_root, "dashboard"))
 
-runpy.run_path("dashboard/app.py", run_name="__main__")
+runpy.run_path(os.path.join(_root, "dashboard", "app.py"), run_name="__main__")
